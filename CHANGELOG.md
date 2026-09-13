@@ -1137,6 +1137,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/i18n.php
 
+- Changelog: 1.3.0 - AVAILABLE_LANGUAGES um 'nl' (Nederlands, 🇳🇱) ergänzt - Niederländisch war über den Übersetzungs-Editor bereits vollständig für den Admin-Bereich angelegt, erschien aber nicht in der Sprachauswahl (Administrator → Einstellungen → Optionen → Sprache), da diese Liste bewusst fest hinterlegt ist statt automatisch aus vorhandenen Sprachdateien ermittelt zu werden (verhindert, dass eine unvollständig übersetzte Sprache versehentlich sofort auswählbar wird). loadTranslations() fällt bereits zuverlässig auf DEFAULT_LANGUAGE zurück, falls für eine Domain (admin/frontend) noch keine Sprachdatei existiert - kein Fehlerrisiko, falls z.B. lang/frontend/nl.php noch nicht angelegt ist.
 - Changelog: 1.2.0 - loadTranslations() mischt jetzt Addon-Übersetzungen ein (Beitrag Torsten Hofmann): neue Funktion registerAddonTranslations() nimmt die lang/{de,en}.php-Einträge aktivierter Addons entgegen (aufgerufen aus AddonManager::loadLanguages()), Core-Strings haben bei Namenskollisionen immer Vorrang. Voraussetzung dafür, dass Addons ihre eigenen Sprachdateien mitbringen können, statt Schlüssel im Core zu duplizieren (siehe lang/admin/de.php+en.php und lang/frontend/de.php+en.php 1.32.0/1.47.0: Tippspiel-Sprachschlüssel dorthin ausgelagert).
 
 - Changelog: 1.1.2 - LANG_SESSION_PREFIX von "olv_lang_" auf "lmonext_lang_" umgestellt

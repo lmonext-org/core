@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: i18n.php
- * Fileversion: 1.2.0
+ * Fileversion: 1.3.0
  *
  * PHP version 8.2
  *
@@ -36,6 +36,7 @@ declare(strict_types = 1);
 const AVAILABLE_LANGUAGES = [
     'de' => ['label' => 'Deutsch', 'flag' => '🇩🇪'],
     'en' => ['label' => 'English', 'flag' => '🇬🇧'],
+    'nl' => ['label' => 'Nederlands', 'flag' => '🇳🇱'],
 ];
 
 const DEFAULT_LANGUAGE = 'de';
