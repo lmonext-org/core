@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -2044,7 +2044,34 @@ Require all denied
      * @param string $tmpExtract        Bereits entpacktes Verzeichnis
      * @param string $noManifestErrCode Fehlercode, falls keine addon.json gefunden wird
      */
+    /**
+     * Prüft, ob eine laufende Version eine Mindestanforderung erfüllt -
+     * KORRIGIERT für Pre-Release-Suffixe (-beta/-alpha/-rc/-dev), die
+     * PHPs version_compare() sonst als "kleiner" als dieselbe Zahl ohne
+     * Suffix einstuft (technisch korrekt nach SemVer-Konvention, führt
+     * hier aber zu falschen Ablehnungen: "1.9.5-beta" würde gegen eine
+     * Addon-Anforderung von "1.9.2" als "zu alt" gelten, obwohl 1.9.5 >
+     * 1.9.2 ist - der Suffix bezieht sich auf die laufende Core-Version
+     * selbst, nicht auf eine andere, kleinere Version).
+     *
+     * Entfernt einen bekannten Pre-Release-Suffix von BEIDEN Seiten, bevor
+     * verglichen wird - "1.9.5-beta" wird für den Vergleich zu "1.9.5". Ein
+     * Addon, das (selten, aber möglich) explizit eine Beta-Version als
+     * Minimum fordert (z.B. "1.9.5-beta", weil es eine Funktion nutzt, die
+     * erst dort eingeführt wurde), bleibt davon unberührt - beide Suffixe
+     * werden gleichermaßen entfernt, das Ergebnis ändert sich nicht.
+     *
+     * @param string $current  tatsächlich laufende Version (z.B. LMONEXT_VERSION)
+     * @param string $required geforderte Mindestversion (z.B. min_core_version aus addon.json)
+     */
+    public static function versionSatisfiesMin(string $current, string $required): bool
+    {
+        $strip = static fn(string $v): string => preg_replace('/-(beta|alpha|rc|dev)(\.\d+)?$/i', '', trim($v)) ?? trim($v);
+        return version_compare($strip($current), $strip($required), '>=');
+    }
+
     private function installFromExtractedDir(string $tmpExtract, string $noManifestErrCode): array
+
     {
         // ── Inhaltsprüfung: entpackte Dateien, VOR dem Kopieren in den
         // öffentlich erreichbaren addon/-Ordner ──────────────────────────────
@@ -2089,7 +2116,7 @@ Require all denied
 
         // Min-Core-Version prüfen
         $minCore = $manifest['min_core_version'] ?? '';
-        if ($minCore !== '' && defined('LMONEXT_VERSION') && version_compare(LMONEXT_VERSION, $minCore, '<')) {
+        if ($minCore !== '' && defined('LMONEXT_VERSION') && !self::versionSatisfiesMin(LMONEXT_VERSION, $minCore)) {
             $this->rrmdir($tmpExtract);
             return ['success' => false, 'error' => 'core_version', 'need' => $minCore, 'have' => LMONEXT_VERSION];
         }

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_addons.php
- * Fileversion: 1.4.0
+ * Fileversion: 1.5.0
  *
  * PHP version 8.2
  *
@@ -293,7 +293,7 @@ if ($addonAction === 'enable') {
 
     // Min-Core-Version prüfen
     $minCore = $found['manifest']['min_core_version'] ?? '';
-    if ($minCore !== '' && version_compare(LMONEXT_VERSION, $minCore, '<')) {
+    if ($minCore !== '' && !\LMOnext\Addon\AddonManager::versionSatisfiesMin(LMONEXT_VERSION, $minCore)) {
         flash(t('addons_err_core_version', ['need' => $minCore, 'have' => LMONEXT_VERSION]), 'error');
         redirect('?action=addons');
     }
