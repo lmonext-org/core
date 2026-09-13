@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/TeamFormattingTrait.php
- * Fileversion: 1.2.0
+ * Fileversion: 1.3.0
  *
  * PHP version 8.2
  *
@@ -214,11 +214,43 @@ trait TeamFormattingTrait
      * Leerer String bei normalem, gewertetem Spielausgang oder fehlendem
      * Ergebnis ohne jede Sonderwertung.
      */
+    /**
+     * Wandelt eine Zahl in eine hochgestellte, geklammerte Fußnoten-Markierung
+     * um (z.B. 1 -> "⁽¹⁾"), auf Wunsch als Ersatz für ein einzelnes "(*)" -
+     * bei mehreren Grüne-Tisch-Entscheidungen an einem Spieltag lässt sich ein
+     * Sternchen nicht den einzelnen Fußnoten zuordnen, eine Zahl schon.
+     * Nutzt reine Unicode-Zeichen (kein HTML-Tag wie <sup>) statt echter
+     * hochgestellter Formatierung, damit die Markierung unabhängig davon
+     * korrekt erscheint, ob der Aufrufer das Ergebnis von statusSuffix()
+     * selbst noch durch h() schickt oder nicht (uneinheitlich zwischen den
+     * beiden Aufrufpfaden, siehe formatScore() vs. FootballProfile::
+     * formatResult()) - ein HTML-Tag würde im einen Pfad escaped, im
+     * anderen nicht.
+     */
+    public static function gtFootnoteMarker(int $n) : string
+    {
+        static $superDigits = ['0'=>'⁰','1'=>'¹','2'=>'²','3'=>'³','4'=>'⁴','5'=>'⁵','6'=>'⁶','7'=>'⁷','8'=>'⁸','9'=>'⁹'];
+        $super = '';
+        foreach (str_split((string)$n) as $ch) {
+            $super .= $superDigits[$ch] ?? $ch;
+        }
+        return '⁽' . $super . '⁾';
+    }
+
     public static function statusSuffix(array $partie) : string
     {
         $gtEntscheidung = (int)($partie['gt_entscheidung'] ?? 0);
+        // "_gt_footnote_nr" wird vom Aufrufer (liga.php, siehe renderGtFootnotes())
+        // je Spieltag durchnummeriert in $partie geschrieben, bevor diese
+        // Funktion aufgerufen wird - fehlt diese Nummer (z.B. in Kontexten
+        // ohne begleitende Fußnotenliste wie PDF-Export/Kreuztabelle/
+        // Ligastatistik/Team-Spielplan), fällt die Anzeige auf das einfache
+        // "(*)" zurück.
+        $gtMarker = $gtEntscheidung > 0
+            ? (isset($partie['_gt_footnote_nr']) ? self::gtFootnoteMarker((int)$partie['_gt_footnote_nr']) : tf('liga_status_gt'))
+            : '';
         if ($partie['h_tore'] === null || $partie['g_tore'] === null) {
-            return $gtEntscheidung > 0 ? ' ' . tf('liga_status_gt') : '';
+            return $gtEntscheidung > 0 ? ' ' . $gtMarker : '';
         }
         $suffix = match ((int)($partie['status'] ?? 0)) {
             1 => ' ' . tf('liga_status_ie'),
@@ -229,7 +261,7 @@ trait TeamFormattingTrait
             $suffix .= ' ' . tf('liga_status_ng');
         }
         if ($gtEntscheidung > 0) {
-            $suffix .= ' ' . tf('liga_status_gt');
+            $suffix .= ' ' . $gtMarker;
         }
         return $suffix;
     }

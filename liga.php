@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.15.0
+ * Fileversion: 3.16.0
  *
  * PHP version 8.2
  *
@@ -32,6 +32,28 @@ if (function_exists('addonManager') && addonManager()->isEnabled('pdf-export')) 
 // renderBackLinkBlock() ist jetzt in frontend/data_liga.php definiert (wird
 // über bootstrap.php geladen) - dadurch kann auch home.php (Tippspiel-View)
 // dieselbe Funktion nutzen, siehe dortiger Changelog
+
+/**
+ * Nummeriert jede Grüne-Tisch-Entscheidung in $partien durch (1, 2, 3, ...)
+ * und schreibt die Nummer als "_gt_footnote_nr" in jede betroffene Partie
+ * (auf Wunsch, statt eines nicht unterscheidbaren "(*)" bei mehreren
+ * Entscheidungen am selben Spieltag - siehe TeamFormattingTrait::
+ * gtFootnoteMarker()). Muss aufgerufen werden, BEVOR renderResultsTable()/
+ * renderGtFootnotes() für dieselbe Partien-Liste aufgerufen werden, damit
+ * Score-Anzeige und Fußnotenliste dieselben Nummern verwenden. Bei einer
+ * Gruppierung (Finale/Spiel um Platz 3) pro Gruppe separat aufrufen, damit
+ * die Nummerierung in jeder eigenen Fußnotenbox wieder bei 1 beginnt.
+ */
+function assignGtFootnoteNumbers(array &$partien) : void
+{
+    $nr = 0;
+    foreach ($partien as &$_p) {
+        if ((int)($_p['gt_entscheidung'] ?? 0) > 0) {
+            $_p['_gt_footnote_nr'] = ++$nr;
+        }
+    }
+    unset($_p);
+}
 
 // ── PDF-Export des Team-Vergleichs (Direkter Vergleich) ──────────────────────
 // Teamübergreifend, nicht an eine bestimmte Liga gebunden – deshalb hier vor
@@ -295,6 +317,13 @@ switch ($currentView) {
             $groups         = groupPartienByPairing($partien);
             $groupHeadings  = [tf('liga_round_finale'), tf('liga_heading_platz3')];
             foreach ($groups as $i => $groupPartien) {
+                // Fußnoten-Nummerierung (auf Wunsch, statt eines einzelnen
+                // "(*)" - siehe TeamFormattingTrait::gtFootnoteMarker())
+                // beginnt in JEDER Gruppe neu bei 1, da Finale und Spiel um
+                // Platz 3 jeweils ihre eigene Ergebnistabelle + eigene
+                // Fußnotenbox bekommen (keine Verwechslungsgefahr über die
+                // Gruppengrenze hinweg).
+                assignGtFootnoteNumbers($groupPartien);
                 $heading = $groupHeadings[$i] ?? tf('liga_round_finale');
                 $groupDateRange = spieltagDateRange($groupPartien, $spieltag['start'] ?? null);
                 $headingWithRange = $heading . ($groupDateRange !== '' ? ' ' . $groupDateRange : '');
@@ -305,6 +334,7 @@ switch ($currentView) {
             }
             $ergebnisInhalt .= $pdfButtonHtml;
         } else {
+            assignGtFootnoteNumbers($partien);
             $headingText = $isKO
                 ? $currentName . ($dateRange !== '' ? ' ' . $dateRange : '')
                 : tf('liga_heading_matchday_range', ['n' => $currentNr, 'range' => $dateRange]);
