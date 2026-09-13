@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -219,7 +219,7 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `extra_data` JSON NULL DEFAULT NULL AFTER `g_tore`');
         }
         $stmtP = $db->prepare(
-            'UPDATE '.tbl('liga_partien').' SET heim_id=?, gast_id=?, h_tore=?, g_tore=?, zeit=?, extra_data=? WHERE id=?'
+            'UPDATE '.tbl('liga_partien').' SET heim_id=?, gast_id=?, h_tore=?, g_tore=?, zeit=?, extra_data=?, status=?, bericht_url=?, gt_entscheidung=? WHERE id=?'
         );
         foreach ($_POST as $key => $val) {
             if (preg_match('/^heim_(\d+)$/', $key, $m)) {
@@ -248,7 +248,27 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $extraData = !empty($sets) ? json_encode(['sets' => $sets]) : null;
 
-                $stmtP->execute([$hid, $gid, $hTore, $gTore, $zeitDb, $extraData, $pid]);
+                // BUGFIX (gemeldet: Grüne-Tisch-Entscheidung wurde nach dem
+                // Speichern immer wieder auf "–" zurückgesetzt, obwohl das
+                // Ergebnis selbst korrekt gespeichert wurde): status_<pid>,
+                // bericht_<pid> und gt_<pid> waren in diesem UPDATE komplett
+                // vergessen worden - dieses Formular (view_spieltag.php,
+                // reguläre Liga-Ansicht mit Team-Auswahl-Dropdowns) sendet an
+                // die Aktion "save_partie_teams", NICHT an "save_ergebnisse"
+                // (jener Handler existiert zwar noch im Code, wird aber von
+                // KEINEM Formular mehr aufgerufen - toter Code, dort war die
+                // gt_entscheidung-Verarbeitung bereits vorhanden, griff aber
+                // nie). status und bericht_url fehlten hier schon vor der
+                // Grüne-Tisch-Entscheidung und wurden bei der Gelegenheit
+                // gleich mit ergänzt.
+                $status = (int)($_POST['status_'.$pid] ?? 0);
+                if ($status < 0 || $status > 2) { $status = 0; }
+                $bericht = trim($_POST['bericht_'.$pid] ?? '');
+                $berichtDb = $bericht !== '' ? $bericht : null;
+                $gt = (int)($_POST['gt_'.$pid] ?? 0);
+                if ($gt < 0 || $gt > 2) { $gt = 0; }
+
+                $stmtP->execute([$hid, $gid, $hTore, $gTore, $zeitDb, $extraData, $status, $berichtDb, $gt, $pid]);
             }
         }
         flash(t('hl_flash_spieltag_saved', ['n' => $stNr]));
