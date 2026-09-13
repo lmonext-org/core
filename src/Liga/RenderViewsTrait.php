@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.13.0
+ * Fileversion: 1.14.0
  *
  * PHP version 8.2
  *
@@ -894,7 +894,7 @@ trait RenderViewsTrait
             }
             $bodyRows .= renderPartial('kreuz_row', [
                 'Label'          => $showLogos
-                    ? self::renderTeamLogoImg((int)$rowTeam['id'], true) . h($mittelById[(int)$rowTeam['id']] !== '' ? $mittelById[(int)$rowTeam['id']] : $rowTeam['name'])
+                    ? self::renderTeamLogoImgWrapped((int)$rowTeam['id'], true) . h($mittelById[(int)$rowTeam['id']] !== '' ? $mittelById[(int)$rowTeam['id']] : $rowTeam['name'])
                     : h($rowTeam['name']),
                 'RowLabelClass'  => $isFavRow ? ' kz-fav' : '',
                 'TeamId'         => (string)$rowTeam['id'],

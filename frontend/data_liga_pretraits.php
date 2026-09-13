@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.25.0
+ * Fileversion: 2.26.0
  *
  * PHP version 8.2
  *
@@ -1527,7 +1527,7 @@ function renderKreuztabelleView(int $ligaId, array $allSpieltage) : string
         }
         $bodyRows .= renderPartial('kreuz_row', [
             'Label'          => $showLogos
-                ? renderTeamLogoImg((int)$rowTeam['id'], true) . h($mittelById[(int)$rowTeam['id']] !== '' ? $mittelById[(int)$rowTeam['id']] : $rowTeam['name'])
+                ? renderTeamLogoImgWrapped((int)$rowTeam['id'], true) . h($mittelById[(int)$rowTeam['id']] !== '' ? $mittelById[(int)$rowTeam['id']] : $rowTeam['name'])
                 : h($rowTeam['name']),
             'RowLabelClass'  => $isFavRow ? ' kz-fav' : '',
             'TeamId'         => (string)$rowTeam['id'],
