@@ -1,0 +1,5 @@
+{
+    "widthPx": 642,
+    "heightPx": 140,
+    "_hinweis": "Diese Datei gehört zusammen mit logo_rgb.zz und logo_alpha.zz zusammen. Wird das LMOnext-Logo (assets/logo.svg) künftig geändert und die beiden .zz-Dateien neu vorbereitet (gerendert + mit gzcompress() komprimiert), MUSS widthPx/heightPx hier exakt auf die dabei verwendete Render-Auflösung angepasst werden. src/Pdf/PdfExporter.php::pdfLoadLogoData() prüft die Werte gegen die tatsächliche Rohdatengröße und überspringt das Logo im PDF komplett (statt ein verzerrtes Bild zu zeigen), falls sie nicht mehr zusammenpassen."
+}

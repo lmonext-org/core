@@ -9,7 +9,7 @@ final class PdfExporter
 /**
  * Project: LMOnext
  * Filename: frontend/pdf_export.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.11.0
  *
  * PHP version 8.2
  *
@@ -193,6 +193,21 @@ public static function pdfWrapText(string $text, float $maxWidth, float $size, b
  * keinerlei Bildbibliothek (GD o.ä.) nötig, nur ein einfaches file_get_contents().
  * Gibt null zurück, wenn die Dateien fehlen, statt das PDF fatal scheitern zu lassen.
  *
+ * ROBUSTHEIT (Beitrag: Nutzerwunsch, nach zwei Vorfällen mit einem
+ * "Rauschmuster" statt Logo im PDF - siehe Changelog 1.9.1 und 1.10.1):
+ * Breite/Höhe der Rohpixel-Daten kommen jetzt aus einer separaten
+ * Metadaten-Datei (assets/pdf/logo_meta.json) statt fest im PHP-Code zu
+ * stehen - wird das Logo künftig neu gerendert (anderes assets/logo.svg,
+ * andere Auflösung), muss NUR NOCH diese eine JSON-Datei mit angepasst
+ * werden, nicht mehr der PHP-Code selbst. ZUSÄTZLICH wird die angegebene
+ * Breite×Höhe gegen die TATSÄCHLICHE Größe der entpackten Rohdaten geprüft
+ * (Alpha-Kanal: exakt 1 Byte je Pixel, RGB-Kanal: exakt 3 Byte je Pixel) -
+ * bei jeder Abweichung (fehlende/veraltete Metadaten-Datei, .zz-Dateien
+ * ohne zugehöriges Update der Metadaten o.ä.) wird das Logo GAR NICHT erst
+ * eingebettet (null zurückgegeben, PDF bleibt ohne Logo) statt mit falscher
+ * Breite/Höhe ein zerlaufenes Rauschmuster zu erzeugen - ein fehlendes
+ * Logo fällt im PDF kaum auf, ein sichtbar kaputtes Bild dagegen schon.
+ *
  * @return array{widthPx:int,heightPx:int,rgbZlib:string,alphaZlib:string}|null
  */
 public static function pdfLoadLogoData() : ?array
@@ -205,18 +220,50 @@ public static function pdfLoadLogoData() : ?array
     $dir = dirname(__DIR__, 2) . '/assets/pdf';
     $rgbPath   = $dir . '/logo_rgb.zz';
     $alphaPath = $dir . '/logo_alpha.zz';
-    if (!is_file($rgbPath) || !is_file($alphaPath)) {
+    $metaPath  = $dir . '/logo_meta.json';
+    if (!is_file($rgbPath) || !is_file($alphaPath) || !is_file($metaPath)) {
         return null;
     }
     $rgb   = @file_get_contents($rgbPath);
     $alpha = @file_get_contents($alphaPath);
-    if ($rgb === false || $alpha === false) {
+    $meta  = @json_decode((string)@file_get_contents($metaPath), true);
+    if ($rgb === false || $alpha === false || !is_array($meta)) {
+        return null;
+    }
+
+    $widthPx  = (int)($meta['widthPx'] ?? 0);
+    $heightPx = (int)($meta['heightPx'] ?? 0);
+    if ($widthPx <= 0 || $heightPx <= 0) {
+        return null;
+    }
+
+    // Validierung: entpackte Rohdatengröße MUSS exakt zur angegebenen
+    // Auflösung passen (Alpha = 1 Byte/Pixel, RGB = 3 Byte/Pixel) - sonst
+    // lieber gar kein Logo als ein falsch zusammengesetztes.
+    $rgbDecompressed   = @gzuncompress($rgb);
+    $alphaDecompressed = @gzuncompress($alpha);
+    if ($rgbDecompressed === false || $alphaDecompressed === false) {
+        return null;
+    }
+    $expectedPixels = $widthPx * $heightPx;
+    if (strlen($alphaDecompressed) !== $expectedPixels || strlen($rgbDecompressed) !== $expectedPixels * 3) {
+        error_log(sprintf(
+            '[PdfExporter] Logo-Metadaten (%dx%d) passen nicht zur tatsächlichen Rohdatengröße '
+            . '(Alpha: %d Byte, RGB: %d Byte, erwartet: %d/%d) - Logo wird im PDF übersprungen. '
+            . 'assets/pdf/logo_meta.json vermutlich veraltet, siehe Docblock von pdfLoadLogoData().',
+            $widthPx,
+            $heightPx,
+            strlen($alphaDecompressed),
+            strlen($rgbDecompressed),
+            $expectedPixels,
+            $expectedPixels * 3
+        ));
         return null;
     }
 
     return [
-        'widthPx'   => 353,
-        'heightPx'  => 78,
+        'widthPx'   => $widthPx,
+        'heightPx'  => $heightPx,
         'rgbZlib'   => $rgb,
         'alphaZlib' => $alpha,
     ];
