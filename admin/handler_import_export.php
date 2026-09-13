@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_import_export.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -447,9 +447,25 @@ function parseL98(string $content): array {
 
                     $ga  = isset($sec[$gaKey]) && $sec[$gaKey] !== '' ? (int)$sec[$gaKey] : null;
                     $gb  = isset($sec[$gbKey]) && $sec[$gbKey] !== '' ? (int)$sec[$gbKey] : null;
-                    // Negativer Wert = kein Ergebnis (z.B. GA11=-1)
-                    if ($ga !== null && $ga < 0) { $ga = null; }
-                    if ($gb !== null && $gb < 0) { $gb = null; }
+                    // Grüne-Tisch-Entscheidung (auf Wunsch, siehe ausführlicher
+                    // Kommentar im Liga-Zweig unten) - hier relativ zu Team A/B
+                    // gespeichert (nicht Heim/Gast, da bei KO-Spielen je nach
+                    // Spielnummer/Modus wechselt, wer Heimrecht hat - siehe
+                    // koHeimatTeamA() weiter unten, wo dies aufgelöst wird).
+                    $gtSieger = '';
+                    if ($ga !== null && $ga < 0 && $ga !== -1) {
+                        $gtSieger = 'a';
+                    } elseif ($gb !== null && $gb < 0 && $gb !== -1) {
+                        $gtSieger = 'b';
+                    }
+                    if ($gtSieger !== '') {
+                        $ga = null;
+                        $gb = null;
+                    } else {
+                        // Negativer Wert = kein Ergebnis (z.B. GA11=-1)
+                        if ($ga !== null && $ga < 0) { $ga = null; }
+                        if ($gb !== null && $gb < 0) { $gb = null; }
+                    }
 
                     $at  = isset($sec[$atKey]) && $sec[$atKey] !== '' ? tsToDatetime($sec[$atKey]) : null;
                     $notiz = isset($sec[$ntKey]) ? l98DecodeText($sec[$ntKey]) : null;
@@ -468,6 +484,7 @@ function parseL98(string $content): array {
                         'zeit'   => $at, 'notiz'  => $notiz,
                         'sets'   => l98ParseSets($sec[$ntKey] ?? null),
                         'status' => $status, 'bericht' => $bericht,
+                        'gt_sieger' => $gtSieger,
                     ];
                 }
                 $paarungen[$p] = ['heim' => $ta, 'gast' => $tb, 'spiele' => $spiele];
@@ -494,11 +511,36 @@ function parseL98(string $content): array {
                 $at  = isset($sec["AT{$sp}"]) && $sec["AT{$sp}"] !== '' ? tsToDatetime($sec["AT{$sp}"]) : null;
                 $ga  = isset($sec["GA{$sp}"]) && $sec["GA{$sp}"] !== '' ? (int)$sec["GA{$sp}"] : null;
                 $gb  = isset($sec["GB{$sp}"]) && $sec["GB{$sp}"] !== '' ? (int)$sec["GB{$sp}"] : null;
-                // Negativer Wert = kein Ergebnis (LMO-Legacy, z.B. GA1=-1) – dieselbe
-                // Konvention wie im KO-Zweig oben, war hier bisher übersehen worden
-                // und lief als literale -1 bis in die DB/Admin-Oberfläche durch.
-                if ($ga !== null && $ga < 0) { $ga = null; }
-                if ($gb !== null && $gb < 0) { $gb = null; }
+                // Grüne-Tisch-Entscheidung (auf Wunsch, verifiziert anhand
+                // einer echten .l98-Testdatei): das LMO4-Legacy-Format
+                // markiert die SIEGENDE Mannschaft einer solchen Entscheidung
+                // mit einem negativen Tor-Wert ungleich -1 (z.B. GB1=-2,
+                // während -1 bereits für "kein Ergebnis" reserviert ist,
+                // siehe Kommentar unten). Die andere Seite behält ihren
+                // real erzielten Torwert (falls vorhanden) - da das
+                // Legacy-Format aber nur EINEN der beiden Torwerte
+                // speichert (die siegende Seite hat ja gar keinen echten
+                // Torwert, nur den Marker), lässt sich kein vollständiges
+                // reales Ergebnis rekonstruieren - beide Seiten werden
+                // daher als "kein reales Ergebnis" importiert (h_tore/
+                // g_tore = null), StandingsTrait::gtCreditedScore() wertet
+                // das dann korrekt mit der Nichtantritt-Standardwertung.
+                $gtEntscheidung = 0;
+                if ($ga !== null && $ga < 0 && $ga !== -1) {
+                    $gtEntscheidung = 1; // Heimteam siegt (Grüne-Tisch)
+                } elseif ($gb !== null && $gb < 0 && $gb !== -1) {
+                    $gtEntscheidung = 2; // Gastteam siegt (Grüne-Tisch)
+                }
+                if ($gtEntscheidung > 0) {
+                    $ga = null;
+                    $gb = null;
+                } else {
+                    // Negativer Wert = kein Ergebnis (LMO-Legacy, z.B. GA1=-1) – dieselbe
+                    // Konvention wie im KO-Zweig oben, war hier bisher übersehen worden
+                    // und lief als literale -1 bis in die DB/Admin-Oberfläche durch.
+                    if ($ga !== null && $ga < 0) { $ga = null; }
+                    if ($gb !== null && $gb < 0) { $gb = null; }
+                }
 
                 $status = isset($sec["SP{$sp}"]) ? (int)$sec["SP{$sp}"] : 0;
                 if ($status < 0 || $status > 2) { $status = 0; }
@@ -513,6 +555,7 @@ function parseL98(string $content): array {
                     'status'  => $status,
                     'bericht' => $bericht,
                     'spiel_nr'=> (string)$p,
+                    'gt_entscheidung' => $gtEntscheidung,
                 ];
             }
             $spieltage[$r] = ['datum' => $sec['D1'] ?? null, 'partien' => $partien];
@@ -579,6 +622,10 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
     if (!in_array('extra_data', $partienColsCheck, true)) {
         $db->exec('ALTER TABLE ' . tbl('liga_partien') . ' ADD COLUMN `extra_data` JSON NULL DEFAULT NULL AFTER `g_tore`');
     }
+    // Deckt zusätzlich status/nicht_gewertet/gt_entscheidung ab (auf Wunsch:
+    // .l98-Import einer Grüne-Tisch-Entscheidung, siehe parseL98() weiter
+    // unten) - dieselbe zentrale Migration wie admin/bootstrap.php.
+    ensureSpielstatusColumns();
     // sport_type fehlte hier bisher (Bugfix: der Import versuchte, sport_type
     // zu setzen, ohne vorher zu prüfen, ob die Spalte existiert - schlug auf
     // Installationen fehl, die install.php seit der Sport-Profile-Erweiterung
@@ -696,7 +743,7 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
         }
 
         $stmtST = $db->prepare('INSERT INTO '.tbl('liga_spieltage').' (liga_id,nummer,start,modus) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id),start=VALUES(start),modus=VALUES(modus)');
-        $stmtP  = $db->prepare('INSERT INTO '.tbl('liga_partien').' (spieltag_id,heim_id,gast_id,h_tore,g_tore,zeit,notiz,status,bericht_url,spiel_nr,extra_data) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE h_tore=VALUES(h_tore),g_tore=VALUES(g_tore),zeit=VALUES(zeit),notiz=VALUES(notiz),status=VALUES(status),bericht_url=VALUES(bericht_url),extra_data=VALUES(extra_data)');
+        $stmtP  = $db->prepare('INSERT INTO '.tbl('liga_partien').' (spieltag_id,heim_id,gast_id,h_tore,g_tore,zeit,notiz,status,bericht_url,spiel_nr,extra_data,gt_entscheidung) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE h_tore=VALUES(h_tore),g_tore=VALUES(g_tore),zeit=VALUES(zeit),notiz=VALUES(notiz),status=VALUES(status),bericht_url=VALUES(bericht_url),extra_data=VALUES(extra_data),gt_entscheidung=VALUES(gt_entscheidung)');
 
         foreach ($data['spieltage'] as $nr => $st) {
             // Startdatum parsen
@@ -727,10 +774,10 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
 
                 $stmtPL = $db->prepare(
                     'INSERT INTO '.tbl('liga_partien').'
-                     (spieltag_id,heim_id,gast_id,heim_label,gast_label,h_tore,g_tore,zeit,notiz,status,bericht_url,spiel_nr,extra_data)
-                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                     (spieltag_id,heim_id,gast_id,heim_label,gast_label,h_tore,g_tore,zeit,notiz,status,bericht_url,spiel_nr,extra_data,gt_entscheidung)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                      ON DUPLICATE KEY UPDATE h_tore=VALUES(h_tore),g_tore=VALUES(g_tore),zeit=VALUES(zeit),
-                       notiz=VALUES(notiz),status=VALUES(status),bericht_url=VALUES(bericht_url),extra_data=VALUES(extra_data)'
+                       notiz=VALUES(notiz),status=VALUES(status),bericht_url=VALUES(bericht_url),extra_data=VALUES(extra_data),gt_entscheidung=VALUES(gt_entscheidung)'
                 );
 
                 foreach ($st['paarungen'] as $pNr => $paarung) {
@@ -752,6 +799,17 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                         $spielHLabel = $aHatHeim ? $hLabel : $gLabel;
                         $spielGLabel = $aHatHeim ? $gLabel : $hLabel;
                         $spielNr     = $pNr.'_'.$sNr;
+                        // gt_sieger ('a'/'b', siehe parseL98()) erst hier in
+                        // heim_id/gast_id-relative 1/2 auflösen, da A/B je
+                        // nach Spielnummer/Modus zwischen Heim und Gast
+                        // wechseln kann (koHeimatTeamA()).
+                        $gtSieger = $spiel['gt_sieger'] ?? '';
+                        $gtEntscheidung = 0;
+                        if ($gtSieger === 'a') {
+                            $gtEntscheidung = $aHatHeim ? 1 : 2;
+                        } elseif ($gtSieger === 'b') {
+                            $gtEntscheidung = $aHatHeim ? 2 : 1;
+                        }
                         $stmtPL->execute([
                             $stid, $spielHId, $spielGId,
                             $spielHLabel, $spielGLabel,
@@ -760,6 +818,7 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                             $spiel['status'] ?? 0, $spiel['bericht'] ?? null,
                             $spielNr,
                             !empty($spiel['sets']) ? json_encode(['sets' => $spiel['sets']]) : null,
+                            $gtEntscheidung,
                         ]);
                     }
                 }
@@ -772,6 +831,7 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                             $stid, $hId, $gId, $p['h_tore'], $p['g_tore'], $p['zeit'], $p['notiz'] ?: null,
                             $p['status'] ?? 0, $p['bericht'] ?? null, $p['spiel_nr'],
                             !empty($p['sets']) ? json_encode(['sets' => $p['sets']]) : null,
+                            $p['gt_entscheidung'] ?? 0,
                         ]);
                     }
                 }
