@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.14.0
+ * Fileversion: 1.15.0
  *
  * PHP version 8.2
  *
@@ -782,7 +782,7 @@ trait RenderViewsTrait
                     'ActiveClass' => ((int)$t['id'] === $selectedTeamId) ? ' team-sidebar-active' : '',
                     'LigaId'      => $ligaId,
                     'TeamId'      => (int)$t['id'],
-                    'Logo'        => self::renderTeamLogoImg((int)$t['id'], $showLogos),
+                    'Logo'        => self::renderTeamLogoImgWrapped((int)$t['id'], $showLogos),
                     'Kurz'        => h($t['mittel'] !== '' ? $t['mittel'] : $t['name']),
                 ]);
             }

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.26.0
+ * Fileversion: 2.27.0
  *
  * PHP version 8.2
  *
@@ -1416,7 +1416,7 @@ function renderTeamScheduleView(int $ligaId, array $allSpieltage, ?int $selected
             'ActiveClass' => ((int)$t['id'] === $selectedTeamId) ? ' team-sidebar-active' : '',
             'LigaId'      => $ligaId,
             'TeamId'      => (int)$t['id'],
-            'Logo'        => renderTeamLogoImg((int)$t['id'], $showLogos),
+            'Logo'        => renderTeamLogoImgWrapped((int)$t['id'], $showLogos),
             'Kurz'        => h($t['mittel'] !== '' ? $t['mittel'] : $t['name']),
         ]);
     }
