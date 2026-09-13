@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -436,35 +436,53 @@ class AddonManager
         global $action, $addonManager;
 
         $this->discover();
+
+        // ── KRITISCHER Bugfix (gemeldet: Sprachschlüssel wie
+        // "liga_h2h_modal_title" erschienen roh statt übersetzt im
+        // Teamvergleich-Modal, obwohl das Addon seine eigene Sprachdatei
+        // korrekt hatte) ───────────────────────────────────────────────────
+        // Diese Methode lief bisher als EINE EINZIGE Schleife, die pro
+        // Addon sofort nacheinander loadLanguages() UND die admin_handlers
+        // dieses Addons ausführte. loadTranslations() (lang/i18n.php) hat
+        // aber einen PROZESSWEITEN Cache pro Domain+Sprache, der beim
+        // ERSTEN t()/tf()-Aufruf befüllt und danach wiederverwendet wird.
+        // Rief die Handler-Datei EINES FRÜHEREN Addons in der Iterations-
+        // Reihenfolge selbst t()/tf() auf (z.B. für eigene Initialisierung),
+        // wurde der Cache dadurch OHNE die Übersetzungen aller NOCH NICHT
+        // VERARBEITETEN, SPÄTEREN Addons befüllt - deren t()/tf()-Aufrufe
+        // lieferten danach für den Rest des Requests den rohen Schlüssel
+        // zurück, selbst nachdem sie ihre eigene Sprache korrekt registriert
+        // hatten (der bereits befüllte Cache wird ja wiederverwendet, nicht
+        // neu berechnet). Fix: zwei GETRENNTE Durchläufe - zuerst für ALLE
+        // Addons Sprachen/Templates/Hooks registrieren, ERST DANACH
+        // irgendeine Handler-Datei ausführen. So ist garantiert, dass jede
+        // Addon-Übersetzung im Cache steht, bevor überhaupt der erste
+        // t()/tf()-Aufruf aus einer Handler-Datei stattfinden kann.
+        $adminAddons = [];
         foreach ($this->addons as $name => $addon) {
             if (!$addon['enabled']) {
                 continue;
             }
 
-            $type = (string)($addon['manifest']['type'] ?? 'both');
-
-            // ── Sprachen und Templates für ALLE Addons laden ───────────────
+            // ── Phase 1: Sprachen und Templates für ALLE Addons laden ──────
             // Auch standalone-Addons benötigen ihre Sprachdateien, da ihre
             // tf()-Aufrufe sonst leere Strings zurückgeben.
             $this->loadLanguages($name);
             $this->loadTemplates($name);
 
+            $type = (string)($addon['manifest']['type'] ?? 'both');
             if (!in_array($type, ['admin', 'both'], true)) {
                 continue;
             }
 
-            // WICHTIG: Sprachen/Hooks/Templates MÜSSEN vor den Handlern
-            // registriert werden. Handler-Dateien enthalten Top-Level-Code,
-            // der bei POST-Requests oft sofort t()/tf() aufruft und dann via
-            // redirect() das Skript per exit() beendet — würde loadLanguages()
-            // erst NACH den Handlern laufen, wären genau bei diesem ersten
-            // Request (z.B. Addon aktivieren/deaktivieren) die eigenen
-            // Übersetzungen des Addons noch nicht registriert und t() liefert
-            // den rohen Key zurück statt des übersetzten Textes.
             $this->registerAddonHooks($addon);
-            $this->loadLanguages($name);
-            $this->loadTemplates($name);
+            $adminAddons[$name] = $addon;
+        }
 
+        // ── Phase 2: JETZT ERST Handler-Dateien laden - für JEDES Addon
+        // sind zu diesem Zeitpunkt garantiert ALLE Sprachen (nicht nur die
+        // eigene) bereits registriert. ─────────────────────────────────────
+        foreach ($adminAddons as $addon) {
             $handlers = $addon['manifest']['admin_handlers'] ?? [];
             if (is_array($handlers)) {
                 foreach ($handlers as $file) {
@@ -483,19 +501,20 @@ class AddonManager
     public function bootFrontend(): void
     {
         $this->discover();
+
+        // Siehe ausführlichen Bugfix-Kommentar in bootAdmin() - identisches
+        // Problem und identischer Fix, hier für den Frontend-Bereich.
+        $frontendAddons = [];
         foreach ($this->addons as $name => $addon) {
             if (!$addon['enabled']) {
                 continue;
             }
 
-            $type = (string)($addon['manifest']['type'] ?? 'both');
-
-            // ── Sprachen und Templates für ALLE Addons laden ───────────────
-            // Auch standalone-Addons benötigen ihre Sprachdateien, da ihre
-            // tf()-Aufrufe sonst leere Strings zurückgeben.
+            // ── Phase 1: Sprachen und Templates für ALLE Addons laden ──────
             $this->loadLanguages($name);
             $this->loadTemplates($name);
 
+            $type = (string)($addon['manifest']['type'] ?? 'both');
             // standalone-Addons haben einen eigenen Einstiegspunkt und werden
             // NICHT auf jeder Seite geladen (nur 'frontend' und 'both').
             // Hooks und Handler werden nur für frontend/both geladen.
@@ -503,10 +522,12 @@ class AddonManager
                 continue;
             }
 
-            // Reihenfolge wie in bootAdmin(): Sprachen/Hooks/Templates
-            // VOR den Handlern registrieren (siehe Kommentar dort).
             $this->registerAddonHooks($addon);
+            $frontendAddons[] = $addon;
+        }
 
+        // ── Phase 2: JETZT ERST Handler-Dateien laden. ─────────────────────
+        foreach ($frontendAddons as $addon) {
             $handlers = $addon['manifest']['frontend_handlers'] ?? [];
             if (is_array($handlers)) {
                 foreach ($handlers as $file) {
