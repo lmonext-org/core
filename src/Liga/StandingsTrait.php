@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/StandingsTrait.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -71,18 +71,50 @@ trait StandingsTrait
      * @param int|null $gTore        real eingetragenes Gast-Ergebnis (falls vorhanden)
      * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
      */
+    /**
+     * Berechnet die "Wertung" (angerechnetes Ergebnis) für eine Grüne-Tisch-
+     * Entscheidung (Sportgericht), nach der DFB-Spielordnung - die zwischen
+     * ZWEI Szenarien unterscheidet (auf Wunsch, nach Recherche des Nutzers,
+     * ersetzt die vorherige pauschale FIFA/UEFA-Regel "immer 3:0"):
+     *
+     * 1. Das Spiel HAT STATTGEFUNDEN (wurde abgebrochen oder nachträglich
+     *    z.B. wegen eines nicht spielberechtigten Akteurs gewertet) -
+     *    erkennbar daran, dass ein reales Ergebnis eingetragen wurde (auch
+     *    ein Teilergebnis bei Abbruch zählt als "stattgefunden"):
+     *    Standardwertung 2:0 für die siegende Mannschaft.
+     * 2. Das Spiel hat NICHT STATTGEFUNDEN (Nichtantritt/kurzfristige
+     *    Absage) - erkennbar daran, dass KEIN reales Ergebnis eingetragen
+     *    ist: Standardwertung 3:0 (Maximalstrafe, da kein sportlicher
+     *    Aufwand stattfand).
+     *
+     * In beiden Fällen gilt dieselbe Ausnahme: hat die unschuldige
+     * Mannschaft real mit MEHR Toren Differenz gewonnen als die jeweilige
+     * Standardwertung vorsieht (>2 bzw. real vorhanden), bleibt ihr
+     * tatsächlich erzieltes Torergebnis bestehen. Die schuldige Mannschaft
+     * bekommt in jedem Fall 0 Tore gutgeschrieben - unabhängig davon, was
+     * real erzielt wurde.
+     *
+     * @param int      $entscheidung 1 = Heimteam siegt (Gastteam schuldig),
+     *                                2 = Gastteam siegt (Heimteam schuldig)
+     * @param int|null $hTore        real eingetragenes Heim-Ergebnis (falls vorhanden)
+     * @param int|null $gTore        real eingetragenes Gast-Ergebnis (falls vorhanden)
+     * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
+     */
     public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore) : array
     {
+        $spielHatStattgefunden = $hTore !== null && $gTore !== null;
+        $standardTore = $spielHatStattgefunden ? 2 : 3;
+
         if ($entscheidung === 1) {
             // Heimteam ist unschuldig/siegt, Gastteam ist schuldig.
-            $realWarSiegFuerUnschuldig = $hTore !== null && $gTore !== null && $hTore > $gTore;
-            $unschuldigTore = ($realWarSiegFuerUnschuldig && $hTore > 3) ? $hTore : 3;
+            $realWarSiegFuerUnschuldig = $spielHatStattgefunden && $hTore > $gTore;
+            $unschuldigTore = ($realWarSiegFuerUnschuldig && $hTore > $standardTore) ? $hTore : $standardTore;
             return ['h_tore' => $unschuldigTore, 'g_tore' => 0];
         }
         if ($entscheidung === 2) {
             // Gastteam ist unschuldig/siegt, Heimteam ist schuldig.
-            $realWarSiegFuerUnschuldig = $hTore !== null && $gTore !== null && $gTore > $hTore;
-            $unschuldigTore = ($realWarSiegFuerUnschuldig && $gTore > 3) ? $gTore : 3;
+            $realWarSiegFuerUnschuldig = $spielHatStattgefunden && $gTore > $hTore;
+            $unschuldigTore = ($realWarSiegFuerUnschuldig && $gTore > $standardTore) ? $gTore : $standardTore;
             return ['h_tore' => 0, 'g_tore' => $unschuldigTore];
         }
         // Keine Entscheidung (0 oder unbekannter Wert) - Aufrufer sollte dies

@@ -816,6 +816,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.37.0 - sp_gt_tip aktualisiert: beschreibt jetzt die verfeinerte DFB-Zwei-Szenarien-Regel (2:0 bei stattgefundenem Spiel, 3:0 bei Nichtantritt) statt der vorherigen pauschalen 3:0-Regel, siehe StandingsTrait::gtCreditedScore() 1.9.0.
 - Changelog: 1.36.0 - Neue Schlüssel für die Grüne-Tisch-Entscheidung in der Ergebniseingabe: sp_col_gt, sp_gt_tip, sp_gt_dash, sp_gt_heim, sp_gt_gast.
 - Changelog: 1.35.0 - Neue Schlüssel für die "Alle Spiele annullieren"-Funktion im Strafen-Tab: ls_strafen_col_annullieren, ls_annullieren_hinweis, ls_annullieren_checkbox_tip, ls_annullieren_label, ls_annullieren_aktiv.
 - Changelog: 1.34.0 - Spielerstatistik-Sprachschlüssel (54× spst_*, ld_btn_spielerstatistik) ins player-Addon ausgelagert (addon/player/lang/de.php), da das Addon aus dem Core extrahiert ist. Zusätzlich neuer Schlüssel nav_spielerstatistik (Nav-Label des Addons) direkt dort ergänzt - dieser existierte vorher nirgends, da "Spielerstatistik" bislang kein eigener Top-Nav-Punkt war. Betraf konkret einen Bug: nach Addon-Installation stand "nav_spielerstatistik" statt Klartext in der Navigation, weil das Addon.json-Manifest lang_dir deklarierte, aber der Ordner fehlte.
@@ -912,6 +913,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.36.0 - sp_gt_tip updated: now describes the refined DFB two-scenario rule (2:0 if the match took place, 3:0 for a no-show) instead of the previous flat 3:0 rule, see StandingsTrait::gtCreditedScore() 1.9.0.
 - Changelog: 1.35.0 - New keys for the sports court decision in the results entry screen: sp_col_gt, sp_gt_tip, sp_gt_dash, sp_gt_heim, sp_gt_gast.
 - Changelog: 1.34.0 - New keys for the "Void all matches" feature in the Penalties tab: ls_strafen_col_annullieren, ls_annullieren_hinweis, ls_annullieren_checkbox_tip, ls_annullieren_label, ls_annullieren_aktiv.
 - Changelog: 1.33.0 - Player statistics language keys (54× spst_*, ld_btn_spielerstatistik) moved into the player add-on (addon/player/lang/en.php), see lang/admin/de.php 1.34.0. New key nav_spielerstatistik added there directly (fixes missing nav label after installing the player add-on).
@@ -1307,6 +1309,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/StandingsTrait.php
 
+- Changelog: 1.9.0 - Verfeinerung (auf Wunsch, nach Nutzer-Recherche zur DFB-Spielordnung): gtCreditedScore() unterscheidet jetzt zwei Szenarien statt einer pauschalen Wertung - 2:0-Standardwertung, wenn das Spiel stattgefunden hat (erkennbar an einem eingetragenen realen Ergebnis, auch ein Teilergebnis bei Abbruch zählt als "stattgefunden"), 3:0-Maximalstrafe bei Nichtantritt (kein reales Ergebnis eingetragen). Ersetzt die vorherige, an der internationalen FIFA/UEFA-Regel orientierte pauschale "immer 3:0"-Wertung aus Version 1.8.0. Die Ausnahme (reales, höheres Ergebnis der unschuldigen Mannschaft bleibt bestehen) gilt weiterhin, jetzt relativ zur jeweils passenden Standardwertung (>2 bzw. implizit >3, je nach Szenario) statt fest gegen 3. Mit fünf Testfällen verifiziert.
 - Changelog: 1.8.0 - Neue Methode gtCreditedScore() implementiert die Grüne-Tisch-Entscheidung nach DFB-Regel: 3:0-Standardwertung für die siegende Mannschaft, außer ein real gespieltes Ergebnis war für sie noch höher (dann zählt das reale Ergebnis, die unterlegene Mannschaft bekommt trotzdem immer 0 Tore). computeStandings() nutzt diese Wertung für Spiele mit gt_entscheidung - inklusive Bypass der "kein Ergebnis => wird übersprungen"-Regel, damit auch ein Nichtantritt ganz ohne eingetragenes Ergebnis korrekt gewertet wird.
 - Changelog: 1.7.0 - computeStandings() überspringt jetzt Spiele mit nicht_gewertet=1 komplett (weder Sp/S/U/N noch Tore/Punkte, für KEINES der beiden beteiligten Teams) - siehe admin/bootstrap.php ensureSpielstatusColumns() für den Hintergrund. Defensiv mit ?? 0 abgesichert für Installationen, auf denen die Spalte noch nicht migriert ist.
 - Changelog: 1.6.0 - Volleyball-Punktevergabe (Beitrag: Torsten Hofmann, gegen meinen aktuellen 1.5.0-Stand nachgezogen statt Torstens älterer 1.4.1-Version, um mein "ab Spieltag"-Feature nicht zu verlieren): satzabhängige Punkte + w30/w31/w32/l23/l13/l03/Ballpunkte-Statistik, wirkt nur bei sport_type=volleyball, alle anderen Sportarten (inkl. football als Standardwert) unverändert. Live an einer Volleyball-Testliga (3:1-Ergebnis) UND einer bestehenden Fußball-Liga (Regressionstest) bestätigt.
