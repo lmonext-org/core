@@ -491,6 +491,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_liga_settings.php
 
+- Changelog: 1.13.0 - Defensiver Bugfix (gemeldet: wiederholte "Undefined array key 'lid'"-Warnungen im Error-Log über mehrere Stunden verteilt): admin/data_loader.php lässt $ligaSettingsData bewusst NULL, wenn die id in der URL fehlt/ungültig ist oder die Liga nicht (mehr) existiert - z.B. bei einem alten Browser-Lesezeichen/Verlaufseintrag mit leerer "id=" (siehe der zuvor behobene Bug mit den kaputten Tab-Navigations-Links, admin/bootstrap.php 1.26.0), einer manuell bearbeiteten URL, oder einem Link auf eine inzwischen gelöschte Liga. Zeigt jetzt eine klare, freundliche "Liga nicht gefunden"-Meldung mit Link zurück zur Übersicht, statt PHP-Warnungen zu produzieren und eine Seite voller kaputter/leerer Werte zu rendern.
 - Changelog: 1.12.0 - favTeam/selTeam-Dropdowns speichern jetzt direkt die echte, unveränderliche teams_global.id ($tNr = (int)$t['id']) statt der bisherigen Position in der sortierten Teamliste ($tNr = $i + 1) - siehe TeamRepositoryTrait.php 1.1.0 für den vollständigen Hintergrund zum behobenen Bug.
 - Changelog: 1.11.0 - Vorbelegter Wert des Nichtantritt-Eingabefelds im Strafen-Tab von 3 auf 2 geändert, konsistent mit dem neuen einheitlichen 2:0-Standard.
 - Changelog: 1.10.0 - Neuer Eingabebereich im Strafen-Tab (auf Wunsch): zwei Zahlenfelder für die pro Liga einstellbare Grüne-Tisch-Standardwertung ("Spiel fand statt"/"Nichtantritt", siehe StandingsTrait::gtCreditedScore() 1.10.0 und admin/handler_settings.php 1.8.0), vorbelegt mit den bisherigen DFB-Standardwerten 2 bzw. 3 über den bereits vorhandenen $o()-Optionen-Helfer.
@@ -657,6 +658,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_home_pretraits.php
 
+- Changelog: ENTFERNT - diese Datei wurde vollständig gelöscht (auf Wunsch, nach gründlicher Prüfung, analog zu frontend/data_liga_pretraits.php - siehe dortiger Eintrag für den identischen Hintergrund). Kein require/include irgendwo im Core oder in der kompletten Addon-Sammlung des Nutzers referenzierte diese Datei; alle 5 Funktionen existierten längst als aktive, dünne Wrapper in frontend/data_home.php (nutzt src/Home/HomeRepository.php). Vermutlich ein Überbleibsel des gleichen Refactorings wie bei data_liga_pretraits.php (Name "pretraits" = Stand vor der Aufspaltung in Repository-Klassen).
 - Changelog: 2.0.1 - Projektname auf "LMOnext" umgestellt (vorher "Online-Liga-Verwaltung Board" / "OLVBoard")
 - Changelog: 2.0.0 - Kein HTML mehr direkt in dieser Datei: renderLigaLink() und renderArchivFolderTree() nutzen jetzt renderPartial() mit template/<aktiv>/partials/liga_list_item.tpl.php bzw. archiv_folder.tpl.php. Diese Datei ist reines "Grundgerüst" (Abfragen + Schleifen), das Markup steckt komplett im Template.
 - Changelog: 1.0.0 - Initiale Version: aktive Ligen, Archiv-Baum, wiederverwendbares Rendering des Archiv-Baums (von jedem Template nutzbar)
@@ -837,6 +839,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.41.0 - Neue Schlüssel ls_liga_not_found/ls_btn_back_to_dashboard für die neue "Liga nicht gefunden"-Fehlerseite in admin/view_liga_settings.php.
 - Changelog: 1.40.0 - Neue Schlüssel arch_sort_label/arch_sort_id/arch_sort_name/arch_sort_datum für die neue Sortier-Steuerleiste im Archiv.
 - Changelog: 1.39.0 - sp_gt_tip aktualisiert: nennt jetzt einheitlich 2:0 für beide Grüne-Tisch-Szenarien (Spiel fand statt/Nichtantritt) statt zuvor 2:0/3:0.
 - Changelog: 1.38.0 - Neue Schlüssel ls_gt_label_gespielt/ls_gt_label_nichtantritt/ls_gt_hinweis für die neue Grüne-Tisch-Standardwertung im Strafen-Tab. sp_gt_tip aktualisiert: verweist jetzt auf die einstellbaren Werte im Strafen-Tab statt fest "2:0"/"3:0 nach DFB-Regel" zu behaupten, da dies jetzt pro Liga abweichen kann.
@@ -937,6 +940,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.40.0 - New keys ls_liga_not_found/ls_btn_back_to_dashboard for the new "league not found" error page in admin/view_liga_settings.php.
 - Changelog: 1.39.0 - New keys arch_sort_label/arch_sort_id/arch_sort_name/arch_sort_datum for the new archive sort control bar.
 - Changelog: 1.38.0 - sp_gt_tip updated: now states a uniform 2:0 default for both sports court scenarios (match took place/no-show) instead of the previous 2:0/3:0.
 - Changelog: 1.37.0 - New keys ls_gt_label_gespielt/ls_gt_label_nichtantritt/ls_gt_hinweis for the new configurable sports court default scoring in the Penalties tab. sp_gt_tip updated to reference the adjustable values in the Penalties tab instead of asserting fixed "2:0"/"3:0 per DFB rules", since this can now differ per league.

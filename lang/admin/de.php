@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.40.0
+ * Fileversion: 1.41.0
  *
  * PHP version 8.2
  *
@@ -556,6 +556,8 @@ return [
 
     // ── Liga-Einstellungen (view_liga_settings.php) ──────────────────────────
     'ls_tab_grundwerte'    => 'Grundwerte',
+    'ls_liga_not_found'    => 'Diese Liga wurde nicht gefunden - möglicherweise wurde sie gelöscht, oder der Link ist veraltet.',
+    'ls_btn_back_to_dashboard' => 'Zurück zur Übersicht',
     'ls_tab_teams'         => 'Teams',
     'ls_tab_anzeige'       => 'Anzeigen/Darstellung',
     'ls_tab_spielsystem'   => 'Spielsystem',

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.39.0
+ * Fileversion: 1.40.0
  *
  * PHP version 8.2
  *
@@ -555,6 +555,8 @@ return [
 
     // ── League settings (view_liga_settings.php) ─────────────────────────────
     'ls_tab_grundwerte'    => 'Basics',
+    'ls_liga_not_found'    => 'This league was not found - it may have been deleted, or the link is outdated.',
+    'ls_btn_back_to_dashboard' => 'Back to overview',
     'ls_tab_teams'         => 'Teams',
     'ls_tab_anzeige'       => 'Display',
     'ls_tab_spielsystem'   => 'Game system',

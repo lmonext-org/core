@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -14,6 +14,24 @@
  */
 
 // ── View: Liga Settings ──────────────────────────────────────────────────────────
+        // Defensiver Fallback (gemeldet: wiederholte "Undefined array key 'lid'"-
+        // Warnungen im Error-Log): $ligaSettingsData bleibt in admin/data_loader.php
+        // NULL, wenn die id in der URL fehlt/ungültig ist (0 oder kein numerischer
+        // Wert) oder die Liga nicht (mehr) existiert - z.B. bei einem alten
+        // Browser-Lesezeichen/Verlaufseintrag mit leerer "id=" (siehe der zuvor
+        // behobene Bug mit den Tab-Navigations-Links), einer manuell bearbeiteten
+        // URL, oder einem Link auf eine inzwischen gelöschte Liga. Statt einer
+        // PHP-Warnung + einer Seite voller kaputter/leerer Werte jetzt eine klare,
+        // freundliche Fehlermeldung.
+        if ($ligaSettingsData === null || empty($ligaSettingsData['liga'])) {
+            ?>
+      <div class="card">
+        <p class="text-muted" style="font-size:.9rem"><?= h(t('ls_liga_not_found')) ?></p>
+        <a href="?action=dashboard" class="btn btn-muted" style="margin-top:8px"><?= h(t('ls_btn_back_to_dashboard')) ?></a>
+      </div>
+            <?php
+            return;
+        }
         $lid       = $ligaSettingsData['lid'];
         $liga      = $ligaSettingsData['liga'];
         $opts      = $ligaSettingsData['opts'];
