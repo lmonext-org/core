@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_addons.php
- * Fileversion: 1.3.1
+ * Fileversion: 1.4.0
  *
  * PHP version 8.2
  *
@@ -27,7 +27,7 @@ $addonAction = $_POST['addon_action'] ?? '';
 $addonName  = $_POST['addon_name'] ?? '';
 
 // ── Validierung ──────────────────────────────────────────────────────────────
-if (!in_array($addonAction, ['enable', 'disable', 'check_updates', 'save_token', 'delete_token', 'install_update', 'install_zip', 'purge_data'], true)) {
+if (!in_array($addonAction, ['enable', 'disable', 'check_updates', 'save_token', 'delete_token', 'install_update', 'install_zip', 'purge_data', 'install_from_url'], true)) {
     flash(t('addons_err_invalid_action'), 'error');
     redirect('?action=addons');
 }
@@ -41,7 +41,7 @@ if (!in_array($addonAction, ['enable', 'disable', 'check_updates', 'save_token',
 // installierter Addons bleibt uneingeschränkt möglich, damit die Demo weiterhin
 // vollständig vorführbar ist. EINE Codebasis für beide Einsatzzwecke: der
 // Schalter lebt in config.php (nicht Teil der verteilten ZIP), nicht im Code.
-if (in_array($addonAction, ['install_zip', 'install_update', 'purge_data'], true)
+if (in_array($addonAction, ['install_zip', 'install_update', 'purge_data', 'install_from_url'], true)
     && defined('DEMO_MODE') && DEMO_MODE === true) {
     flash(t('addons_demo_mode_blocked'), 'error');
     redirect('?action=addons&tab=settings');
@@ -153,6 +153,69 @@ if ($addonAction === 'install_zip') {
             $tree  = $result['tree'] ?? '(keine Debug-Daten)';
             $found = $result['found'] ?? 0;
             flash('Debug: ' . $found . ' addon.json gefunden — Inhalt des ZIP:\n' . h($tree), 'error');
+        }
+    }
+    redirect('?action=addons&tab=settings');
+}
+
+// ── Addon direkt von einer GitHub-Repo-URL installieren (Beitrag:
+// Nutzerwunsch) - Alternative zum manuellen ZIP-Upload für die
+// Erstinstallation, z.B. "https://github.com/henshingly/lmonext_addon-tipp".
+// Nutzt exakt dieselben Sicherheitsprüfungen wie der ZIP-Upload (siehe
+// AddonManager::installFromExtractedDir()). Kein addon_name im Formular
+// nötig - der Name ergibt sich erst aus der addon.json im Release. ───────
+if ($addonAction === 'install_from_url') {
+    $repoUrl = trim($_POST['repo_url'] ?? '');
+    if ($repoUrl === '' || !preg_match('#^https://github\.com/[^/\s]+/[^/\s]+/?$#', $repoUrl)) {
+        flash(t('addons_url_install_invalid'), 'error');
+        redirect('?action=addons&tab=settings');
+    }
+
+    try {
+        $result = $addonManager->installFromGithubUrl($repoUrl);
+    } catch (Throwable $e) {
+        flash(t('addons_install_err_generic', ['error' => $e->getMessage()]), 'error');
+        redirect('?action=addons&tab=settings');
+    }
+
+    if (!empty($result['success'])) {
+        $msg = t('addons_install_success', [
+            'name'    => $result['name'] ?? '?',
+            'version' => $result['version'] ?? '?',
+        ]);
+        if (!empty($result['backup'])) {
+            $msg .= ' ' . t('addons_install_backup_created');
+        }
+        flash($msg, 'success');
+    } else {
+        $errCode = $result['error'] ?? 'unknown';
+        $errMsgKeys = [
+            'invalid_url'              => 'addons_url_install_invalid',
+            'zip_extension_missing'    => 'addons_update_err_zip_missing',
+            'rate_limited'             => 'addons_update_err_rate_limited',
+            'no_release'               => 'addons_url_install_no_release',
+            'no_http_client'           => 'addons_update_err_no_http_client',
+            'fetch_failed'             => 'addons_update_err_fetch_failed',
+            'download_failed'          => 'addons_update_err_download_failed',
+            'zip_open_failed'          => 'addons_update_err_zip_failed',
+            'no_manifest_in_release'   => 'addons_update_err_no_manifest',
+            'invalid_manifest'         => 'addons_install_err_invalid_manifest',
+            'invalid_name'             => 'addons_install_err_invalid_name',
+            'core_version'             => 'addons_err_core_version',
+            'zip_unsafe_path'          => 'addons_install_err_unsafe_path',
+            'zip_disallowed_filetype'  => 'addons_install_err_disallowed_filetype',
+            'php_lint_failed'          => 'addons_install_err_lint_failed',
+            'dangerous_pattern_found'  => 'addons_install_err_dangerous_pattern',
+            'copy_failed'              => 'addons_install_err_copy_failed',
+        ];
+        $msgKey = $errMsgKeys[$errCode] ?? '';
+        if ($msgKey !== '') {
+            $params = ['name' => $result['name'] ?? '', 'error' => $errCode,
+                       'need' => $result['need'] ?? '', 'have' => $result['have'] ?? '',
+                       'file' => $result['file'] ?? ''];
+            flash(t($msgKey, $params), 'error');
+        } else {
+            flash(t('addons_install_err_generic', ['error' => $errCode]), 'error');
         }
     }
     redirect('?action=addons&tab=settings');

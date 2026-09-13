@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.5.1
+ * Fileversion: 1.6.0
  *
  * PHP version 8.2
  *
@@ -1880,7 +1880,113 @@ Require all denied
         $zip->extractTo($tmpExtract);
         $zip->close();
 
-        // ── Inhaltsprüfung 2: entpackte Dateien, VOR dem Kopieren in den
+        return $this->installFromExtractedDir($tmpExtract, 'no_manifest_in_zip');
+    }
+
+    /**
+     * Installiert ein Addon direkt von einer GitHub-Repo-URL (Beitrag:
+     * Nutzerwunsch) - Alternative zum manuellen ZIP-Upload für die
+     * ERSTinstallation eines noch nicht vorhandenen Addons. Anders als
+     * installUpdate() (das einen bereits BEKANNTEN Addon-Namen voraussetzt
+     * und dessen im Manifest gespeicherte "homepage" nutzt) wird hier nur
+     * die Repo-URL selbst benötigt - der Addon-Name ergibt sich erst aus
+     * der addon.json im heruntergeladenen Release.
+     *
+     * Lädt das neueste GitHub-Release (via API), extrahiert die ZIP und
+     * durchläuft danach EXAKT dieselben Sicherheitsprüfungen wie ein
+     * manueller ZIP-Upload (siehe installFromExtractedDir()).
+     *
+     * @param string $repoUrl z.B. "https://github.com/owner/repo"
+     * @return array{success:bool,error?:string,name?:string,version?:string}
+     */
+    public function installFromGithubUrl(string $repoUrl): array
+    {
+        if (!preg_match('#github\.com/([^/]+)/([^/]+)/?#', $repoUrl, $m)) {
+            return ['success' => false, 'error' => 'invalid_url'];
+        }
+        $owner = $m[1];
+        $repo  = $m[2];
+
+        if (!class_exists('ZipArchive')) {
+            return ['success' => false, 'error' => 'zip_extension_missing'];
+        }
+
+        // ── 1. Neuestes Release abfragen ─────────────────────────────────────
+        $apiUrl = "https://api.github.com/repos/{$owner}/{$repo}/releases/latest";
+        $resp   = $this->httpGet($apiUrl);
+        if ($resp['body'] === false) {
+            $httpCode = $resp['http_code'];
+            if ($httpCode === 403) {
+                return ['success' => false, 'error' => 'rate_limited'];
+            }
+            if ($httpCode === 404) {
+                return ['success' => false, 'error' => 'no_release'];
+            }
+            return ['success' => false, 'error' => $resp['method'] === '' ? 'no_http_client' : 'fetch_failed'];
+        }
+
+        $data = json_decode($resp['body'], true);
+        if (!is_array($data) || !isset($data['tag_name'])) {
+            return ['success' => false, 'error' => 'no_release'];
+        }
+        $tagName = (string)$data['tag_name'];
+
+        // ── 2. ZIP herunterladen (dieselbe Archive-URL wie installUpdate()) ────
+        $zipUrl      = "https://github.com/{$owner}/{$repo}/archive/refs/tags/{$tagName}.zip";
+        $zipResp     = $this->httpGet($zipUrl, true);
+        $downloadUrl = $zipUrl;
+
+        if ($zipResp['body'] === false && $zipResp['http_code'] === 404) {
+            $zipUrl  = "https://codeload.github.com/{$owner}/{$repo}/legacy.zipball/{$tagName}";
+            $zipResp = $this->httpGet($zipUrl, true);
+            $downloadUrl = $zipUrl;
+        }
+        if ($zipResp['body'] === false) {
+            return ['success' => false, 'error' => 'download_failed', 'http_code' => $zipResp['http_code'], 'url' => $downloadUrl];
+        }
+
+        $tmpZip = tempnam(sys_get_temp_dir(), 'lmo_urlinstall_');
+        file_put_contents($tmpZip, $zipResp['body']);
+
+        $tmpExtract = sys_get_temp_dir() . '/lmo_urlinstall_extract_' . bin2hex(random_bytes(6));
+        mkdir($tmpExtract, 0755, true);
+
+        $zip = new \ZipArchive();
+        if ($zip->open($tmpZip) !== true) {
+            @unlink($tmpZip);
+            $this->rrmdir($tmpExtract);
+            return ['success' => false, 'error' => 'zip_open_failed'];
+        }
+
+        $zipError = $this->validateZipEntries($zip);
+        if ($zipError !== null) {
+            $zip->close();
+            @unlink($tmpZip);
+            $this->rrmdir($tmpExtract);
+            return ['success' => false, 'error' => $zipError];
+        }
+
+        $zip->extractTo($tmpExtract);
+        $zip->close();
+        @unlink($tmpZip);
+
+        return $this->installFromExtractedDir($tmpExtract, 'no_manifest_in_release');
+    }
+
+    /**
+     * Gemeinsamer Installationskern für installFromZip() und
+     * installFromGithubUrl() (Beitrag: Vermeidung doppelter, potenziell
+     * inkonsistenter Sicherheitsprüfungen an zwei Stellen) - läuft NACH dem
+     * Entpacken: Muster-Scan der Dateien, Manifest-Suche (ohne Namens-
+     * Constraint, der Addon-Name ist an dieser Stelle noch nicht bekannt),
+     * Namens-/Core-Versions-Validierung, Backup + atomarer Dateiaustausch.
+     *
+     * @param string $tmpExtract        Bereits entpacktes Verzeichnis
+     * @param string $noManifestErrCode Fehlercode, falls keine addon.json gefunden wird
+     */
+    private function installFromExtractedDir(string $tmpExtract, string $noManifestErrCode): array
+    {
+        // ── Inhaltsprüfung: entpackte Dateien, VOR dem Kopieren in den
         // öffentlich erreichbaren addon/-Ordner ──────────────────────────────
         [$scanError, $scanFile] = $this->scanExtractedFiles($tmpExtract);
         if ($scanError !== null) {
@@ -1888,24 +1994,24 @@ Require all denied
             return ['success' => false, 'error' => $scanError, 'file' => $scanFile];
         }
 
-        // ── addon.json suchen (rekursiv, wie bei installUpdate) ──────────────
+        // ── addon.json suchen (rekursiv) ──────────────────────────────────────
         $manifests = $this->findFiles($tmpExtract, 'addon.json');
         if (empty($manifests)) {
             $tree = $this->debugTree($tmpExtract, 3);
             $this->rrmdir($tmpExtract);
             return [
                 'success' => false,
-                'error'   => 'no_manifest_in_zip',
+                'error'   => $noManifestErrCode,
                 'tree'    => $tree,
                 'found'   => 0,
             ];
         }
 
         // Erste gefundene addon.json verwenden
-        $manifestPath  = $manifests[0];
-        $sourceDir      = dirname($manifestPath);
-        $manifestJson   = file_get_contents($manifestPath);
-        $manifest       = json_decode($manifestJson, true);
+        $manifestPath = $manifests[0];
+        $sourceDir    = dirname($manifestPath);
+        $manifestJson = file_get_contents($manifestPath);
+        $manifest     = json_decode($manifestJson, true);
 
         if (!is_array($manifest) || empty($manifest['name'])) {
             $this->rrmdir($tmpExtract);
@@ -1943,9 +2049,7 @@ Require all denied
             $this->zipDirectory($addonPath, $backupPath);
         }
 
-        // ── Neue Dateien kopieren (ATOMAR, siehe atomicReplaceAddonDir() für
-        // den Hintergrund - wichtig gerade bei einem Selbst-Update von
-        // "addon-manager" über diesen ZIP-Upload-Weg) ──────────────────────
+        // ── Neue Dateien kopieren (ATOMAR, siehe atomicReplaceAddonDir()) ─────
         if (!$this->atomicReplaceAddonDir($addonPath, $sourceDir)) {
             $this->rrmdir($tmpExtract);
             return ['success' => false, 'error' => 'copy_failed'];

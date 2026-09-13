@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_addons.php
- * Fileversion: 2.2.0
+ * Fileversion: 2.3.0
  *
  * PHP version 8.2
  *
@@ -239,6 +239,32 @@ usort($displayAddons, function ($a, $b) {
                   background:var(--surface2);color:var(--muted);border:1px solid var(--border)">
         💡 <?= h(t('addons_install_hint')) ?>
       </div>
+
+      <hr style="border-color:var(--border);margin:20px 0">
+
+      <h3 style="margin:0 0 4px;font-size:1.05rem;display:flex;align-items:center;gap:8px">
+        🔗 <?= h(t('addons_url_install_title')) ?>
+      </h3>
+      <p style="margin:0 0 16px;font-size:.82rem;color:var(--muted);max-width:560px">
+        <?= h(t('addons_url_install_desc')) ?>
+      </p>
+
+      <form method="post" action="?action=addons&tab=settings"
+            style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <?= csrfField() ?>
+        <input type="hidden" name="addon_action" value="install_from_url">
+        <div style="flex:1;min-width:280px">
+          <label style="display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600">
+            <?= h(t('addons_url_install_label')) ?>
+          </label>
+          <input type="url" name="repo_url" required placeholder="https://github.com/owner/repo"
+                 style="width:100%;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);
+                        font-size:.85rem;background:var(--surface);color:var(--text)">
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding:10px 20px">
+          ⬇ <?= h(t('addons_url_install_btn')) ?>
+        </button>
+      </form>
     </div>
 <?php } ?>
 
