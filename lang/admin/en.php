@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.33.0
+ * Fileversion: 1.34.0
  *
  * PHP version 8.2
  *
@@ -561,6 +561,11 @@ return [
     'ls_strafen_col_ab_spieltag_tip' => 'The correction only applies from this matchday onwards (0 = from the start of the season). Useful e.g. for a license revocation announced mid-season.',
     'ls_strafen_col_minuspunkte' => 'Minus points',
     'ls_strafen_col_grund' => 'Reason (optional)',
+    'ls_strafen_col_annullieren' => 'Void all matches',
+    'ls_annullieren_hinweis' => 'Sets ALL matches of this team in this league (already played and still upcoming) to "not counted" - they then count for NEITHER of the two teams involved in the standings (neither matches played, goals, nor points). Results remain visible in the schedule, marked "not counted". Takes effect immediately for all of this team\'s opponents too, e.g. for a license revocation/withdrawal mid-season. Unchecking and saving again reverses the voiding.',
+    'ls_annullieren_checkbox_tip' => 'Sets all matches of this team in this league to "not counted".',
+    'ls_annullieren_label' => 'Void',
+    'ls_annullieren_aktiv' => 'Voided',
     'ls_tab_spieltage'     => 'Matchday & match count',
 
     'ls_label_liga_name'   => 'League name',

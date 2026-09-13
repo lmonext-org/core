@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/SpieltagRepositoryTrait.php
- * Fileversion: 1.3.0
+ * Fileversion: 1.4.0
  *
  * PHP version 8.2
  *
@@ -121,11 +121,24 @@ trait SpieltagRepositoryTrait
             }
         }
         $extraDataSelect = $hasExtraDataColumn ? ', p.extra_data' : '';
+
+        // "nicht_gewertet" - dieselbe defensive Prüfung wie oben bei status/
+        // extra_data (siehe ensureSpielstatusColumns() in admin/bootstrap.php).
+        static $hasNichtGewertetColumn = null;
+        if ($hasNichtGewertetColumn === null) {
+            try {
+                getDB()->query('SELECT nicht_gewertet FROM ' . tbl('liga_partien') . ' LIMIT 0');
+                $hasNichtGewertetColumn = true;
+            } catch (\Throwable) {
+                $hasNichtGewertetColumn = false;
+            }
+        }
+        $nichtGewertetSelect = $hasNichtGewertetColumn ? ', p.nicht_gewertet' : '';
     
         try {
             $s = getDB()->prepare(
                 'SELECT p.id, p.heim_id, p.gast_id, p.heim_label, p.gast_label,
-                        p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $extraDataSelect . ',
+                        p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $extraDataSelect . $nichtGewertetSelect . ',
                         th.name AS heim_name, tg.name AS gast_name,
                         th.kurz AS heim_kurz, tg.kurz AS gast_kurz
                    FROM ' . tbl('liga_partien') . ' p
@@ -140,6 +153,12 @@ trait SpieltagRepositoryTrait
             if (!$hasStatusColumn) {
                 foreach ($rows as &$row) {
                     $row['status'] = 0;
+                }
+                unset($row);
+            }
+            if (!$hasNichtGewertetColumn) {
+                foreach ($rows as &$row) {
+                    $row['nicht_gewertet'] = 0;
                 }
                 unset($row);
             }

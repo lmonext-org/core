@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -645,6 +645,7 @@ if ($tab === 'grundwerte') { ?>
 // ═══════════════════════════════════════════════════════════════════════
 } elseif ($tab === 'strafen' && !$isKO) {
     $strafen = $ligaSettingsData['strafen'] ?? [];
+    $annullierteTeams = $ligaSettingsData['annullierte_teams'] ?? [];
     // Kleiner Helfer: Vorzeichen-Auswahl (Dropdown) + Betrag (immer positive
     // Zahl) statt eines einzelnen Zahlenfelds mit Minuszeichen - auf vielen
     // Mobilgeräten zeigt die Zifferntastatur bei <input type="number"> kein
@@ -661,10 +662,13 @@ if ($tab === 'grundwerte') { ?>
     };
     ?>
           <p style="font-size:.82rem;color:var(--muted);max-width:640px;margin-bottom:14px"><?= h(t('ls_strafen_hinweis')) ?></p>
+          <p style="font-size:.82rem;color:var(--muted);max-width:640px;margin-bottom:14px">
+            ⚠️ <?= h(t('ls_annullieren_hinweis')) ?>
+          </p>
 <?php if (empty($ligaTeams)) { ?>
           <p class="empty-msg"><?= h(t('ls_strafen_keine_teams')) ?></p>
 <?php } else { ?>
-          <table style="border-collapse:collapse;width:100%;max-width:1050px">
+          <table style="border-collapse:collapse;width:100%;max-width:1150px">
             <tr>
               <th style="text-align:left;padding:6px 8px;font-size:.8rem;color:var(--muted)"><?= h(t('ls_strafen_col_team')) ?></th>
               <th style="text-align:center;padding:6px 8px;font-size:.8rem;color:var(--muted)"><?= h(t('ls_strafen_col_punkte')) ?></th>
@@ -673,10 +677,12 @@ if ($tab === 'grundwerte') { ?>
               <th style="text-align:center;padding:6px 8px;font-size:.8rem;color:var(--muted)"><?= h(t('ls_strafen_col_gegentore')) ?></th>
               <th style="text-align:center;padding:6px 8px;font-size:.8rem;color:var(--muted)"><?= h(t('ls_strafen_col_ab_spieltag')) ?></th>
               <th style="text-align:left;padding:6px 8px;font-size:.8rem;color:var(--muted)"><?= h(t('ls_strafen_col_grund')) ?></th>
+              <th style="text-align:center;padding:6px 8px;font-size:.8rem;color:var(--muted)"><?= h(t('ls_strafen_col_annullieren')) ?></th>
             </tr>
 <?php foreach ($ligaTeams as $i => $team) {
     $teamId = (int)$team['id'];
-    $s = $strafen[$teamId] ?? ['strafpunkte' => 0, 'straftore' => 0, 'tore_korrektur' => 0, 'minuspunkte_korrektur' => 0, 'ab_spieltag' => 0, 'grund' => '']; ?>
+    $s = $strafen[$teamId] ?? ['strafpunkte' => 0, 'straftore' => 0, 'tore_korrektur' => 0, 'minuspunkte_korrektur' => 0, 'ab_spieltag' => 0, 'grund' => ''];
+    $annulliert = (bool)($annullierteTeams[$teamId] ?? false); ?>
             <tr>
               <td style="padding:5px 8px;font-size:.87rem"><?= h($team['name']) ?>
                 <input type="hidden" name="strafe_team_id[<?= $i ?>]" value="<?= $teamId ?>"></td>
@@ -689,6 +695,13 @@ if ($tab === 'grundwerte') { ?>
               </td>
               <td style="padding:5px 8px">
                 <input type="text" name="strafe_grund[<?= $i ?>]" value="<?= h($s['grund'] ?? '') ?>" maxlength="255" style="width:100%;box-sizing:border-box;<?= $selSt ?>">
+              </td>
+              <td style="padding:5px 8px;text-align:center">
+                <label style="display:inline-flex;align-items:center;gap:4px;font-size:.78rem;cursor:pointer;color:<?= $annulliert ? 'var(--red,#ef4444)' : 'var(--muted)' ?>">
+                  <input type="checkbox" name="strafe_annullieren[<?= $i ?>]" value="1"<?= $annulliert ? ' checked' : '' ?>
+                         title="<?= h(t('ls_annullieren_checkbox_tip')) ?>">
+                  <?= $annulliert ? h(t('ls_annullieren_aktiv')) : h(t('ls_annullieren_label')) ?>
+                </label>
               </td>
             </tr>
 <?php } ?>

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -220,6 +220,30 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     return $dir * $mag;
                 };
 
+                // "Alle Spiele annullieren" (auf Wunsch: Vereins-Spielbetrieb-
+                // Einstellung mit rückwirkender Annullierung, z.B.
+                // Lizenzentzug) - wirkt auf liga_partien.nicht_gewertet (siehe
+                // ensureSpielstatusColumns() in admin/bootstrap.php), NICHT auf
+                // liga_strafpunkte oben, da hier tatsächliche Spiele betroffen
+                // sind, nicht ein reiner Punkte-/Tore-Korrekturwert. Betrifft
+                // ALLE Spiele des Teams in DIESER Liga, egal ob bereits
+                // gespielt (Ergebnis bleibt sichtbar, siehe statusSuffix())
+                // oder noch ausstehend. Checkbox aus + vorher an setzt die
+                // Annullierung wieder zurück (nicht_gewertet=0).
+                ensureSpielstatusColumns();
+                $annullPruefen = $db->prepare(
+                    'SELECT nicht_gewertet FROM ' . tbl('liga_partien') . ' p
+                       JOIN ' . tbl('liga_spieltage') . ' st ON st.id = p.spieltag_id
+                      WHERE st.liga_id = ? AND (p.heim_id = ? OR p.gast_id = ?)
+                      LIMIT 1'
+                );
+                $annullSetzen = $db->prepare(
+                    'UPDATE ' . tbl('liga_partien') . ' p
+                       JOIN ' . tbl('liga_spieltage') . ' st ON st.id = p.spieltag_id
+                        SET p.nicht_gewertet = ?
+                      WHERE st.liga_id = ? AND (p.heim_id = ? OR p.gast_id = ?)'
+                );
+
                 foreach ($_POST['strafe_team_id'] ?? [] as $i => $teamId) {
                     $teamId = (int)$teamId;
                     if ($teamId <= 0) { continue; }
@@ -234,6 +258,21 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                         continue;
                     }
                     $strafUpsert->execute([$lid, $teamId, $sp, $st, $tk, $mk, $abSt, $grund !== '' ? $grund : null]);
+                }
+
+                // Annullieren-Checkboxen unabhängig von der obigen Schleife
+                // durchgehen (auch relevant, wenn ein Team sonst KEINE
+                // Strafpunkte-Zeile bekommt, weil alle vier Werte 0 sind).
+                foreach ($_POST['strafe_team_id'] ?? [] as $i => $teamId) {
+                    $teamId = (int)$teamId;
+                    if ($teamId <= 0) { continue; }
+                    $sollAnnulliert = isset($_POST['strafe_annullieren'][$i]);
+                    $annullPruefen->execute([$lid, $teamId, $teamId]);
+                    $vorhandenerWert = $annullPruefen->fetchColumn();
+                    $istAnnulliert = $vorhandenerWert !== false && (int)$vorhandenerWert === 1;
+                    if ($sollAnnulliert !== $istAnnulliert) {
+                        $annullSetzen->execute([$sollAnnulliert ? 1 : 0, $lid, $teamId, $teamId]);
+                    }
                 }
                 break;
         }

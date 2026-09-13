@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.50.1
+ * Fileversion: 1.51.0
  *
  * PHP version 8.2
  *
@@ -143,6 +143,7 @@ return [
     // ── Head-to-head comparison modal ─────────────────────────────────────────
     'liga_status_ie'             => 'pens.',
     'liga_status_nv'             => 'AET',
+    'liga_status_ng'             => 'not counted',
     'liga_stats_line'            => 'Average home: {heim}   Average away: {gast}   Goals: {tore}   Goals/match: {proSpiel}',
     'liga_stats_heading'         => 'Stats – {label}:',
 

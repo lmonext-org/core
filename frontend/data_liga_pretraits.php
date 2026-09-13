@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.23.0
+ * Fileversion: 2.24.0
  *
  * PHP version 8.2
  *
@@ -248,10 +248,24 @@ function getSpieltagPartien(int $spieltagId) : array
     }
     $statusSelect = $hasStatusColumn ? ', p.status' : '';
 
+    // "nicht_gewertet" - dieselbe defensive Prüfung wie oben bei status
+    // (siehe ensureSpielstatusColumns() in admin/bootstrap.php sowie das
+    // identische Muster in src/Liga/SpieltagRepositoryTrait.php).
+    static $hasNichtGewertetColumn = null;
+    if ($hasNichtGewertetColumn === null) {
+        try {
+            getDB()->query('SELECT nicht_gewertet FROM ' . tbl('liga_partien') . ' LIMIT 0');
+            $hasNichtGewertetColumn = true;
+        } catch (Throwable) {
+            $hasNichtGewertetColumn = false;
+        }
+    }
+    $nichtGewertetSelect = $hasNichtGewertetColumn ? ', p.nicht_gewertet' : '';
+
     try {
         $s = getDB()->prepare(
             'SELECT p.id, p.heim_id, p.gast_id, p.heim_label, p.gast_label,
-                    p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . ',
+                    p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $nichtGewertetSelect . ',
                     th.name AS heim_name, tg.name AS gast_name
                FROM ' . tbl('liga_partien') . ' p
                LEFT JOIN ' . tbl('teams_global') . ' th ON th.id = p.heim_id
@@ -265,6 +279,12 @@ function getSpieltagPartien(int $spieltagId) : array
         if (!$hasStatusColumn) {
             foreach ($rows as &$row) {
                 $row['status'] = 0;
+            }
+            unset($row);
+        }
+        if (!$hasNichtGewertetColumn) {
+            foreach ($rows as &$row) {
+                $row['nicht_gewertet'] = 0;
             }
             unset($row);
         }
@@ -327,11 +347,15 @@ function statusSuffix(array $partie) : string
     if ($partie['h_tore'] === null || $partie['g_tore'] === null) {
         return '';
     }
-    return match ((int)($partie['status'] ?? 0)) {
+    $suffix = match ((int)($partie['status'] ?? 0)) {
         1 => ' ' . tf('liga_status_ie'),
         2 => ' ' . tf('liga_status_nv'),
         default => '',
     };
+    if ((int)($partie['nicht_gewertet'] ?? 0) === 1) {
+        $suffix .= ' ' . tf('liga_status_ng');
+    }
+    return $suffix;
 }
 
 /**

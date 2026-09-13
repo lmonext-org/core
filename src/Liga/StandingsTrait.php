@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/StandingsTrait.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -100,6 +100,17 @@ trait StandingsTrait
     
         foreach ($partien as $p) {
             if ($p['h_tore'] === null || $p['g_tore'] === null) {
+                continue;
+            }
+            // "nicht_gewertet" (auf Wunsch: rückwirkende Annullierung ALLER
+            // Spiele eines Teams, z.B. bei Lizenzentzug/Spielbetrieb-
+            // Einstellung, siehe ensureSpielstatusColumns() in
+            // admin/bootstrap.php) - ein so markiertes Spiel zählt für KEINES
+            // der beiden Teams (weder Sp/S/U/N noch Tore/Punkte), obwohl ein
+            // Ergebnis eingetragen sein kann. ?? 0 deckt sowohl fehlendes
+            // Array-Element (Spalte auf dieser Installation noch nicht
+            // migriert) als auch NULL ab.
+            if ((int)($p['nicht_gewertet'] ?? 0) === 1) {
                 continue;
             }
             $hId = (int)($p['heim_id'] ?? 0);

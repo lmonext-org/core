@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/TeamFormattingTrait.php
- * Fileversion: 1.0.3
+ * Fileversion: 1.1.0
  *
  * PHP version 8.2
  *
@@ -199,17 +199,30 @@ trait TeamFormattingTrait
     /**
      * Zusatz für Ergebnisse nach Verlängerung/Elfmeterschießen ("n.V." bzw. "i.E."),
      * passend zum LMO-Mapping: 1 = i.E. (Elfmeterschießen), 2 = n.V. (Verlängerung).
-     * Leerer String bei normalem Spielausgang (Status 0) oder fehlendem Ergebnis.
+     * Zusätzlich (auf Wunsch, unabhängig vom obigen status-Wert, siehe
+     * ensureSpielstatusColumns()): "nicht gewertet" bei rückwirkend
+     * annullierten Spielen (z.B. Lizenzentzug/Spielbetrieb-Einstellung eines
+     * Vereins) - das Ergebnis bleibt sichtbar, zählt aber für keines der
+     * beiden Teams in der Tabelle (siehe StandingsTrait::computeStandings()).
+     * Bestehendes Format (führendes Leerzeichen, kein Klammer-Wrapping) für
+     * den bisherigen Einzelfall (nur i.E./n.V., nicht annulliert) bewusst
+     * unverändert gelassen, um keine bestehende Anzeige zu verändern.
+     * Leerer String bei normalem, gewertetem Spielausgang oder fehlendem
+     * Ergebnis.
      */
     public static function statusSuffix(array $partie) : string
     {
         if ($partie['h_tore'] === null || $partie['g_tore'] === null) {
             return '';
         }
-        return match ((int)($partie['status'] ?? 0)) {
+        $suffix = match ((int)($partie['status'] ?? 0)) {
             1 => ' ' . tf('liga_status_ie'),
             2 => ' ' . tf('liga_status_nv'),
             default => '',
         };
+        if ((int)($partie['nicht_gewertet'] ?? 0) === 1) {
+            $suffix .= ' ' . tf('liga_status_ng');
+        }
+        return $suffix;
     }
 }

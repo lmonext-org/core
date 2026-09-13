@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.34.0
+ * Fileversion: 1.35.0
  *
  * PHP version 8.2
  *
@@ -562,6 +562,11 @@ return [
     'ls_strafen_col_ab_spieltag_tip' => 'Die Korrektur greift erst ab diesem Spieltag (0 = ab Saisonbeginn). Nützlich z.B. bei einem Lizenzentzug, der erst mitten in der Saison bekannt wird.',
     'ls_strafen_col_minuspunkte' => 'Minuspunkte',
     'ls_strafen_col_grund' => 'Grund (optional)',
+    'ls_strafen_col_annullieren' => 'Alle Spiele annullieren',
+    'ls_annullieren_hinweis' => 'Setzt ALLE Spiele dieses Teams in dieser Liga (bereits gespielte und noch ausstehende) auf "nicht gewertet" - sie zählen dann für KEINES der beiden beteiligten Teams in der Tabelle (weder Spiele, Tore noch Punkte). Ergebnisse bleiben im Spielplan sichtbar, mit dem Hinweis "nicht gewertet". Wirkt sofort für alle Gegner dieses Teams mit, z.B. bei einem Lizenzentzug/Spielbetrieb-Einstellung mitten in der Saison. Häkchen wieder entfernen und speichern macht die Annullierung rückgängig.',
+    'ls_annullieren_checkbox_tip' => 'Setzt alle Spiele dieses Teams in dieser Liga auf "nicht gewertet".',
+    'ls_annullieren_label' => 'Annullieren',
+    'ls_annullieren_aktiv' => 'Annulliert',
     'ls_tab_spieltage'     => 'Spieltags- und Spiel-Anzahl',
 
     'ls_label_liga_name'   => 'Name der Liga',

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -374,6 +374,35 @@ if ($action === 'liga_settings' && isLoggedIn()) {
                 $ligaSettingsData['strafen'] = array_column($sS->fetchAll(), null, 'team_id');
             } catch (Throwable) {
                 $ligaSettingsData['strafen'] = [];
+            }
+
+            // Teams, deren Spiele in dieser Liga komplett annulliert wurden
+            // (auf Wunsch: Vereins-Spielbetrieb-Einstellung mit rückwirkender
+            // Annullierung, z.B. Lizenzentzug, siehe admin/handler_settings.php
+            // Aktion "strafe_annullieren" sowie StandingsTrait::computeStandings()).
+            // Ein Team gilt als "annulliert", sobald mindestens eines seiner
+            // Spiele in dieser Liga so markiert ist - aktuell gibt es nur die
+            // Bulk-Aktion (alle Spiele eines Teams auf einmal), es kann also
+            // nur "alle" oder "keins" geben, kein Zwischenzustand.
+            try {
+                $sA = $db->prepare(
+                    'SELECT DISTINCT team_id FROM (
+                        SELECT p.heim_id AS team_id FROM ' . tbl('liga_partien') . ' p
+                          JOIN ' . tbl('liga_spieltage') . ' st ON st.id = p.spieltag_id
+                         WHERE st.liga_id = ? AND p.nicht_gewertet = 1
+                        UNION
+                        SELECT p.gast_id AS team_id FROM ' . tbl('liga_partien') . ' p
+                          JOIN ' . tbl('liga_spieltage') . ' st ON st.id = p.spieltag_id
+                         WHERE st.liga_id = ? AND p.nicht_gewertet = 1
+                     ) x'
+                );
+                $sA->execute([$lid, $lid]);
+                $ligaSettingsData['annullierte_teams'] = array_fill_keys(
+                    array_map('intval', $sA->fetchAll(PDO::FETCH_COLUMN)),
+                    true
+                );
+            } catch (Throwable) {
+                $ligaSettingsData['annullierte_teams'] = [];
             }
         } catch (Throwable) {}
     }

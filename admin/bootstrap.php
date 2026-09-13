@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.23.0
+ * Fileversion: 1.24.0
  *
  * PHP version 8.2
  *
@@ -1138,6 +1138,19 @@ function ensureSpielstatusColumns() : void
         }
         if (!in_array('bericht_url', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `bericht_url` VARCHAR(500) NULL DEFAULT NULL');
+        }
+        // "nicht_gewertet" (auf Wunsch: Vereins-Spielbetrieb-Einstellung mit
+        // rückwirkender Annullierung ALLER Spiele, z.B. Lizenzentzug) - bewusst
+        // eine EIGENE, von "status" (i.E./n.V.) UNABHÄNGIGE Spalte statt einen
+        // dritten status-Wert einzuführen: ein Elfmeterschießen-Spiel, das
+        // nachträglich annulliert wird, soll diese Information nicht verlieren,
+        // falls die Annullierung später wieder aufgehoben wird. Wirkt in
+        // computeStandings() (StandingsTrait.php) - ein so markiertes Spiel
+        // zählt für KEINES der beiden Teams (weder Sp/S/U/N noch Tore/Punkte),
+        // bleibt aber im Spielplan mit Ergebnis + Hinweis "nicht gewertet"
+        // sichtbar (siehe statusSuffix()).
+        if (!in_array('nicht_gewertet', $cols, true)) {
+            $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `nicht_gewertet` TINYINT(1) NOT NULL DEFAULT 0');
         }
     } catch (Throwable) {}
 }
