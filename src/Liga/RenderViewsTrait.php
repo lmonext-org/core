@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -44,6 +44,16 @@ trait RenderViewsTrait
     public static function formatScore(array $partie, ?int $ligaId = null, bool $withPeriods = false) : string
     {
         if ($partie['h_tore'] === null || $partie['g_tore'] === null) {
+            // Grüne-Tisch-Entscheidung OHNE real eingetragenes Ergebnis (z.B.
+            // Nichtantritt) - siehe StandingsTrait::gtCreditedScore(). Die
+            // gewertete Standardwertung (i.d.R. 3:0) wird angezeigt, da es
+            // sonst gar kein Ergebnis zum Anzeigen gäbe. Der Hinweis "Wertung"
+            // kommt separat über TeamFormattingTrait::statusSuffix() dazu.
+            $gtEntscheidung = (int)($partie['gt_entscheidung'] ?? 0);
+            if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
+                $credited = \LMOnext\Liga\LigaService::gtCreditedScore($gtEntscheidung, null, null);
+                return h($credited['h_tore'] . ' : ' . $credited['g_tore']);
+            }
             return '- : -';
         }
         return h(self::sportProfile($ligaId)->formatResult($partie, $withPeriods));
@@ -62,7 +72,8 @@ trait RenderViewsTrait
             ? self::partieTeamNameWithLogoReversed($partie, 'heim', $showLogos)
             : partieTeamNameWithLogo($partie, 'heim', $showLogos);
         $gast     = self::partieTeamNameWithLogo($partie, 'gast', $showLogos);
-        $gespielt = $partie['h_tore'] !== null && $partie['g_tore'] !== null;
+        $gespielt = ($partie['h_tore'] !== null && $partie['g_tore'] !== null)
+            || (int)($partie['gt_entscheidung'] ?? 0) > 0;
         // Sport-Profil-Anzeige (Beitrag: Torsten Hofmann) - _liga_id ist ein
         // optionales, vom Aufrufer injizierbares Feld (siehe getAllLigaPartien()
         // in SpieltagRepositoryTrait.php); fehlt es, wird auf 'football'

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.4.1
+ * Fileversion: 1.5.0
  *
  * PHP version 8.2
  *
@@ -556,6 +556,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
               <th style="width:60px;text-align:center"><?= h(t('sp_col_tore')) ?></th>
               <th><?= h(t('sp_col_gast')) ?></th>
               <th style="width:130px"><?= h(t('sp_col_status')) ?></th>
+              <th style="width:150px"><?= h(t('sp_col_gt')) ?></th>
               <th style="width:175px"><?= h(t('sp_col_anstoss')) ?></th>
             </tr>
           </thead>
@@ -567,6 +568,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
                     $atVal = str_replace(' ', 'T', substr($p['zeit'], 0, 16));
                 }
                 $status  = (int)($p['status'] ?? 0);
+                $gt      = (int)($p['gt_entscheidung'] ?? 0);
                 $bericht = $p['bericht_url'] ?? '';
                 $existingSets = [];
                 if (!empty($p['extra_data'])) {
@@ -619,11 +621,20 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
                 </select>
               </td>
               <td>
+                <select name="gt_<?= (int)$p['id'] ?>" title="<?= h(t('sp_gt_tip')) ?>"
+                        style="width:100%;background:var(--bg);border:1px solid <?= $gt > 0 ? 'var(--red,#ef4444)' : 'var(--border)' ?>;color:<?= $gt > 0 ? 'var(--red,#ef4444)' : 'var(--muted)' ?>;
+                               border-radius:var(--radius);padding:4px 6px;font-size:.78rem">
+                  <option value="0"<?= $gt === 0 ? ' selected' : '' ?>><?= h(t('sp_gt_dash')) ?></option>
+                  <option value="1"<?= $gt === 1 ? ' selected' : '' ?>><?= h(t('sp_gt_heim')) ?></option>
+                  <option value="2"<?= $gt === 2 ? ' selected' : '' ?>><?= h(t('sp_gt_gast')) ?></option>
+                </select>
+              </td>
+              <td>
                 <?= dtInput('at_'.(int)$p['id'], $atVal) ?>
               </td>
             </tr>
             <tr>
-              <td colspan="6" style="padding:2px 8px 8px">
+              <td colspan="7" style="padding:2px 8px 8px">
                 <input type="url" name="bericht_<?= (int)$p['id'] ?>" value="<?= h($bericht) ?>"
                        placeholder="<?= h(t('sp_placeholder_report_link')) ?>"
                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
@@ -632,7 +643,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
             </tr>
 <?php       if (!empty($resultFormFields)) { ?>
             <tr class="sport-satz-row">
-              <td colspan="6" style="padding:2px 8px 10px">
+              <td colspan="7" style="padding:2px 8px 10px">
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)">
                   <span><?= h(t('sp_label_saetze')) ?>:</span>
                   <span class="satz-eingaben" data-partie="<?= (int)$p['id'] ?>">

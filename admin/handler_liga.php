@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.11.0
  *
  * PHP version 8.2
  *
@@ -20,7 +20,7 @@ if ($action === 'save_ergebnisse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $stNr = (int)($_POST['spieltag_nr'] ?? 0);
     try {
         $db     = getDB();
-        $stmtE  = $db->prepare('UPDATE '.tbl('liga_partien').' SET h_tore=?, g_tore=?, zeit=?, status=?, bericht_url=? WHERE id=?');
+        $stmtE  = $db->prepare('UPDATE '.tbl('liga_partien').' SET h_tore=?, g_tore=?, zeit=?, status=?, bericht_url=?, gt_entscheidung=? WHERE id=?');
         foreach ($_POST as $key => $val) {
             if (preg_match('/^h_(\d+)$/', $key, $m)) {
                 $pid     = (int)$m[1];
@@ -33,7 +33,13 @@ if ($action === 'save_ergebnisse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($status < 0 || $status > 2) { $status = 0; }
                 $bericht = trim($_POST['bericht_'.$pid] ?? '');
                 $berichtDb = $bericht !== '' ? $bericht : null;
-                $stmtE->execute([$hv, $gv, $zeitDb, $status, $berichtDb, $pid]);
+                // Grüne-Tisch-Entscheidung (Sportgericht, auf Wunsch nach
+                // DFB-Rechts- und Verfahrensordnung, siehe
+                // StandingsTrait::gtCreditedScore()): 0 = keine, 1 = Heimteam
+                // siegt, 2 = Gastteam siegt.
+                $gt = (int)($_POST['gt_'.$pid] ?? 0);
+                if ($gt < 0 || $gt > 2) { $gt = 0; }
+                $stmtE->execute([$hv, $gv, $zeitDb, $status, $berichtDb, $gt, $pid]);
             }
         }
         // "Letztes Speicherdatum" der Liga aktualisieren (siehe liga.datum) –

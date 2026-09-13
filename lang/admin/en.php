@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.34.0
+ * Fileversion: 1.35.0
  *
  * PHP version 8.2
  *
@@ -324,6 +324,11 @@ return [
     'sp_status_dash'                 => '–',
     'sp_status_ie_short'             => 'pens.',
     'sp_status_nv_short'             => 'a.e.t.',
+    'sp_col_gt'                      => 'Sports court',
+    'sp_gt_tip'                      => 'Sports court decision (forfeit/awarded match): only select this if such a decision was really made independent of the match result. Default scoring per DFB rules: 3:0 for the winning team, unless the real result was even more favorable for them.',
+    'sp_gt_dash'                     => '–',
+    'sp_gt_heim'                     => 'Home team wins',
+    'sp_gt_gast'                     => 'Away team wins',
     'sp_btn_save_all'                => '💾 Save all',
     'sp_next_matchday'               => 'Next: matchday {n} →',
     'sp_heading_all_rounds'          => 'All rounds',

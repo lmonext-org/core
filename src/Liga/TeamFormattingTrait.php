@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/TeamFormattingTrait.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.2.0
  *
  * PHP version 8.2
  *
@@ -204,16 +204,21 @@ trait TeamFormattingTrait
      * annullierten Spielen (z.B. Lizenzentzug/Spielbetrieb-Einstellung eines
      * Vereins) - das Ergebnis bleibt sichtbar, zählt aber für keines der
      * beiden Teams in der Tabelle (siehe StandingsTrait::computeStandings()).
+     * Sowie "Wertung" bei einer Grüne-Tisch-Entscheidung (Sportgericht, siehe
+     * StandingsTrait::gtCreditedScore()) - bewusst VOR dem h_tore/g_tore-
+     * null-Check geprüft, da eine solche Entscheidung auch ganz ohne real
+     * eingetragenes Ergebnis greift (z.B. Nichtantritt).
      * Bestehendes Format (führendes Leerzeichen, kein Klammer-Wrapping) für
      * den bisherigen Einzelfall (nur i.E./n.V., nicht annulliert) bewusst
      * unverändert gelassen, um keine bestehende Anzeige zu verändern.
      * Leerer String bei normalem, gewertetem Spielausgang oder fehlendem
-     * Ergebnis.
+     * Ergebnis ohne jede Sonderwertung.
      */
     public static function statusSuffix(array $partie) : string
     {
+        $gtEntscheidung = (int)($partie['gt_entscheidung'] ?? 0);
         if ($partie['h_tore'] === null || $partie['g_tore'] === null) {
-            return '';
+            return $gtEntscheidung > 0 ? ' ' . tf('liga_status_gt') : '';
         }
         $suffix = match ((int)($partie['status'] ?? 0)) {
             1 => ' ' . tf('liga_status_ie'),
@@ -222,6 +227,9 @@ trait TeamFormattingTrait
         };
         if ((int)($partie['nicht_gewertet'] ?? 0) === 1) {
             $suffix .= ' ' . tf('liga_status_ng');
+        }
+        if ($gtEntscheidung > 0) {
+            $suffix .= ' ' . tf('liga_status_gt');
         }
         return $suffix;
     }

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.51.0
+ * Fileversion: 1.52.0
  *
  * PHP version 8.2
  *
@@ -146,6 +146,7 @@ return [
     'liga_status_ie'             => 'i.E.',
     'liga_status_nv'             => 'n.V.',
     'liga_status_ng'             => 'nicht gewertet',
+    'liga_status_gt'             => 'Wertung',
     'liga_stats_line'            => 'Schnitt Heim: {heim}   Schnitt Gast: {gast}   Tore: {tore}   Tore/Spiel: {proSpiel}',
     'liga_stats_heading'         => 'Statistik {label}:',
 

@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/FootballProfile.php
- * Fileversion: 1.0.1
+ * Fileversion: 1.1.0
  *
  * PHP version 8.2
  *
@@ -57,17 +57,14 @@ final class FootballProfile implements SportProfile
         }
         $result = (string)$h . ' : ' . (string)$g;
 
-        // Status-Suffix (n.V. / i.E.) - dieselben übersetzten Texte wie
-        // TeamFormattingTrait::statusSuffix() (Fehler in Torstens Version
-        // behoben: dort war der Text fest auf Deutsch einkodiert, was für
-        // die englische Sprachversion "i.E."/"n.V." statt "pens."/"AET"
-        // gezeigt hätte).
-        $status = (int)($match['status'] ?? 0);
-        $suffix = match ($status) {
-            1 => ' ' . tf('liga_status_ie'),
-            2 => ' ' . tf('liga_status_nv'),
-            default => '',
-        };
+        // Status-Suffix (n.V./i.E./nicht gewertet/Wertung) - ruft die
+        // zentrale TeamFormattingTrait::statusSuffix() auf statt die Logik
+        // hier ein drittes Mal zu duplizieren (Bugfix: diese Stelle war beim
+        // Ergänzen von "nicht gewertet" zunächst übersehen worden, da sie
+        // ihre eigene, lokale Kopie der status-Logik hatte statt die
+        // zentrale Funktion zu nutzen - dadurch fehlte hier sowohl der
+        // "nicht gewertet"- als auch der "Wertung"-Hinweis).
+        $suffix = \LMOnext\Liga\LigaService::statusSuffix($match);
 
         if ($withPeriods) {
             $hz = $this->formatPeriods($match['extra_data'] ?? null);

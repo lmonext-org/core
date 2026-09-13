@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.24.0
+ * Fileversion: 1.25.0
  *
  * PHP version 8.2
  *
@@ -1151,6 +1151,20 @@ function ensureSpielstatusColumns() : void
         // sichtbar (siehe statusSuffix()).
         if (!in_array('nicht_gewertet', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `nicht_gewertet` TINYINT(1) NOT NULL DEFAULT 0');
+        }
+        // "gt_entscheidung" (auf Wunsch: Grüne-Tisch-Entscheidung / Sportgericht-
+        // Wertung nach DFB-Rechts- und Verfahrensordnung) - 0 = keine
+        // Entscheidung, 1 = Heimteam gewinnt am grünen Tisch, 2 = Gastteam
+        // gewinnt am grünen Tisch. Wirkt in computeStandings() über
+        // LigaService::gtCreditedScore() - Standardwertung 3:0 (bzw. 0:3) für
+        // die unschuldige/schuldige Mannschaft, außer ein real gespieltes
+        // Ergebnis war für die unschuldige Mannschaft noch höher (siehe
+        // gtCreditedScore() für die vollständige Regel). Bewusst eine eigene
+        // Spalte statt einer Kombination aus status/nicht_gewertet, da hier -
+        // anders als bei beiden anderen - ein Team trotzdem Punkte/Tore
+        // gutgeschrieben bekommt.
+        if (!in_array('gt_entscheidung', $cols, true)) {
+            $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0');
         }
     } catch (Throwable) {}
 }

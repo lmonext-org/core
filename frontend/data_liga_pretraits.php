@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.24.0
+ * Fileversion: 2.25.0
  *
  * PHP version 8.2
  *
@@ -262,10 +262,22 @@ function getSpieltagPartien(int $spieltagId) : array
     }
     $nichtGewertetSelect = $hasNichtGewertetColumn ? ', p.nicht_gewertet' : '';
 
+    // "gt_entscheidung" - dieselbe defensive Prüfung wie oben.
+    static $hasGtColumn = null;
+    if ($hasGtColumn === null) {
+        try {
+            getDB()->query('SELECT gt_entscheidung FROM ' . tbl('liga_partien') . ' LIMIT 0');
+            $hasGtColumn = true;
+        } catch (Throwable) {
+            $hasGtColumn = false;
+        }
+    }
+    $gtSelect = $hasGtColumn ? ', p.gt_entscheidung' : '';
+
     try {
         $s = getDB()->prepare(
             'SELECT p.id, p.heim_id, p.gast_id, p.heim_label, p.gast_label,
-                    p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $nichtGewertetSelect . ',
+                    p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $nichtGewertetSelect . $gtSelect . ',
                     th.name AS heim_name, tg.name AS gast_name
                FROM ' . tbl('liga_partien') . ' p
                LEFT JOIN ' . tbl('teams_global') . ' th ON th.id = p.heim_id
@@ -285,6 +297,12 @@ function getSpieltagPartien(int $spieltagId) : array
         if (!$hasNichtGewertetColumn) {
             foreach ($rows as &$row) {
                 $row['nicht_gewertet'] = 0;
+            }
+            unset($row);
+        }
+        if (!$hasGtColumn) {
+            foreach ($rows as &$row) {
+                $row['gt_entscheidung'] = 0;
             }
             unset($row);
         }

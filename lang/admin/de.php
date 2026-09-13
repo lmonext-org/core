@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.35.0
+ * Fileversion: 1.36.0
  *
  * PHP version 8.2
  *
@@ -325,6 +325,11 @@ return [
     'sp_status_dash'                 => '–',
     'sp_status_ie_short'             => 'i.E.',
     'sp_status_nv_short'             => 'n.V.',
+    'sp_col_gt'                      => 'Sportgericht',
+    'sp_gt_tip'                      => 'Grüne-Tisch-Entscheidung: bitte nur auswählen, wenn wirklich eine solche Entscheidung unabhängig vom Spielergebnis getroffen wurde. Standardwertung nach DFB-Regeln: 3:0 für die siegende Mannschaft, außer das real erzielte Ergebnis war für sie noch höher.',
+    'sp_gt_dash'                     => '–',
+    'sp_gt_heim'                     => 'Heimteam siegt',
+    'sp_gt_gast'                     => 'Gastteam siegt',
     'sp_btn_save_all'                => '💾 Alles speichern',
     'sp_next_matchday'               => 'Weiter: Spieltag {n} →',
     'sp_heading_all_rounds'          => 'Alle Runden',

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/StandingsTrait.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -53,6 +53,45 @@ trait StandingsTrait
      * gemeldeten Teams (auch ohne gespielte Partie, dann mit lauter Nullen).
      */
     /**
+     * Berechnet die "Wertung" (angerechnetes Ergebnis) für eine Grüne-Tisch-
+     * Entscheidung (Sportgericht), nach DFB-Rechts- und Verfahrensordnung:
+     *
+     * Standardfall: die "unschuldige" (siegende) Mannschaft wird mit 3:0
+     * gewertet, die "schuldige" (unterlegene) mit 0:3.
+     *
+     * Ausnahme: wurde das Spiel tatsächlich ausgetragen UND hat die
+     * unschuldige Mannschaft real mit MEHR als 3 Toren Differenz gewonnen
+     * (z.B. real 4:0 oder 5:1), bleibt ihr tatsächlich erzieltes Torergebnis
+     * bestehen. Die schuldige Mannschaft bekommt in jedem Fall 0 Tore
+     * gutgeschrieben - unabhängig davon, was real erzielt wurde.
+     *
+     * @param int      $entscheidung 1 = Heimteam siegt (Gastteam schuldig),
+     *                                2 = Gastteam siegt (Heimteam schuldig)
+     * @param int|null $hTore        real eingetragenes Heim-Ergebnis (falls vorhanden)
+     * @param int|null $gTore        real eingetragenes Gast-Ergebnis (falls vorhanden)
+     * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
+     */
+    public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore) : array
+    {
+        if ($entscheidung === 1) {
+            // Heimteam ist unschuldig/siegt, Gastteam ist schuldig.
+            $realWarSiegFuerUnschuldig = $hTore !== null && $gTore !== null && $hTore > $gTore;
+            $unschuldigTore = ($realWarSiegFuerUnschuldig && $hTore > 3) ? $hTore : 3;
+            return ['h_tore' => $unschuldigTore, 'g_tore' => 0];
+        }
+        if ($entscheidung === 2) {
+            // Gastteam ist unschuldig/siegt, Heimteam ist schuldig.
+            $realWarSiegFuerUnschuldig = $hTore !== null && $gTore !== null && $gTore > $hTore;
+            $unschuldigTore = ($realWarSiegFuerUnschuldig && $gTore > 3) ? $gTore : 3;
+            return ['h_tore' => 0, 'g_tore' => $unschuldigTore];
+        }
+        // Keine Entscheidung (0 oder unbekannter Wert) - Aufrufer sollte dies
+        // eigentlich nicht mit einem anderen Wert als 1/2 aufrufen, defensiver
+        // Fallback auf "0:0" statt eines Fehlers.
+        return ['h_tore' => 0, 'g_tore' => 0];
+    }
+
+    /**
      * Berechnet die Tabelle. $mode steuert, welche Seite pro Partie gezählt
      * wird - 'overall' (Standard, beide Seiten), 'home' (nur wenn das Team
      * Heimmannschaft war) oder 'away' (nur Auswärtsspiele) - für die
@@ -99,7 +138,12 @@ trait StandingsTrait
         }
     
         foreach ($partien as $p) {
-            if ($p['h_tore'] === null || $p['g_tore'] === null) {
+            $gtEntscheidung = (int)($p['gt_entscheidung'] ?? 0);
+            // Grüne-Tisch-Entscheidung (siehe gtCreditedScore() oben): ein so
+            // gewertetes Spiel zählt AUCH OHNE real eingetragenes Ergebnis
+            // (z.B. Nichtantritt) - der normale "kein Ergebnis => skip"-Check
+            // gilt hier bewusst nicht.
+            if ($gtEntscheidung === 0 && ($p['h_tore'] === null || $p['g_tore'] === null)) {
                 continue;
             }
             // "nicht_gewertet" (auf Wunsch: rückwirkende Annullierung ALLER
@@ -125,8 +169,18 @@ trait StandingsTrait
                 $rows[$gId] = ['id' => $gId, 'name' => $p['gast_name'] ?? '', 'kurz' => '', 'sp' => 0, 's' => 0, 'u' => 0, 'n' => 0, 'tore_h' => 0, 'tore_g' => 0, 'pkt' => 0, 'minuspunkte' => 0, 'strafpunkte' => 0, 'straftore' => 0, 'torekorrektur' => 0, 'minuspunktekorrektur' => 0, 'strafgrund' => '', 'w30' => 0, 'w31' => 0, 'w32' => 0, 'l23' => 0, 'l13' => 0, 'l03' => 0, 'balls_h' => 0, 'balls_g' => 0];
             }
     
-            $ht = (int)$p['h_tore'];
-            $gt = (int)$p['g_tore'];
+            if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
+                $credited = self::gtCreditedScore(
+                    $gtEntscheidung,
+                    $p['h_tore'] !== null ? (int)$p['h_tore'] : null,
+                    $p['g_tore'] !== null ? (int)$p['g_tore'] : null
+                );
+                $ht = $credited['h_tore'];
+                $gt = $credited['g_tore'];
+            } else {
+                $ht = (int)$p['h_tore'];
+                $gt = (int)$p['g_tore'];
+            }
 
             // Heim-/Auswärts-Filter: 'home' zählt nur die Heimmannschaft dieser
             // Partie, 'away' nur die Gastmannschaft, 'overall' (Standard) beide.
