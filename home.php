@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: home.php
- * Fileversion: 2.3.1
+ * Fileversion: 2.4.0
  *
  * PHP version 8.2
  *
@@ -15,20 +15,18 @@ declare(strict_types = 1);
 
 require_once __DIR__ . '/frontend/bootstrap.php';
 
-// ── Tippspiel-View: läuft komplett getrennt von der normalen Startseite
-// (aktive Ligen + Archiv), analog zur Spielerstatistik in liga.php. Muss VOR
-// jeder anderen Ausgabe geprüft werden, da tippspielHandleRequest() umleiten
-// kann (header()+exit, siehe dortiger Docblock) ────────────────────────────
-if (($_GET['view'] ?? '') === 'tippspiel') {
-    require_once __DIR__ . '/addon/tipp/view_tippspiel_frontend.php';
-    $tippState = tippspielHandleRequest();
-
-    renderTemplate($activeTemplate, 'tippspiel', [
-        'Titel'            => h(tf('tf_tipp_seiten_titel')),
-        'ZurueckLinkBlock' => renderBackLinkBlock(),
-        'ViewInhalt'       => renderTippspielView($tippState),
-    ]);
-    exit;
+// ── Addon-View-Router (Frontend) ─────────────────────────────────────────
+// Addons koennen eigene Frontend-Views ueber ?view=xxx registrieren
+// (z.B. das Tippspiel-Addon). Muss VOR jeder anderen Ausgabe geprüft werden,
+// da eine Addon-View selbst umleiten kann (header()+exit) und das Rendern
+// komplett selbst uebernimmt.
+$feView = $_GET['view'] ?? '';
+if ($feView !== '') {
+    $addonView = addonManager()->getFrontendView($feView);
+    if ($addonView !== null) {
+        require $addonView;
+        exit; // Addon steuert das Rendern selbst
+    }
 }
 
 // ── Normale Startseite (aktive Ligen + Archiv) ──────────────────────────────
@@ -76,10 +74,20 @@ if ($hasArchiv) {
     ]);
 }
 
+// ── Addon-Home-Cards ueber Hook ───────────────────────────────────────────
+// Addons (z.B. das Tippspiel-Addon) registrieren sich selbst per Hook,
+// statt fest verdrahtet zu sein. Ist ein Addon deaktiviert, liefert der
+// Hook einfach nichts zurueck.
+$homeCards         = doHook('frontend.home_cards', []);
+$tippspielCardHtml = '';
+foreach ($homeCards as $card) {
+    $tippspielCardHtml .= $card['html'] ?? '';
+}
+
 renderTemplate($activeTemplate, 'home', [
     'Titel'                   => h(tf('site_title')),
     'UeberschriftAktiveLigen' => h(tf('home_heading_active_ligen')),
     'AktiveLigenInhalt'       => $aktiveLigenInhalt,
     'ArchivBereich'           => $archivBereich,
-    'TippspielCard'           => tippRenderHomeCard(),
+    'TippspielCard'           => $tippspielCardHtml,
 ]);

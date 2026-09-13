@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -323,8 +323,15 @@ require_once dirname(__DIR__) . '/src/Sport/BadmintonProfile.php';
 // ── Datenfunktionen (Abfragen) ────────────────────────────────────────────────
 require_once __DIR__ . '/data_home.php';
 require_once __DIR__ . '/data_liga.php';
-require_once __DIR__ . '/../addon/player/frontend_spielerstat.php';
-require_once __DIR__ . '/../addon/tipp/tipp_lib.php';
+
+// ── AddonManager initialisieren (Frontend) ────────────────────────────────
+// Laedt automatisch alle frontend_handlers der aktivierten Addons
+// (z.B. spielerstat_lib.php, frontend_spielerstat.php, tipp_lib.php),
+// ersetzt die frueheren festen require_once-Zeilen.
+require_once dirname(__DIR__) . '/src/Addon/AddonManager.php';
+$feAddonManager = new \LMOnext\Addon\AddonManager(dirname(__DIR__) . '/addon', getDB(), DB_PREFIX);
+addonManager($feAddonManager);
+$feAddonManager->bootFrontend();
 // pdf_export.php wird bewusst NICHT hier eingebunden: die Datei ist recht groß
 // (PHP muss sie sonst bei JEDEM Seitenaufruf parsen, auch auf home.php und den
 // Mini-Addons, die sie nie brauchen) und wird ausschließlich von liga.php

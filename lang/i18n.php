@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: i18n.php
- * Fileversion: 1.1.2
+ * Fileversion: 1.2.0
  *
  * PHP version 8.2
  *
@@ -123,7 +123,37 @@ function loadTranslations(string $domain, string $lang) : array
         $file = __DIR__ . '/' . $domain . '/' . DEFAULT_LANGUAGE . '.php';
     }
     $data = is_file($file) ? require $file : [];
-    return $cache[$cacheKey] = is_array($data) ? $data : [];
+    $core = is_array($data) ? $data : [];
+
+    // ── Addon-Übersetzungen einmischen ───────────────────────────────────────
+    // AddonManager::loadLanguages() registriert die lang/{de,en}.php Dateien
+    // aktivierter Addons über registerAddonTranslations() (siehe unten), da
+    // Addons ihre Sprachdateien nicht im Core-Verzeichnis lang/{domain}/
+    // ablegen. Core-Strings haben bei Namenskollisionen IMMER Vorrang
+    // (ein Addon kann nur fehlende Keys ergänzen, nichts überschreiben).
+    $addonEntries = $GLOBALS['__lmonextAddonTranslations'][$domain][$lang] ?? [];
+
+    return $cache[$cacheKey] = (empty($addonEntries) ? $core : ($core + $addonEntries));
+}
+
+/**
+ * Registriert die Übersetzungen eines Addons für eine Domain ("admin" oder
+ * "frontend") und Sprache. Wird von AddonManager::loadLanguages() aufgerufen,
+ * BEVOR der jeweilige t()/tf()-Aufruf im aktuellen Request stattfindet.
+ * Muss daher vor dem ersten t()/tf()-Aufruf laufen (siehe bootAdmin()/
+ * bootFrontend() in admin.php/frontend/bootstrap.php, die sehr früh im
+ * Request greifen) – loadTranslations() cacht sonst ohne Addon-Strings.
+ */
+function registerAddonTranslations(string $domain, string $lang, array $entries) : void
+{
+    if (!isset($GLOBALS['__lmonextAddonTranslations'][$domain][$lang])) {
+        $GLOBALS['__lmonextAddonTranslations'][$domain][$lang] = [];
+    }
+    foreach ($entries as $key => $value) {
+        if (is_string($value)) {
+            $GLOBALS['__lmonextAddonTranslations'][$domain][$lang][$key] = $value;
+        }
+    }
 }
 
 /**

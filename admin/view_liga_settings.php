@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.7.1
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -449,19 +449,23 @@ if ($tab === 'grundwerte') { ?>
               <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_cb_fieberkurven')) ?></td>
               <td style="padding:5px 10px"><input type="checkbox" name="kurve1" value="1"<?= $oc('kurve1')?' checked':'' ?>></td>
             </tr>
+<?php if (function_exists('addonManager') && addonManager()->isEnabled('player')) { ?>
             <tr>
               <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_label_spielerstatistik')) ?></td>
               <td style="padding:5px 10px"><input type="checkbox" name="stats" value="1"<?= $oc('stats')?' checked':'' ?>></td>
             </tr>
+<?php } ?>
             <tr>
               <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_cb_ligastatistik')) ?></td>
               <td style="padding:5px 10px"><input type="checkbox" name="Ligastats" value="1"<?= $oc('Ligastats')?' checked':'' ?>></td>
             </tr>
 <?php } else { ?>
+<?php if (function_exists('addonManager') && addonManager()->isEnabled('player')) { ?>
             <tr>
               <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_label_spielerstatistik')) ?></td>
               <td style="padding:5px 10px"><input type="checkbox" name="stats" value="1"<?= $oc('stats')?' checked':'' ?>></td>
             </tr>
+<?php } ?>
 <?php } ?>
             <tr>
               <td colspan="2" style="padding:10px 12px 4px;font-size:.82rem;font-weight:700;color:var(--text);

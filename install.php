@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: install.php
- * Fileversion: 2.6.0
+ * Fileversion: 2.7.0
  *
  * PHP version 8.2
  *
@@ -827,6 +827,14 @@ define('DB_PREFIX',  '{$prefix}');
 define('ADMIN_TITLE',   '{$title}');
 define('SESSION_NAME',  'lmonext_admin');
 define('APP_VERSION',   '{$ver}');
+
+// Demo-Modus (optional, Beitrag: Sicherheitsüberarbeitung): auf true setzen,
+// um auf einer öffentlich zugänglichen Demo-/Vorstellungs-Instanz die
+// Installation/Aktualisierung von Addon-Code über den Addon-Manager (ZIP-
+// Upload UND GitHub-Update) zu deaktivieren. Aktivieren/Deaktivieren bereits
+// installierter Addons bleibt davon unberührt. Auf der "echten" Installation
+// einfach auskommentiert/auf false lassen.
+// define('DEMO_MODE', true);
 PHP;
 
     return file_put_contents(CONFIG_FILE, $content) !== false;

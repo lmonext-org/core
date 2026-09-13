@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.7.11
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -60,9 +60,9 @@ if (isLoggedIn()) {
             $s4 = $db->prepare('SELECT option_key,option_value FROM '.tbl('liga_options').' WHERE liga_id=?');
             $s4->execute([$lid]); $ligaDetail['options'] = array_column($s4->fetchAll(), null, 'option_key');
         }
-        // Spielerstatistik-Verwaltung
-        if ($action === 'spielerstatistik' && isset($_GET['liga_id'])) {
-            require_once ADDON_INC . '/player/spielerstat_lib.php';
+        // Spielerstatistik-Verwaltung (spielerstat_lib.php wird bereits durch
+        // AddonManager::bootAdmin() geladen, sofern das "player"-Addon aktiv ist)
+        if ($action === 'spielerstatistik' && function_exists('addonManager') && addonManager()->isEnabled('player') && isset($_GET['liga_id'])) {
             $lid = (int)$_GET['liga_id'];
             $sLiga = $db->prepare('SELECT id,name FROM '.tbl('liga').' WHERE id=?');
             $sLiga->execute([$lid]);
@@ -313,11 +313,25 @@ $nav = [
     'import'      => ['icon' => '📥', 'label' => t('nav_import')],
     'archiv'      => ['icon' => '🗄️',  'label' => t('nav_archiv')],
     'teams'       => ['icon' => '👥', 'label' => t('nav_teams')],
-    'tippspiel'   => ['icon' => '🎯', 'label' => t('nav_tippspiel')],
     'users'       => ['icon' => '👤', 'label' => t('nav_users')],
     'wartung'     => ['icon' => '🛠️', 'label' => t('nav_wartung')],
     'settings'    => ['icon' => '⚙️', 'label' => t('nav_settings')],
 ];
+
+// ── Addon-Navigation dynamisch ueber AddonManager mergen ─────────────────────
+// Addons registrieren ihre Nav-Einträge ueber addon.json (admin_nav), z.B.
+// "Tippspiel" (tipp-Addon) oder "Spielerstatistik" (player-Addon). Der
+// AddonManager sammelt alle aktiven Einträge und sortiert nach 'position'.
+if (function_exists('addonManager')) {
+    foreach (addonManager()->getNavItems() as $navAction => $navItem) {
+        if (!isset($nav[$navAction])) {
+            $nav[$navAction] = [
+                'icon'  => $navItem['icon'],
+                'label' => t($navItem['label_key']),
+            ];
+        }
+    }
+}
 
 $ligaSettingsData = null;
 if ($action === 'liga_settings' && isLoggedIn()) {

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.5.0
+ * Fileversion: 1.6.0
  *
  * PHP version 8.2
  *
@@ -73,7 +73,16 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $save('Tabelle',    isset($_POST['Tabelle'])    ? '1' : '0');
                 $save('ShowLogos',  isset($_POST['ShowLogos'])  ? '1' : '0');
                 $save('Kreuz',      isset($_POST['Kreuz'])      ? '1' : '0');
-                $save('stats',      isset($_POST['stats'])      ? '1' : '0');
+                // "stats" (Spielerstatistik-Anzeige) nur speichern, wenn das
+                // player-Addon installiert ist - die Checkbox ist sonst in
+                // view_liga_settings.php ausgeblendet (siehe dortiger
+                // Changelog-Eintrag) und würde hier sonst bei JEDEM Speichern
+                // dieses Tabs unbemerkt auf '0' zurückgesetzt, selbst wenn
+                // ein per .l98-Import mitgebrachter Wert '1' erhalten bleiben
+                // sollte (z.B. weil das Addon später nachinstalliert wird).
+                if (function_exists('addonManager') && addonManager()->isEnabled('player')) {
+                    $save('stats', isset($_POST['stats']) ? '1' : '0');
+                }
                 $save('Ligastats',  isset($_POST['Ligastats'])  ? '1' : '0');
                 $save('kurve1',     isset($_POST['kurve1'])     ? '1' : '0');
                 $save('kurve2',     isset($_POST['kurve2'])     ? '1' : '0');

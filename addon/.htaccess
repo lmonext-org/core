@@ -1,0 +1,57 @@
+# LMOnext – Addon-Verzeichnis Schutz
+#
+# SICHERHEITSMODELL (ab Version 2.0 dieser Datei): Standardablehnung
+# ("default-deny"), keine Blockliste nach Dateinamensmustern mehr.
+#
+# Vorher wurden nur SPEZIFISCHE, aus den bekannten Core-Addons abgeleitete
+# Namensmuster gesperrt (z.B. Dateien beginnend mit "handler_"/"view_").
+# Das reicht nicht: eine über den Addon-Manager hochgeladene Datei mit
+# einem BELIEBIGEN anderen Namen (z.B. "x.php") wäre dadurch NICHT
+# gesperrt und direkt per URL ausführbar gewesen.
+#
+# Jetzt: direkte HTTP-Ausführung JEDER .php-Datei unter addon/ ist
+# grundsätzlich gesperrt. Die einzigen legitimen "Standalone"-Aufrufe
+# (z.B. das Mini-Tabellen-Addon zum Einbetten via iframe auf fremden
+# Websites) laufen über den zentralen Controller /addon-run.php im
+# LMOnext-Wurzelverzeichnis, der jeden Aufruf gegen eine explizite
+# Whitelist im jeweiligen addon.json prüft (Feld
+# "standalone_entrypoints"). Ein PHP-`require()` aus einer anderen
+# Server-Datei heraus (so lädt der Addon-Manager Handler/Views/Hooks
+# normal) ist von dieser Datei nicht betroffen - .htaccess wirkt nur auf
+# direkte HTTP-Anfragen, nicht auf serverseitige Dateizugriffe.
+
+# Directory listing aus
+Options -Indexes
+
+# ── JEDE .php-Datei direkt per HTTP sperren (auch .tpl.php, endet auf .php) ──
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.php$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# ── Manifeste ebenfalls sperren (keine .php-Datei, daher oben nicht erfasst) ──
+<FilesMatch "\.json$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.json$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# ── Unterverzeichnisse komplett blockieren (defense-in-depth: .php darin
+# ist durch die Regel oben bereits abgedeckt, aber auch andere Dateitypen
+# in lang/ und templates/ sollen nie direkt abrufbar sein) ────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^[^/]+/lang/ - [F,L]
+    RewriteRule ^[^/]+/templates/ - [F,L]
+</IfModule>

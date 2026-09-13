@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.11.2
+ * Fileversion: 3.12.0
  *
  * PHP version 8.2
  *
@@ -72,7 +72,14 @@ $maxNr        = getMaxSpieltagNummer($allSpieltage);
 $favTeamId    = resolveTeamNumberToId($ligaId, (int)($opts['favTeam'] ?? 0));
 
 // ── Aktuellen Reiter bestimmen (?view=…, sonst ersten aktivierten Reiter) ────
-$viewOrder   = ['ergebnisse', 'kalender', 'tabelle', 'spielplaene', 'kreuztabelle', 'fieberkurve', 'ligastatistik', 'spielerstatistik', 'info'];
+$viewOrder   = ['ergebnisse', 'kalender', 'tabelle', 'spielplaene', 'kreuztabelle', 'fieberkurve', 'ligastatistik', 'info'];
+// Addon-Views dynamisch hinzufuegen (z.B. 'spielerstatistik' vom Player-Addon)
+$hookOrder = doHook('liga.view_order', ['order' => $viewOrder]);
+if (isset($hookOrder['order']) && is_array($hookOrder['order'])) {
+    foreach ($hookOrder['order'] as $v) {
+        if (!in_array($v, $viewOrder, true)) { $viewOrder[] = $v; }
+    }
+}
 $currentView = $_GET['view'] ?? 'ergebnisse';
 if (empty($flags[$currentView])) {
     $currentView = 'ergebnisse';
@@ -165,16 +172,24 @@ switch ($currentView) {
         $viewInhalt = renderLigastatistikView($ligaId, $allSpieltage, $team1, $team2);
         break;
 
-    case 'spielerstatistik':
-        $viewInhalt = renderSpielerstatistikView($ligaId);
-        break;
-
     case 'info':
         $viewInhalt = renderInfoView();
         break;
 
-    case 'ergebnisse':
     default:
+        // ── Addon-Views ueber Hook (z.B. spielerstatistik) ──────────────
+        $hookResult = doHook('liga.view_render', [
+            'view'    => $currentView,
+            'liga_id' => $ligaId,
+            'inhalt'  => '',
+        ]);
+        if (!empty($hookResult['inhalt'])) {
+            $viewInhalt = $hookResult['inhalt'];
+            break;
+        }
+        // Fallthrough zu ergebnisse wenn kein Addon gematched hat
+
+    case 'ergebnisse':
         // ── Aktuell gewählten Spieltag/Runde ermitteln (?nr=N, sonst letzter mit Ergebnis) ──
         $requestedNr = isset($_GET['nr']) ? (int)$_GET['nr'] : null;
         $spieltag    = $requestedNr !== null ? getSpieltagByNummer($allSpieltage, $requestedNr) : null;

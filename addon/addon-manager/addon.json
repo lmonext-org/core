@@ -1,0 +1,28 @@
+{
+    "name": "addon-manager",
+    "version": "1.5.1",
+    "type": "admin",
+    "description": {
+        "de": "Core-Addon: Verwaltung aller installierten Addons (Aktivieren/Deaktivieren, Status, Version).",
+        "en": "Core add-on: Management of all installed add-ons (enable/disable, status, version)."
+    },
+    "author": "Torsten Hofmann",
+    "license": "GPL-3.0-only",
+    "homepage": "",
+    "icon": "🧩",
+    "min_core_version": "1.9.0",
+    "dependencies": [],
+    "admin_handlers": ["handler_addons.php"],
+    "admin_views": {
+        "addons": "view_addons.php"
+    },
+    "admin_nav": [
+        { "action": "addons", "icon": "🧩", "label_key": "nav_addons", "position": 90 }
+    ],
+    "frontend_handlers": [],
+    "frontend_views": {},
+    "templates_dir": "",
+    "lang_dir": "lang/",
+    "db_tables": ["lmo_addon_registry"],
+    "hooks": []
+}

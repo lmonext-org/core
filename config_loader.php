@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: config_loader.php
- * Fileversion: 1.5.0
+ * Fileversion: 1.6.0
  *
  * PHP version 8.2
  *
@@ -30,6 +30,14 @@ if (!defined('LMO_DISPLAY_ERRORS_OVERRIDDEN')) {
     ini_set('log_errors', '1');
     error_reporting(E_ALL);
     define('LMO_DISPLAY_ERRORS_OVERRIDDEN', true);
+}
+
+// ── Core-Version aus composer.json definieren ────────────────────────────────
+// Wird vom AddonManager benutzt, um min_core_version aus addon.json gegen die
+// tatsächlich laufende LMOnext-Version zu prüfen.
+if (!defined('LMONEXT_VERSION')) {
+    $_composer = json_decode((string)@file_get_contents(__DIR__ . '/composer.json'), true);
+    define('LMONEXT_VERSION', $_composer['version'] ?? '1.0.0');
 }
 
 // ── Konfiguration laden ─────────────────────────────────────────────────────
