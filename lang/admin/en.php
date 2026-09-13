@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.37.0
+ * Fileversion: 1.38.0
  *
  * PHP version 8.2
  *
@@ -325,7 +325,7 @@ return [
     'sp_status_ie_short'             => 'pens.',
     'sp_status_nv_short'             => 'a.e.t.',
     'sp_col_gt'                      => 'Sports court',
-    'sp_gt_tip'                      => 'Sports court decision (forfeit/awarded match): only select this if such a decision was really made independent of the match result. Default scoring for the winning team is adjustable in this league\'s Penalties tab (defaults: 2:0 if the match took place, e.g. abandoned, 3:0 for a no-show), unless the real result was even more favorable for them.',
+    'sp_gt_tip'                      => 'Sports court decision (forfeit/awarded match): only select this if such a decision was really made independent of the match result. Default scoring for the winning team is adjustable in this league\'s Penalties tab (default: 2:0, both if the match took place and for a no-show), unless the real result was even more favorable for them.',
     'sp_gt_dash'                     => '–',
     'sp_gt_heim'                     => 'Home team wins',
     'sp_gt_gast'                     => 'Away team wins',

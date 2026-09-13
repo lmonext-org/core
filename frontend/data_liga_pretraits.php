@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.29.0
+ * Fileversion: 2.31.0
  *
  * PHP version 8.2
  *
@@ -97,10 +97,10 @@ function getLigaOptions(int $ligaId) : array
  * Position ergeben null.
  */
 /**
- * "Team-Nummer" (Position in der nach Name sortierten Teamliste dieser Liga)
- * zu einer Team-ID auflösen - z.B. für favTeam/selTeam. Cacht die sortierte
- * ID-Liste pro Liga, da diese Funktion innerhalb eines Requests oft mehrfach
- * für dieselbe Liga aufgerufen wird (favTeam, selTeam usw.).
+ * Validiert, dass eine gespeicherte favTeam/selTeam-Team-ID tatsächlich Teil
+ * dieser Liga ist (siehe TeamRepositoryTrait::resolveTeamNumberToId() im
+ * Core für den ausführlichen Hintergrund zur früheren, positionsbasierten
+ * Logik und deren Bugfix).
  */
 function resolveTeamNumberToId(int $ligaId, int $number) : ?int
 {
@@ -114,17 +114,15 @@ function resolveTeamNumberToId(int $ligaId, int $number) : ?int
                 'SELECT g.id
                    FROM ' . tbl('teams_global') . ' g
                    JOIN ' . tbl('liga_teams') . ' lt ON lt.team_id = g.id
-                  WHERE lt.liga_id = ?
-                  ORDER BY g.name'
+                  WHERE lt.liga_id = ?'
             );
             $s->execute([$ligaId]);
-            $cache[$ligaId] = $s->fetchAll(PDO::FETCH_COLUMN);
+            $cache[$ligaId] = array_map('intval', $s->fetchAll(PDO::FETCH_COLUMN));
         } catch (Throwable) {
             $cache[$ligaId] = [];
         }
     }
-    $ids = $cache[$ligaId];
-    return isset($ids[$number - 1]) ? (int)$ids[$number - 1] : null;
+    return in_array($number, $cache[$ligaId], true) ? $number : null;
 }
 
 /**
@@ -685,7 +683,7 @@ function formatScoreWithGt(array $partie) : string
             $partie['h_tore'] !== null ? (int)$partie['h_tore'] : null,
             $partie['g_tore'] !== null ? (int)$partie['g_tore'] : null,
             (int)($partie['_gt_tore_gespielt'] ?? 2),
-            (int)($partie['_gt_tore_nichtantritt'] ?? 3)
+            (int)($partie['_gt_tore_nichtantritt'] ?? 2)
         );
         return h((string)$credited['h_tore']) . ' : ' . h((string)$credited['g_tore']) . h(statusSuffix($partie));
     }

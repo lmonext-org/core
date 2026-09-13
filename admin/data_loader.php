@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.11.0
  *
  * PHP version 8.2
  *
@@ -344,6 +344,14 @@ if ($action === 'liga_settings' && isLoggedIn()) {
             $sO = $db->prepare('SELECT option_key,option_value FROM '.tbl('liga_options').' WHERE liga_id=?');
             $sO->execute([$lid]);
             $ligaSettingsData['opts'] = array_column($sO->fetchAll(), 'option_value', 'option_key');
+            // Einmalige favTeam/selTeam-Migration (auf Wunsch, siehe
+            // ausführlicher Kommentar bei TeamRepositoryTrait::
+            // resolveTeamNumberToId()) - der Admin-Bereich lädt liga_options
+            // per eigener SQL-Abfrage statt über getLigaOptions() (bindet
+            // frontend/data_liga.php nirgends ein), daher hier separat
+            // ergänzt, sonst würde die Migration nur beim Frontend-Aufruf
+            // dieser Liga greifen, nicht beim Öffnen der Liga-Einstellungen.
+            \LMOnext\Liga\LigaService::migrateFavSelTeamToStableId($lid, $ligaSettingsData['opts']);
             $sT = $db->prepare('SELECT g.id, g.name, g.kurz, g.mittel FROM '.tbl('teams_global').' g JOIN '.tbl('liga_teams').' lt ON lt.team_id=g.id WHERE lt.liga_id=? ORDER BY g.name');
             $sT->execute([$lid]);
             $ligaSettingsData['teams'] = $sT->fetchAll();

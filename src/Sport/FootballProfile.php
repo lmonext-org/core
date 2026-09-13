@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/FootballProfile.php
- * Fileversion: 1.3.0
+ * Fileversion: 1.4.0
  *
  * PHP version 8.2
  *
@@ -70,7 +70,7 @@ final class FootballProfile implements SportProfile
             $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
                 $gtEntscheidung, (int)$h, (int)$g,
                 (int)($match['_gt_tore_gespielt'] ?? 2),
-                (int)($match['_gt_tore_nichtantritt'] ?? 3)
+                (int)($match['_gt_tore_nichtantritt'] ?? 2)
             );
             $result = (string)$credited['h_tore'] . ' : ' . (string)$credited['g_tore'];
         } else {

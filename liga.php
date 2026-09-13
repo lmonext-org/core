@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.17.0
+ * Fileversion: 3.18.0
  *
  * PHP version 8.2
  *
@@ -265,7 +265,7 @@ switch ($currentView) {
         // die Liga-ID zwar kennen, aber nicht erneut getLigaOptions()
         // aufrufen sollen (unnötige Mehrfachabfrage pro Zeile).
         $gtToreGespielt     = (int)($opts['GtToreGespielt'] ?? 2);
-        $gtToreNichtantritt = (int)($opts['GtToreNichtantritt'] ?? 3);
+        $gtToreNichtantritt = (int)($opts['GtToreNichtantritt'] ?? 2);
         foreach ($partien as &$_p) {
             $_p['_liga_id'] = $ligaId;
             $_p['_gt_tore_gespielt'] = $gtToreGespielt;

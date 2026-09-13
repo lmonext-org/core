@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.38.0
+ * Fileversion: 1.39.0
  *
  * PHP version 8.2
  *
@@ -326,7 +326,7 @@ return [
     'sp_status_ie_short'             => 'i.E.',
     'sp_status_nv_short'             => 'n.V.',
     'sp_col_gt'                      => 'Sportgericht',
-    'sp_gt_tip'                      => 'Grüne-Tisch-Entscheidung: bitte nur auswählen, wenn wirklich eine solche Entscheidung unabhängig vom Spielergebnis getroffen wurde. Standardwertung für die siegende Mannschaft ist im Strafen-Tab dieser Liga einstellbar (Vorgabe: 2:0 bei stattgefundenem Spiel, z.B. Abbruch, 3:0 bei Nichtantritt), außer das real erzielte Ergebnis war für sie noch höher.',
+    'sp_gt_tip'                      => 'Grüne-Tisch-Entscheidung: bitte nur auswählen, wenn wirklich eine solche Entscheidung unabhängig vom Spielergebnis getroffen wurde. Standardwertung für die siegende Mannschaft ist im Strafen-Tab dieser Liga einstellbar (Vorgabe: 2:0, sowohl bei stattgefundenem Spiel als auch bei Nichtantritt), außer das real erzielte Ergebnis war für sie noch höher.',
     'sp_gt_dash'                     => '–',
     'sp_gt_heim'                     => 'Heimteam siegt',
     'sp_gt_gast'                     => 'Gastteam siegt',

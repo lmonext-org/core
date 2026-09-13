@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.12.0
  *
  * PHP version 8.2
  *
@@ -128,7 +128,7 @@ if ($tab === 'grundwerte') { ?>
               <td <?= $tdL ?>>
                 <select name="favTeam" style="<?= $selSt ?>;min-width:220px">
                   <option value="0"><?= h(t('ls_opt_none_dash')) ?></option>
-                  <?php foreach ($ligaTeams as $i => $t) { $tNr = $i + 1; ?>
+                  <?php foreach ($ligaTeams as $t) { $tNr = (int)$t['id']; ?>
                   <option value="<?= $tNr ?>"<?= $o('favTeam','0')==(string)$tNr?' selected':'' ?>><?= h($t['name']) ?></option>
                   <?php } ?>
                 </select>
@@ -139,7 +139,7 @@ if ($tab === 'grundwerte') { ?>
               <td <?= $tdL ?>>
                 <select name="selTeam" style="<?= $selSt ?>;min-width:220px">
                   <option value="0"><?= h(t('ls_opt_none_dash_m')) ?></option>
-                  <?php foreach ($ligaTeams as $i => $t) { $tNr = $i + 1; ?>
+                  <?php foreach ($ligaTeams as $t) { $tNr = (int)$t['id']; ?>
                   <option value="<?= $tNr ?>"<?= $o('selTeam','0')==(string)$tNr?' selected':'' ?>><?= h($t['name']) ?></option>
                   <?php } ?>
                 </select>
@@ -675,7 +675,7 @@ if ($tab === 'grundwerte') { ?>
             <div>
               <label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px"><?= h(t('ls_gt_label_nichtantritt')) ?></label>
               <input type="number" name="gt_tore_nichtantritt" min="0" inputmode="numeric"
-                     value="<?= h($o('GtToreNichtantritt', '3')) ?>"
+                     value="<?= h($o('GtToreNichtantritt', '2')) ?>"
                      style="width:70px;text-align:center;<?= $selSt ?>">
             </div>
             <p style="font-size:.76rem;color:var(--muted);max-width:420px;margin:0"><?= h(t('ls_gt_hinweis')) ?></p>

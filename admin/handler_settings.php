@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -167,7 +167,7 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 // StandingsTrait::gtCreditedScore() für die Anwendung
                 // dieser beiden Werte.
                 $save('GtToreGespielt', (string)max(0, (int)($_POST['gt_tore_gespielt'] ?? 2)));
-                $save('GtToreNichtantritt', (string)max(0, (int)($_POST['gt_tore_nichtantritt'] ?? 3)));
+                $save('GtToreNichtantritt', (string)max(0, (int)($_POST['gt_tore_nichtantritt'] ?? 2)));
 
                 // Eigener Zweig, NICHT über den liga_options-$save()-Helper -
                 // Strafpunkte/Straftore/Tore-Korrektur leben pro Liga+Team in

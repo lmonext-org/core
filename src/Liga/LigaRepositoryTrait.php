@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/LigaRepositoryTrait.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.2.0
  *
  * PHP version 8.2
  *
@@ -99,6 +99,12 @@ trait LigaRepositoryTrait
             foreach ($s->fetchAll() as $row) {
                 $out[$row['option_key']] = $row['option_value'];
             }
+            // Einmalige favTeam/selTeam-Migration (auf Wunsch, siehe
+            // ausführlicher Kommentar bei TeamRepositoryTrait::
+            // resolveTeamNumberToId()) - läuft VOR dem Cachen dieser
+            // Rückgabe, damit der gecachte Wert bereits die migrierten,
+            // stabilen Team-IDs enthält statt der alten Positions-Werte.
+            self::migrateFavSelTeamToStableId($ligaId, $out);
             return $cache[$ligaId] = $out;
         } catch (\Throwable) {
             return $cache[$ligaId] = [];

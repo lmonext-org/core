@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/StandingsTrait.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.11.0
  *
  * PHP version 8.2
  *
@@ -134,7 +134,7 @@ trait StandingsTrait
      * @param int      $toreNichtantritt  Standardtore für die siegende Mannschaft bei Nichtantritt (Liga-Einstellung, Default 3)
      * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
      */
-    public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore, int $toreGespielt = 2, int $toreNichtantritt = 3) : array
+    public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore, int $toreGespielt = 2, int $toreNichtantritt = 2) : array
     {
         $spielHatStattgefunden = $hTore !== null && $gTore !== null;
         $standardTore = $spielHatStattgefunden ? $toreGespielt : $toreNichtantritt;
@@ -241,7 +241,7 @@ trait StandingsTrait
                     $p['h_tore'] !== null ? (int)$p['h_tore'] : null,
                     $p['g_tore'] !== null ? (int)$p['g_tore'] : null,
                     (int)($ligaOptions['GtToreGespielt'] ?? 2),
-                    (int)($ligaOptions['GtToreNichtantritt'] ?? 3)
+                    (int)($ligaOptions['GtToreNichtantritt'] ?? 2)
                 );
                 $ht = $credited['h_tore'];
                 $gt = $credited['g_tore'];
