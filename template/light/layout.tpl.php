@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: light | Filename: layout.tpl.php | Fileversion: 1.5.12
+  Template: light | Filename: layout.tpl.php | Fileversion: 1.5.13
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -149,7 +149,8 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .spielfrei-note strong{color:var(--text)}
 .gt-footnote{font-size:.85rem;color:var(--muted);margin:16px 0;padding:8px 12px;
   background:var(--bg);border-radius:var(--radius);border:1px dashed var(--border)}
-.gt-footnote strong{color:var(--text);display:block;margin-bottom:4px}
+.gt-footnote > strong{color:var(--text);display:block;margin-bottom:4px}
+.gt-footnote-line .gt-footnote-nr{display:inline;margin-bottom:0}
 .gt-footnote-line{margin:4px 0}
 
 .tabs-bar{display:flex;gap:0;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--border)}

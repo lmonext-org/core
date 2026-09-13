@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.18.0
+ * Fileversion: 1.19.0
  *
  * PHP version 8.2
  *
@@ -181,7 +181,7 @@ trait RenderViewsTrait
                 ]);
             }
             $lines .= '<p class="gt-footnote-line">'
-                . (isset($p['_gt_footnote_nr']) ? '<strong>' . self::gtFootnoteMarker((int)$p['_gt_footnote_nr']) . '</strong> ' : '')
+                . (isset($p['_gt_footnote_nr']) ? '<strong class="gt-footnote-nr">' . self::gtFootnoteMarker((int)$p['_gt_footnote_nr']) . '</strong> ' : '')
                 . $text . '</p>';
         }
         if ($lines === '') {

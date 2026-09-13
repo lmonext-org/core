@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.54.0
+ * Fileversion: 1.55.0
  *
  * PHP version 8.2
  *
@@ -145,7 +145,7 @@ return [
     'liga_status_nv'             => 'AET',
     'liga_status_ng'             => 'not counted',
     'liga_status_gt'             => '(*)',
-    'liga_gt_footnote_heading'   => '(*) Sports court decisions',
+    'liga_gt_footnote_heading'   => 'Sports court decision',
     'liga_gt_footnote_line'      => 'The match {heim} vs {gast} ended {real} and was credited by the sports court as {gewertet} for {sieger}.',
     'liga_gt_footnote_line_no_real' => '{nicht_angetreten} did not show up. The match is credited as {gewertet} for {sieger}.',
     'liga_stats_line'            => 'Average home: {heim}   Average away: {gast}   Goals: {tore}   Goals/match: {proSpiel}',

@@ -1013,6 +1013,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.55.0 - Auf Wunsch umformuliert: liga_gt_footnote_heading von "(*) Grüne-Tisch-Entscheidungen" auf "Grüne-Tisch-Entscheidung" (kein "(*)"-Präfix, Singular), liga_gt_footnote_line von "endete mit {real}" auf "endete {real}" (ohne "mit").
 - Changelog: 1.54.0 - liga_gt_footnote_line_no_real umformuliert (auf Wunsch): "{nicht_angetreten} ist nicht angetreten. Das Spiel wird mit {gewertet} für {sieger} gewertet." statt der bisherigen, weniger konkreten Formulierung - benennt jetzt direkt das nicht angetretene Team.
 - Changelog: 1.53.0 - liga_status_gt von "Wertung" auf "(*)" geändert (dezenter Hinweis direkt am gewerteten Ergebnis statt eines ausgeschriebenen Worts, die Erklärung steht jetzt als eigene Fußnote, siehe liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, neu ergänzt). Zwei Varianten der Fußnote, da sich "endete mit {real}" bei einem Nichtantritt (kein reales Ergebnis) nicht sinnvoll formulieren lässt.
 - Changelog: 1.52.0 - Neuer Schlüssel liga_status_gt ("Wertung") für eine Grüne-Tisch-Entscheidung, siehe TeamFormattingTrait::statusSuffix().
@@ -1093,6 +1094,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.55.0 - liga_gt_footnote_heading von "(*) Sports court decisions" auf "Sports court decision" angepasst, konsistent zur deutschen Änderung (siehe lang/frontend/de.php 1.55.0). liga_gt_footnote_line war bereits als "ended {real}" formuliert, keine Änderung nötig.
 - Changelog: 1.54.0 - liga_gt_footnote_line_no_real reworded to match the German version - now names the team that did not show up directly instead of the previous, less specific phrasing.
 - Changelog: 1.53.0 - liga_status_gt changed from "awarded" to "(*)" (subtle marker right next to the credited score instead of a spelled-out word, the explanation now lives in its own footnote, see liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, newly added). Two footnote variants, since "ended {real}" doesn't make sense for a no-show (no real result exists).
 - Changelog: 1.52.0 - New key liga_status_gt ("awarded") for a sports court decision, see TeamFormattingTrait::statusSuffix().
@@ -1288,6 +1290,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.19.0 - Bugfix (gemeldet: die hochgestellte Fußnoten-Nummer erschien in eigener Zeile über dem Erklärungstext statt inline davor): renderGtFootnotes() gibt der Nummer-Markierung jetzt eine eigene Klasse (gt-footnote-nr) statt des generischen <strong> - dieses teilte sich bisher denselben CSS-Selektor mit der äußeren Fußnoten-Überschrift (.gt-footnote strong), die bewusst als Block dargestellt wird. Auf Wunsch außerdem: liga_gt_footnote_heading/liga_gt_footnote_line umformuliert (siehe lang/frontend/de.php 1.55.0).
 - Changelog: 1.18.0 - renderGtFootnotes() stellt jeder Fußnotenzeile jetzt die zugehörige Nummer voran (TeamFormattingTrait::gtFootnoteMarker(), z.B. "⁽¹⁾"), falls liga.php sie vorab zugewiesen hat (assignGtFootnoteNumbers()) - identische Markierung wie in der Score-Anzeige, damit sich beide eindeutig einander zuordnen lassen.
 - Changelog: 1.17.0 - Verfeinerung (auf Wunsch): renderGtFootnotes() nennt im Nichtantritt-Fall jetzt explizit das nicht angetretene ("schuldige") Team statt nur "Das Spiel X gegen Y fand nicht statt" - ermittelt aus der Entscheidung selbst (Heimteam siegt -> Gastteam ist nicht angetreten, und umgekehrt), siehe liga_gt_footnote_line_no_real (neuer Platzhalter {nicht_angetreten} statt {heim}/{gast}).
 - Changelog: 1.16.0 - Feature (auf Wunsch): formatScore() zeigt bei einer Grüne-Tisch-Entscheidung jetzt das ANGERECHNETE (gewertete) Ergebnis statt des real erzielten, mit "(*)" statt eines ausgeschriebenen "Wertung"-Texts (liga_status_gt), auch für den Nichtantritt-Fall (kein reales Ergebnis) korrekt mit statusSuffix() ergänzt - fehlte dort bisher komplett. Neue Funktion renderGtFootnotes(): baut die Fußnoten-Box unterhalb der Ergebnistabelle, die jede Grüne-Tisch-Entscheidung eines Spieltags im Klartext erklärt (reales Ergebnis, gewertetes Ergebnis, Sieger) - liefert '', wenn kein betroffenes Spiel vorhanden ist. Neues Partial gt_footnote.tpl.php (default + matchday, colored/dark/light fallen automatisch auf default zurück).
@@ -1569,6 +1572,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.17.13 - Bugfix: .gt-footnote strong (traf sowohl die Fußnoten-Überschrift als auch die Zeilen-Nummer-Markierung) auf .gt-footnote > strong (nur direktes Kind, trifft nur noch die Überschrift) umgestellt, plus explizite .gt-footnote-line .gt-footnote-nr{display:inline}-Regel für die Nummer-Markierung - diese erschien zuvor fälschlich in eigener Zeile statt inline vor dem Erklärungstext.
 - Changelog: 1.17.12 - Neue CSS-Regeln .gt-footnote/.gt-footnote-line (Fußnoten-Box für Grüne-Tisch-Entscheidungen, analog zu .spielfrei-note gestylt), siehe RenderViewsTrait::renderGtFootnotes() 1.16.0.
 - Changelog: 1.17.11 - KRITISCHER Nachfix (gemeldet: die vorherige Korrektur der Kreuztabelle-Ausrichtung - .st-team-logo-wrap auf min-width:26px - zeigte keine sichtbare Verbesserung): min-width garantiert nur eine UNTERGRENZE, kein Logo mit natürlicher Breite über 26px (team-logo-inline hat width:auto bei fester Höhe, die tatsächliche Breite hängt vom Seitenverhältnis jedes einzelnen Vereinswappens ab) wurde dadurch begrenzt - der Wrapper wuchs bei breiteren Logos einfach mit, die Ausrichtung blieb inkonsistent. Fix: .st-team-logo-wrap bekommt jetzt eine FESTE Box (width:26px;height:18px), das Logo darin wird per object-fit:contain proportional ohne Verzerrung eingepasst (.st-team-logo-wrap .team-logo-inline, höhere Selektor-Spezifität überschreibt die globale team-logo-inline-Regel nur innerhalb des Wrappers, alle anderen Verwendungsstellen dieser Klasse bleiben unberührt). margin-right auf den Wrapper verschoben (vorher auf dem Bild selbst), da das Bild jetzt margin:0 braucht, um die Box exakt auszufüllen.
 - Changelog: 1.17.10 - Diagonale Spaltenüberschriften nochmal korrigiert: Drehpunkt liegt jetzt fest am linken Rand der jeweils eigenen Spalte (left:2px, kein translateX(-50%)/left:50% mehr), statt von der Textlänge abhängig zu sein. Grund: die vorherige "left:50% + translateX(-50%)"-Zentrierung ließ den tatsächlichen Drehpunkt bei langen Wörtern wie "Niederlagen" spürbar in die linke Nachbarspalte hineinwandern (im Livesystem als Screenshot bestätigt: "Niederlagen" überlappte sichtbar mit "Siege"). Die getestete Alternative "origin: center bottom" (siehe 1.17.7-1.17.8) verursachte stattdessen ein Hineinragen in die Datenzeile. Der jetzt feste Drehpunkt je Spalte vermeidet beides: jede Beschriftung beginnt exakt an ihrer eigenen Spalte, unabhängig von der Wortlänge. Mit Playwright unter realistischen schmalen Spaltenbreiten verifiziert.
@@ -1592,6 +1596,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/colored/layout.tpl.php
 
+- Changelog: 1.6.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.6.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.6.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.6.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
@@ -1615,6 +1620,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/dark/layout.tpl.php
 
+- Changelog: 1.5.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.5.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
@@ -1638,6 +1644,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/light/layout.tpl.php
 
+- Changelog: 1.5.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.5.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
@@ -1661,6 +1668,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.2.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.2.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12, hier an das Matchday-Kartenstyling (border-left statt dashed border) angepasst.
 - Changelog: 1.2.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width. Betrifft insbesondere die Kreuztabelle, die dieses Template im gemeldeten Screenshot sichtbar nutzte (Footer: "Template: Matchday").
 - Changelog: 1.2.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
