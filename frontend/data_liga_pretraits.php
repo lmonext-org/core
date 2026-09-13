@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.27.0
+ * Fileversion: 2.28.0
  *
  * PHP version 8.2
  *
@@ -667,6 +667,37 @@ function groupPartienByPairing(array $partien) : array
  * (template/<aktiv>/partials/partie_row.tpl.php). $spieltagStart dient als
  * Datums-Fallback, falls die einzelne Partie keine eigene Zeit hat.
  */
+/**
+ * Baut die Ergebnis-Anzeige "H : G" (+ statusSuffix()-Hinweis wie "(*)"/
+ * "n.V."/"nicht gewertet") für eine Partie, unter Berücksichtigung einer
+ * Grüne-Tisch-Entscheidung: zeigt dann das ANGERECHNETE (gewertete)
+ * Ergebnis statt des real erzielten (siehe StandingsTrait::gtCreditedScore()).
+ * Zentrale Helferfunktion, von renderPartieRow() und den übrigen
+ * Ergebnis-Anzeigestellen dieser Datei gemeinsam genutzt, statt die Logik
+ * mehrfach zu duplizieren.
+ */
+function formatScoreWithGt(array $partie) : string
+{
+    $gtEntscheidung = (int)($partie['gt_entscheidung'] ?? 0);
+    if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
+        $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
+            $gtEntscheidung,
+            $partie['h_tore'] !== null ? (int)$partie['h_tore'] : null,
+            $partie['g_tore'] !== null ? (int)$partie['g_tore'] : null
+        );
+        return h((string)$credited['h_tore']) . ' : ' . h((string)$credited['g_tore']) . h(statusSuffix($partie));
+    }
+    $gespielt = $partie['h_tore'] !== null && $partie['g_tore'] !== null;
+    return $gespielt
+        ? h((string)$partie['h_tore']) . ' : ' . h((string)$partie['g_tore']) . h(statusSuffix($partie))
+        : '- : -';
+}
+
+/**
+ * Rendert eine einzelne Ergebniszeile über das Partial "partie_row"
+ * (template/<aktiv>/partials/partie_row.tpl.php). $spieltagStart dient als
+ * Datums-Fallback, falls die einzelne Partie keine eigene Zeit hat.
+ */
 function renderPartieRow(array $partie, ?string $spieltagStart = null, ?int $favTeamId = null, bool $showLogos = false, bool $reverseHeim = false) : string
 {
     $heimRaw  = partieTeamName($partie, 'heim');
@@ -675,8 +706,12 @@ function renderPartieRow(array $partie, ?string $spieltagStart = null, ?int $fav
         ? partieTeamNameWithLogoReversed($partie, 'heim', $showLogos)
         : partieTeamNameWithLogo($partie, 'heim', $showLogos);
     $gast     = partieTeamNameWithLogo($partie, 'gast', $showLogos);
-    $gespielt = $partie['h_tore'] !== null && $partie['g_tore'] !== null;
-    $score    = $gespielt ? h((string)$partie['h_tore']) . ' : ' . h((string)$partie['g_tore']) . h(statusSuffix($partie)) : '- : -';
+    // Bugfix (Nachzügler zur Grüne-Tisch-Entscheidung, dasselbe wie
+    // RenderViewsTrait::renderPartieRow() im Core, hier bisher übersehen):
+    // $gespielt berücksichtigt jetzt auch eine gesetzte Entscheidung, damit
+    // ein Nichtantritt-Spiel nicht fälschlich als "noch offen" markiert wird.
+    $gespielt = ($partie['h_tore'] !== null && $partie['g_tore'] !== null) || (int)($partie['gt_entscheidung'] ?? 0) > 0;
+    $score    = formatScoreWithGt($partie);
     $datum    = h(partieZeitDisplay($partie, $spieltagStart));
     $hId      = (int)($partie['heim_id'] ?? 0);
     $gId      = (int)($partie['gast_id'] ?? 0);
@@ -1432,10 +1467,8 @@ function renderTeamScheduleView(int $ligaId, array $allSpieltage, ?int $selected
             if ($hId !== $selectedTeamId && $gId !== $selectedTeamId) {
                 continue;
             }
-            $gespielt = $p['h_tore'] !== null && $p['g_tore'] !== null;
-            $score    = $gespielt
-                ? h((string)$p['h_tore']) . ' : ' . h((string)$p['g_tore']) . h(statusSuffix($p))
-                : '- : -';
+            $gespielt = ($p['h_tore'] !== null && $p['g_tore'] !== null) || (int)($p['gt_entscheidung'] ?? 0) > 0;
+            $score    = formatScoreWithGt($p);
             $heimRaw = partieTeamName($p, 'heim');
             $gastRaw = partieTeamName($p, 'gast');
             $rowsHtml .= renderPartial('team_schedule_row', [
@@ -1518,10 +1551,11 @@ function renderKreuztabelleView(int $ligaId, array $allSpieltage) : string
                 continue;
             }
             $p = $lookup[$rowTeam['id'] . '_' . $colTeam['id']] ?? null;
-            if ($p === null || $p['h_tore'] === null || $p['g_tore'] === null) {
+            $hatGt = $p !== null && (int)($p['gt_entscheidung'] ?? 0) > 0;
+            if ($p === null || (($p['h_tore'] === null || $p['g_tore'] === null) && !$hatGt)) {
                 $cellsHtml .= renderPartial('kreuz_cell', $cellVars + ['CellClass' => $favClass, 'Content' => '']);
             } else {
-                $content = h((string)$p['h_tore']) . ':' . h((string)$p['g_tore']) . h(statusSuffix($p));
+                $content = formatScoreWithGt($p);
                 $cellsHtml .= renderPartial('kreuz_cell', $cellVars + ['CellClass' => $favClass, 'Content' => $content]);
             }
         }

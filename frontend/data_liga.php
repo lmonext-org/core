@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.1.0
+ * Fileversion: 3.2.0
  *
  * PHP version 8.2
  *
@@ -233,6 +233,11 @@ function renderResultsTable(array $partien, ?string $spieltagStart, ?int $favTea
 function renderStatsBlock(string $heading, array $partien) : string
 {
     return \LMOnext\Liga\LigaService::renderStatsBlock($heading, $partien);
+}
+
+function renderGtFootnotes(array $partien) : string
+{
+    return \LMOnext\Liga\LigaService::renderGtFootnotes($partien);
 }
 
 function renderSpieltagPicker(array $allSpieltage, int $ligaId, ?int $currentNr, bool $isKO, int $maxNr, string $targetView = 'ergebnisse') : string

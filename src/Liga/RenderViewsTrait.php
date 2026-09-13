@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.15.0
+ * Fileversion: 1.16.0
  *
  * PHP version 8.2
  *
@@ -46,13 +46,15 @@ trait RenderViewsTrait
         if ($partie['h_tore'] === null || $partie['g_tore'] === null) {
             // Grüne-Tisch-Entscheidung OHNE real eingetragenes Ergebnis (z.B.
             // Nichtantritt) - siehe StandingsTrait::gtCreditedScore(). Die
-            // gewertete Standardwertung (i.d.R. 3:0) wird angezeigt, da es
-            // sonst gar kein Ergebnis zum Anzeigen gäbe. Der Hinweis "Wertung"
-            // kommt separat über TeamFormattingTrait::statusSuffix() dazu.
+            // gewertete Standardwertung wird angezeigt, da es sonst gar kein
+            // Ergebnis zum Anzeigen gäbe. Der "(*)"-Hinweis kommt über
+            // TeamFormattingTrait::statusSuffix() dazu (liga_status_gt) -
+            // hier explizit angehängt, da dieser Zweig formatResult() (das
+            // den Suffix sonst selbst anhängt) nicht durchläuft.
             $gtEntscheidung = (int)($partie['gt_entscheidung'] ?? 0);
             if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
                 $credited = \LMOnext\Liga\LigaService::gtCreditedScore($gtEntscheidung, null, null);
-                return h($credited['h_tore'] . ' : ' . $credited['g_tore']);
+                return h($credited['h_tore'] . ' : ' . $credited['g_tore']) . self::statusSuffix($partie);
             }
             return '- : -';
         }
@@ -136,6 +138,52 @@ trait RenderViewsTrait
                 'tore'     => $stats['tore'],
                 'proSpiel' => $stats['toreProSpiel'],
             ])),
+        ]);
+    }
+    /**
+     * Baut die Fußnoten-Box unterhalb der Ergebnistabelle eines Spieltags
+     * (auf Wunsch), die jede Grüne-Tisch-Entscheidung dieses Spieltags mit
+     * vollem Klartext erklärt - der Score in der Tabelle selbst zeigt nur
+     * das gewertete Ergebnis + "(*)" (siehe formatScore()/FootballProfile::
+     * formatResult()), diese Box liefert dazu das reale Ergebnis und die
+     * Begründung. Liefert '', wenn kein Spiel dieses Spieltags eine
+     * Entscheidung hat (kein leerer Rahmen ohne Inhalt).
+     */
+    public static function renderGtFootnotes(array $partien) : string
+    {
+        $lines = '';
+        foreach ($partien as $p) {
+            $gtEntscheidung = (int)($p['gt_entscheidung'] ?? 0);
+            if ($gtEntscheidung !== 1 && $gtEntscheidung !== 2) {
+                continue;
+            }
+            $heim = h(self::partieTeamName($p, 'heim'));
+            $gast = h(self::partieTeamName($p, 'gast'));
+            $sieger = $gtEntscheidung === 1 ? $heim : $gast;
+            $hTore = $p['h_tore'] !== null ? (int)$p['h_tore'] : null;
+            $gTore = $p['g_tore'] !== null ? (int)$p['g_tore'] : null;
+            $credited = \LMOnext\Liga\LigaService::gtCreditedScore($gtEntscheidung, $hTore, $gTore);
+            $gewertet = h($credited['h_tore'] . ':' . $credited['g_tore']);
+            if ($hTore !== null && $gTore !== null) {
+                $text = tf('liga_gt_footnote_line', [
+                    'heim' => $heim, 'gast' => $gast,
+                    'real' => h($hTore . ':' . $gTore),
+                    'gewertet' => $gewertet, 'sieger' => $sieger,
+                ]);
+            } else {
+                $text = tf('liga_gt_footnote_line_no_real', [
+                    'heim' => $heim, 'gast' => $gast,
+                    'gewertet' => $gewertet, 'sieger' => $sieger,
+                ]);
+            }
+            $lines .= '<p class="gt-footnote-line">' . $text . '</p>';
+        }
+        if ($lines === '') {
+            return '';
+        }
+        return renderPartial('gt_footnote', [
+            'Heading' => h(tf('liga_gt_footnote_heading')),
+            'Lines'   => $lines,
         ]);
     }
     /**

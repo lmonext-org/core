@@ -650,6 +650,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_liga.php
 
+- Changelog: 3.2.0 - Neuer Wrapper renderGtFootnotes(), delegiert an LigaService::renderGtFootnotes() (siehe RenderViewsTrait.php 1.16.0) - von liga.php für die neue Grüne-Tisch-Fußnote unterhalb der Ergebnistabelle genutzt.
 - Changelog: 3.1.0 - Teamvergleich (H2H) als eigenständiges Addon "teamvergleich" ausgegliedert. Die vier Wrapper-Funktionen getHeadToHeadMatches()/buildHeadToHeadPayload()/renderH2hIcon()/renderH2hModalAssets() delegieren jetzt über je einen Hook (liga.h2h_matches/liga.h2h_payload/liga.compare_icon/liga.compare_modal_assets) statt direkt an LigaService (das die zugehörige Trait nicht mehr enthält, siehe LigaService.php 1.1.0). resolveLinkedTeamIds()/resolveCanonicalTeamId() als globale Wrapper komplett entfernt - hatten keinen externen Aufrufer außerhalb der jetzt ausgelagerten H2H-Logik selbst. require_once auf das entfernte src/Liga/HeadToHeadTrait.php ebenfalls entfernt. Ist das Addon nicht aktiv, liefern alle vier Funktionen einfach leere Werte (kein Teamvergleich sichtbar), kein Fehler. WICHTIG für Bestandsinstallationen: nach diesem Core-Update ist der Teamvergleich nicht mehr verfügbar, bis das neue Addon zusätzlich installiert und aktiviert wird.
 - Changelog: 3.0.7 - getAllLigaPartien()-Wrapper um den neuen optionalen $ligaId-Parameter erweitert.
 - Changelog: 3.0.6 - BUGFIX: der findTeamLogoPathFrontend()-Kompatibilitäts-Wrapper akzeptierte nur EINEN Parameter (int $teamId) und ignorierte den neu ergänzten zweiten Parameter $forBrowser komplett - dadurch wurde ein von frontend/pdf_export.php explizit übergebenes "false" (PDF-Modus) stillschweigend verworfen, das PDF landete immer im Browser-Modus (SVG zuerst) statt beim gewünschten Raster-zuerst. Wrapper reicht $forBrowser jetzt korrekt durch.
@@ -663,6 +664,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_liga_pretraits.php
 
+- Changelog: 2.28.0 - WICHTIGER FUND (bei dieser Änderung entdeckt): diese Datei wird von KEINEM aktiven Code-Pfad mehr geladen (weder liga.php/frontend/bootstrap.php noch dynamisch/per Addon) - vollständig toter Code. Trotzdem aus Konsistenzgründen mitgepflegt: neue Helferfunktion formatScoreWithGt() (zeigt bei einer Grüne-Tisch-Entscheidung das gewertete statt des realen Ergebnisses, mit "(*)"), von renderPartieRow(), der Team-Spielplan-Sidebar und der Kreuztabelle gemeinsam genutzt statt die Logik zu duplizieren. Nebenfund dabei behoben: $gespielt berücksichtigte bisher nirgends in dieser Datei eine gesetzte Grüne-Tisch-Entscheidung (anders als der längst korrigierte Core) - ein Nichtantritt-Spiel wäre fälschlich als "noch offen" markiert worden.
 - Changelog: 2.27.0 - Gleiches Ausrichtungsproblem wie in der Kreuztabelle (siehe 2.26.0), diesmal gemeldet für die Team-Auswahlliste links neben den Spielplänen: renderSpielplaeneView() nutzte für das Logo vor jedem Team-Kurznamen in der Sidebar (team_sidebar_item.tpl.php) ebenfalls das unverpackte renderTeamLogoImg() statt renderTeamLogoImgWrapped() - jetzt korrigiert. Alle übrigen renderTeamLogoImg()-Aufrufe in dieser Datei geprüft und als unproblematisch bestätigt (Kreuztabellen-Kopfzeile zeigt nur das Logo ohne folgenden Text, <h3>-Überschriften sind Einzelelemente, Heim/Gast-Namen stehen nebeneinander statt untereinander - in keinem dieser Fälle wirkt sich eine variable Logo-Breite auf die Ausrichtung mehrerer Zeilen aus).
 - Changelog: 2.26.0 - Bugfix (gemeldet: Teamnamen in der Kreuztabelle-Zeilenbeschriftung standen bei aktivierten Logos je nach Logo-Breite unterschiedlich weit eingerückt, wirkten dadurch "versetzt" statt sauber untereinander ausgerichtet): renderKreuztabelleView() nutzt jetzt renderTeamLogoImgWrapped() (mit fester Mindestbreite über .st-team-logo-wrap, min-width:26px, bereits vorhanden und in der normalen Liga-Tabelle im Einsatz) statt des unverpackten renderTeamLogoImg() - keine Template-Strukturänderung nötig, da das Logo weiterhin im selben <th> wie der Name steht, nur mit fester statt variabler Breite.
 - Changelog: 2.25.0 - getSpieltagPartien() (eigenständige Implementierung in dieser Datei, kein Wrapper) um dieselbe gt_entscheidung-Unterstützung ergänzt wie in src/Liga/SpieltagRepositoryTrait.php - sonst hätte dieses alternative Template die neue Grüne-Tisch-Entscheidung nicht angezeigt.
@@ -1009,6 +1011,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.53.0 - liga_status_gt von "Wertung" auf "(*)" geändert (dezenter Hinweis direkt am gewerteten Ergebnis statt eines ausgeschriebenen Worts, die Erklärung steht jetzt als eigene Fußnote, siehe liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, neu ergänzt). Zwei Varianten der Fußnote, da sich "endete mit {real}" bei einem Nichtantritt (kein reales Ergebnis) nicht sinnvoll formulieren lässt.
 - Changelog: 1.52.0 - Neuer Schlüssel liga_status_gt ("Wertung") für eine Grüne-Tisch-Entscheidung, siehe TeamFormattingTrait::statusSuffix().
 - Changelog: 1.51.0 - Neuer Schlüssel liga_status_ng ("nicht gewertet") für rückwirkend annullierte Spiele, siehe TeamFormattingTrait::statusSuffix().
 - Changelog: 1.50.1 - KRITISCHER Bugfix zu 1.50.0: die 7 liga_weekday_*-Schlüssel wurden dort fälschlich als "nur vom viewer-Addon genutzt" eingestuft und aus dem Core entfernt - tatsächlich baut aber auch die Core-eigene Kalenderansicht (src/Liga/RenderViewsTrait.php UND frontend/data_liga_pretraits.php, jeweils die Wochentags-Kopfzeile) sie dynamisch über ein Array + Variable auf (`tf($key)` statt `tf('liga_weekday_mo')` direkt) - diese Nutzungsform hatte die automatisierte Prüfung übersehen, da sie nur nach direkten Literal-Aufrufen suchte. Bei deaktiviertem viewer-Addon hätte der Core-Kalender dadurch rohe Schlüsselnamen statt "Mo, Di, Mi, ..." angezeigt. Schlüssel wieder ergänzt - bleiben jetzt bewusst SOWOHL im Core als auch im viewer-Addon (addon/viewer/lang/), da sie tatsächlich von beiden gebraucht werden.
@@ -1087,6 +1090,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.53.0 - liga_status_gt changed from "awarded" to "(*)" (subtle marker right next to the credited score instead of a spelled-out word, the explanation now lives in its own footnote, see liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, newly added). Two footnote variants, since "ended {real}" doesn't make sense for a no-show (no real result exists).
 - Changelog: 1.52.0 - New key liga_status_gt ("awarded") for a sports court decision, see TeamFormattingTrait::statusSuffix().
 - Changelog: 1.51.0 - New key liga_status_ng ("not counted") for retroactively voided matches, see TeamFormattingTrait::statusSuffix().
 - Changelog: 1.50.1 - Same correction as lang/frontend/de.php 1.50.1: the 7 liga_weekday_* keys were wrongly moved out in 1.50.0 - the core calendar view (src/Liga/RenderViewsTrait.php and frontend/data_liga_pretraits.php) also builds its weekday header dynamically via array + variable (tf($key)), which the automated check missed since it only looked for direct literal calls. Keys restored, now intentionally kept both in core and in the viewer add-on (addon/viewer/lang/), since both genuinely need them.
@@ -1176,6 +1180,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## liga.php
 
+- Changelog: 3.15.0 - renderGtFootnotes() nach der Ergebnistabelle eingebunden (beide Fälle: normale Spieltage sowie der KO-Finale+Platz-3-Gruppenfall) - zeigt die Klartext-Erklärung jeder Grüne-Tisch-Entscheidung dieses Spieltags unterhalb der Tabelle.
 - Changelog: 3.14.0 - h2h_pdf-Einstiegspunkt prüft jetzt zusätzlich das neue teamvergleich-Addon (Auslagerung als eigenständiges Addon, siehe frontend/data_liga.php 3.1.0), nicht mehr nur pdf-export - ohne aktives teamvergleich-Addon liefert getHeadToHeadMatches() zwar dank Hook-Fallback kein Fatal, ein inhaltsleeres PDF ohne echte Daten wäre aber verwirrend gewesen.
 - Changelog: 3.13.0 - PDF-Export als eigenständiges Addon "pdf-export" ausgegliedert. Der bisher unbedingte require_once auf frontend/pdf_export.php ist jetzt bedingt (nur wenn addonManager()->isEnabled('pdf-export')) und zeigt auf den neuen Speicherort addon/pdf-export/pdf_export.php. Bewusst NICHT über AddonManager::bootFrontend()/frontend_handlers geladen (das würde die Datei bei JEDEM Frontend-Request laden, nicht nur hier - siehe Kommentar in frontend/bootstrap.php zur ursprünglichen Performance-Entscheidung, die dadurch weiterhin gilt). Der h2h_pdf-Einstiegspunkt und die zentrale $showPdfButtons-Variable (steuert alle vier PDF-Export-Aufrufstellen: Ergebnisse, Tabelle, Spielplan, Teamvergleich) prüfen jetzt zusätzlich den Addon-Status - ohne aktives Addon existieren die exportXxxPdf()-Funktionen schlicht nicht, ein ungeschützter Aufruf würde sonst fatal abbrechen. WICHTIG für Bestandsinstallationen: nach diesem Core-Update ist PDF-Export nicht mehr verfügbar, bis das neue Addon zusätzlich installiert und aktiviert wird.
 - Changelog: 3.12.0 - Addon-Manager-Framework integriert (Beitrag Torsten Hofmann): viewOrder-Array über den neuen Hook liga.view_order erweiterbar (das player-Addon hängt "spielerstatistik" jetzt selbst an, statt fest im Array zu stehen); fester "spielerstatistik"-Case im View-Switch ersetzt durch generischen default-Fallthrough mit Hook liga.view_render - jedes Addon kann so eigene Liga-Unteransichten registrieren, ohne den Core anzufassen. Fällt auf "ergebnisse" zurück, wenn kein Addon-Hook zuständig ist.
@@ -1278,6 +1283,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.16.0 - Feature (auf Wunsch): formatScore() zeigt bei einer Grüne-Tisch-Entscheidung jetzt das ANGERECHNETE (gewertete) Ergebnis statt des real erzielten, mit "(*)" statt eines ausgeschriebenen "Wertung"-Texts (liga_status_gt), auch für den Nichtantritt-Fall (kein reales Ergebnis) korrekt mit statusSuffix() ergänzt - fehlte dort bisher komplett. Neue Funktion renderGtFootnotes(): baut die Fußnoten-Box unterhalb der Ergebnistabelle, die jede Grüne-Tisch-Entscheidung eines Spieltags im Klartext erklärt (reales Ergebnis, gewertetes Ergebnis, Sieger) - liefert '', wenn kein betroffenes Spiel vorhanden ist. Neues Partial gt_footnote.tpl.php (default + matchday, colored/dark/light fallen automatisch auf default zurück).
 - Changelog: 1.15.0 - Gleiches Ausrichtungsproblem wie in der Kreuztabelle (siehe 1.14.0), diesmal gemeldet für die Team-Auswahlliste links neben den Spielplänen: renderSpielplaeneView() nutzte für das Logo vor jedem Team-Kurznamen in der Sidebar (team_sidebar_item.tpl.php) ebenfalls das unverpackte renderTeamLogoImg() statt renderTeamLogoImgWrapped() - jetzt korrigiert. Alle übrigen renderTeamLogoImg()-Aufrufe in dieser Datei geprüft und als unproblematisch bestätigt (Kreuztabellen-Kopfzeile zeigt nur das Logo ohne folgenden Text, <h3>-Überschriften sind Einzelelemente, Heim/Gast-Namen stehen nebeneinander statt untereinander). Siehe auch frontend/data_liga_pretraits.php 2.27.0 für die identische Korrektur am eigenständigen Duplikat.
 - Changelog: 1.14.0 - Bugfix (gemeldet: Teamnamen in der Kreuztabelle-Zeilenbeschriftung standen bei aktivierten Logos je nach Logo-Breite unterschiedlich weit eingerückt): renderKreuztabelleView() nutzt jetzt renderTeamLogoImgWrapped() (TeamFormattingTrait, feste Mindestbreite via .st-team-logo-wrap) statt renderTeamLogoImg() - dieselbe Funktion, die bereits in der normalen Liga-Tabelle für exakt dieses Ausrichtungsproblem verwendet wird, hier bisher aber nicht in der Kreuztabelle. Siehe auch frontend/data_liga_pretraits.php 2.26.0 für die identische Korrektur am eigenständigen Duplikat dieser Funktion.
 - Changelog: 1.13.0 - formatScore() zeigt bei fehlendem realen Ergebnis jetzt die gewertete Standardscore einer Grüne-Tisch-Entscheidung an (z.B. "3 : 0") statt "- : -", damit bei einem Nichtantritt überhaupt ein Ergebnis sichtbar ist. renderPartieRow(): $gespielt berücksichtigt jetzt auch eine gesetzte Grüne-Tisch-Entscheidung, damit ein solches Spiel nicht fälschlich als "noch offen" markiert wird.
@@ -1555,6 +1561,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.17.12 - Neue CSS-Regeln .gt-footnote/.gt-footnote-line (Fußnoten-Box für Grüne-Tisch-Entscheidungen, analog zu .spielfrei-note gestylt), siehe RenderViewsTrait::renderGtFootnotes() 1.16.0.
 - Changelog: 1.17.11 - KRITISCHER Nachfix (gemeldet: die vorherige Korrektur der Kreuztabelle-Ausrichtung - .st-team-logo-wrap auf min-width:26px - zeigte keine sichtbare Verbesserung): min-width garantiert nur eine UNTERGRENZE, kein Logo mit natürlicher Breite über 26px (team-logo-inline hat width:auto bei fester Höhe, die tatsächliche Breite hängt vom Seitenverhältnis jedes einzelnen Vereinswappens ab) wurde dadurch begrenzt - der Wrapper wuchs bei breiteren Logos einfach mit, die Ausrichtung blieb inkonsistent. Fix: .st-team-logo-wrap bekommt jetzt eine FESTE Box (width:26px;height:18px), das Logo darin wird per object-fit:contain proportional ohne Verzerrung eingepasst (.st-team-logo-wrap .team-logo-inline, höhere Selektor-Spezifität überschreibt die globale team-logo-inline-Regel nur innerhalb des Wrappers, alle anderen Verwendungsstellen dieser Klasse bleiben unberührt). margin-right auf den Wrapper verschoben (vorher auf dem Bild selbst), da das Bild jetzt margin:0 braucht, um die Box exakt auszufüllen.
 - Changelog: 1.17.10 - Diagonale Spaltenüberschriften nochmal korrigiert: Drehpunkt liegt jetzt fest am linken Rand der jeweils eigenen Spalte (left:2px, kein translateX(-50%)/left:50% mehr), statt von der Textlänge abhängig zu sein. Grund: die vorherige "left:50% + translateX(-50%)"-Zentrierung ließ den tatsächlichen Drehpunkt bei langen Wörtern wie "Niederlagen" spürbar in die linke Nachbarspalte hineinwandern (im Livesystem als Screenshot bestätigt: "Niederlagen" überlappte sichtbar mit "Siege"). Die getestete Alternative "origin: center bottom" (siehe 1.17.7-1.17.8) verursachte stattdessen ein Hineinragen in die Datenzeile. Der jetzt feste Drehpunkt je Spalte vermeidet beides: jede Beschriftung beginnt exakt an ihrer eigenen Spalte, unabhängig von der Wortlänge. Mit Playwright unter realistischen schmalen Spaltenbreiten verifiziert.
 - Changelog: 1.17.9 - table.standings-table thead th: vertical-align:bottom ergänzt, damit auch die (jetzt teils horizontalen, siehe VolleyballProfile.php 1.2.0) Kopfzellen unten in der Zeile sitzen und mit den diagonalen Beschriftungen auf einer Linie bleiben, statt vertikal mittig in der durch die diagonalen Nachbarspalten hohen Kopfzeile zu "schweben". Wirkt sich nur auf Tabellen mit mindestens einer diagonalen Spalte aus (nur dort ist die Kopfzeile überhaupt höher als der reine Zellinhalt) - kurz/mittel-Ansichten unverändert.
@@ -1577,6 +1584,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/colored/layout.tpl.php
 
+- Changelog: 1.6.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.6.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.6.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.6.9 - vertical-align:bottom ergänzt wie default 1.17.9.
@@ -1599,6 +1607,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/dark/layout.tpl.php
 
+- Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.5.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.5.9 - vertical-align:bottom ergänzt wie default 1.17.9.
@@ -1621,6 +1630,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/light/layout.tpl.php
 
+- Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.5.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.5.9 - vertical-align:bottom ergänzt wie default 1.17.9.
@@ -1643,6 +1653,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.2.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12, hier an das Matchday-Kartenstyling (border-left statt dashed border) angepasst.
 - Changelog: 1.2.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width. Betrifft insbesondere die Kreuztabelle, die dieses Template im gemeldeten Screenshot sichtbar nutzte (Footer: "Template: Matchday").
 - Changelog: 1.2.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.2.9 - vertical-align:bottom ergänzt wie default 1.17.9.
@@ -1700,6 +1711,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Sport/FootballProfile.php
 
+- Changelog: 1.2.0 - formatResult() zeigt bei einer Grüne-Tisch-Entscheidung jetzt ebenfalls das angerechnete (gewertete) Ergebnis statt des real erzielten (siehe RenderViewsTrait.php 1.16.0 für den vollständigen Hintergrund) - Halbzeitanzeige bewusst unterdrückt, wenn eine Entscheidung greift, da sie sich auf das reale Spiel bezieht und neben dem gewerteten Ergebnis irreführend wäre.
 - Changelog: 1.1.0 - KRITISCHER Bugfix (gefunden bei der Umsetzung der Grüne-Tisch-Entscheidung): formatResult() hatte eine eigene, dritte Kopie der status-Suffix-Logik (n.V./i.E.), die beim früheren Ergänzen von "nicht gewertet" übersehen worden war - dadurch fehlte hier sowohl der "nicht gewertet"- als auch der neue "Wertung"-Hinweis. Ruft jetzt die zentrale LigaService::statusSuffix() (TeamFormattingTrait) auf statt die Logik ein drittes Mal zu duplizieren.
 - Changelog: 1.0.1 - Neu (Beitrag: Torsten Hofmann), Bugfix bei der Übernahme: Status-Zusätze ("n.V."/"i.E.") waren fest auf Deutsch einkodiert statt die bestehende Übersetzungsfunktion zu nutzen - hätte für die englische Sprachversion falsche Kürzel gezeigt. Korrigiert, nutzt jetzt wieder tf('liga_status_ie')/tf('liga_status_nv') wie der Rest des Projekts.
 
@@ -1772,3 +1784,11 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 - Changelog: 3.0.1 - Entfernt die von frontend/bootstrap.php gesetzten Frame-Schutz-Header wieder (header_remove()), da dieses Addon bewusst zum Einbetten via iframe auf fremden Websites gedacht ist. Live bestätigt: keine X-Frame-Options/CSP mehr in der Antwort, nosniff bleibt bestehen.
 - Changelog: (neu) - Neues eigenständiges Addon (Beitrag: Torsten Hofmann): Spielplan-Betrachter mit zwei Varianten (Zeitraum-Ansicht und Wochenkacheln-Ansicht). Beide Varianten live getestet.
+
+## template/default/partials/gt_footnote.tpl.php
+
+- Changelog: 1.0.0 - Neues Partial (auf Wunsch): Fußnoten-Box unterhalb der Ergebnistabelle eines Spieltags, erklärt jede Grüne-Tisch-Entscheidung im Klartext. Platzhalter Heading + Lines, siehe RenderViewsTrait::renderGtFootnotes() für den PHP-seitigen Aufbau.
+
+## template/matchday/partials/gt_footnote.tpl.php
+
+- Changelog: 1.0.0 - Gleiches neues Partial wie template/default/partials/gt_footnote.tpl.php 1.0.0.

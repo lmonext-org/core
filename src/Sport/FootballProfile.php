@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/FootballProfile.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.2.0
  *
  * PHP version 8.2
  *
@@ -55,7 +55,23 @@ final class FootballProfile implements SportProfile
         if ($h === null || $g === null) {
             return '- : -';
         }
-        $result = (string)$h . ' : ' . (string)$g;
+
+        // Grüne-Tisch-Entscheidung (auf Wunsch): das ANGERECHNETE (gewertete)
+        // Ergebnis wird angezeigt statt des real erzielten, mit "(*)" als
+        // dezentem Hinweis (siehe liga_status_gt) statt eines ausgeschriebenen
+        // "Wertung"-Texts - die vollständige Erklärung mit dem realen Ergebnis
+        // steht stattdessen als Fußnote unterhalb der Spieltagsansicht (siehe
+        // renderGtFootnotes()). Halbzeitanzeige bewusst unterdrückt, wenn eine
+        // Entscheidung greift - sie bezieht sich auf das reale, nicht das
+        // gewertete Spiel und wäre neben dem gewerteten Ergebnis irreführend.
+        $gtEntscheidung = (int)($match['gt_entscheidung'] ?? 0);
+        $istGtGewertet = $gtEntscheidung === 1 || $gtEntscheidung === 2;
+        if ($istGtGewertet) {
+            $credited = \LMOnext\Liga\LigaService::gtCreditedScore($gtEntscheidung, (int)$h, (int)$g);
+            $result = (string)$credited['h_tore'] . ' : ' . (string)$credited['g_tore'];
+        } else {
+            $result = (string)$h . ' : ' . (string)$g;
+        }
 
         // Status-Suffix (n.V./i.E./nicht gewertet/Wertung) - ruft die
         // zentrale TeamFormattingTrait::statusSuffix() auf statt die Logik
@@ -66,7 +82,7 @@ final class FootballProfile implements SportProfile
         // "nicht gewertet"- als auch der "Wertung"-Hinweis).
         $suffix = \LMOnext\Liga\LigaService::statusSuffix($match);
 
-        if ($withPeriods) {
+        if ($withPeriods && !$istGtGewertet) {
             $hz = $this->formatPeriods($match['extra_data'] ?? null);
             if ($hz !== '') {
                 $result .= ' (' . $hz . ')';

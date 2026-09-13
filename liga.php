@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.14.0
+ * Fileversion: 3.15.0
  *
  * PHP version 8.2
  *
@@ -300,6 +300,7 @@ switch ($currentView) {
                 $headingWithRange = $heading . ($groupDateRange !== '' ? ' ' . $groupDateRange : '');
                 $ergebnisInhalt .= '<h3 class="spieltag-heading">' . h($headingWithRange) . '</h3>';
                 $ergebnisInhalt .= renderResultsTable($groupPartien, $spieltag['start'] ?? null, $favTeamId, $showLogos, true);
+                $ergebnisInhalt .= renderGtFootnotes($groupPartien);
                 $ergebnisInhalt .= renderStatsBlock($heading, $groupPartien);
             }
             $ergebnisInhalt .= $pdfButtonHtml;
@@ -310,6 +311,7 @@ switch ($currentView) {
             $ergebnisInhalt  = '<h3 class="spieltag-heading">' . h($headingText) . '</h3>';
             $ergebnisInhalt .= renderResultsTable($partien, $spieltag['start'] ?? null, $favTeamId, $showLogos, true);
             $ergebnisInhalt .= $showSpielfrei ? renderSpielfreiNote($ligaId, $partien) : '';
+            $ergebnisInhalt .= renderGtFootnotes($partien);
             $ergebnisInhalt .= renderStatsBlock($currentName, $partien);
             $ergebnisInhalt .= $pdfButtonHtml;
         }
