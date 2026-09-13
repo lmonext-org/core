@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -458,6 +458,19 @@ class AddonManager
         // irgendeine Handler-Datei ausführen. So ist garantiert, dass jede
         // Addon-Übersetzung im Cache steht, bevor überhaupt der erste
         // t()/tf()-Aufruf aus einer Handler-Datei stattfinden kann.
+        // ── KRITISCHER Bugfix (gefunden bei der Integrationsprüfung eines
+        // Drittanbieter-Addons mit eigenem Hook-Handler): registerAddonHooks()
+        // prüft is_callable($handler) - das schlägt IMMER fehl, wenn die
+        // Handler-Funktion erst in der admin_handlers-Datei DESSELBEN Addons
+        // definiert wird, diese Datei zum Zeitpunkt der Prüfung aber noch gar
+        // nicht geladen wurde. Reihenfolge deshalb auf DREI Phasen statt zwei
+        // erweitert: 1) für ALLE Addons Sprachen/Templates laden (siehe
+        // Bugfix-Kommentar oben zum Übersetzungs-Cache), 2) ERST DANACH für
+        // ALLE Addons die Handler-Dateien laden (definiert alle Funktionen,
+        // inklusive möglicher Hook-Handler), 3) ERST JETZT für ALLE Addons
+        // die Hooks registrieren - zu diesem Zeitpunkt sind garantiert alle
+        // Handler-Funktionen bereits bekannt, is_callable() kann sie korrekt
+        // finden, unabhängig davon in welcher Datei/welchem Addon sie liegen.
         $adminAddons = [];
         foreach ($this->addons as $name => $addon) {
             if (!$addon['enabled']) {
@@ -475,13 +488,12 @@ class AddonManager
                 continue;
             }
 
-            $this->registerAddonHooks($addon);
             $adminAddons[$name] = $addon;
         }
 
-        // ── Phase 2: JETZT ERST Handler-Dateien laden - für JEDES Addon
-        // sind zu diesem Zeitpunkt garantiert ALLE Sprachen (nicht nur die
-        // eigene) bereits registriert. ─────────────────────────────────────
+        // ── Phase 2: Handler-Dateien laden - für JEDES Addon sind zu diesem
+        // Zeitpunkt garantiert ALLE Sprachen (nicht nur die eigene) bereits
+        // registriert. ──────────────────────────────────────────────────────
         foreach ($adminAddons as $addon) {
             $handlers = $addon['manifest']['admin_handlers'] ?? [];
             if (is_array($handlers)) {
@@ -492,6 +504,12 @@ class AddonManager
                     }
                 }
             }
+        }
+
+        // ── Phase 3: JETZT ERST Hooks registrieren - alle Handler-Funktionen
+        // (auch die aus admin_handlers-Dateien selbst) sind ab hier bekannt.
+        foreach ($adminAddons as $addon) {
+            $this->registerAddonHooks($addon);
         }
     }
 
@@ -522,11 +540,11 @@ class AddonManager
                 continue;
             }
 
-            $this->registerAddonHooks($addon);
             $frontendAddons[] = $addon;
         }
 
-        // ── Phase 2: JETZT ERST Handler-Dateien laden. ─────────────────────
+        // ── Phase 2: Handler-Dateien laden (definiert alle Funktionen,
+        // inklusive möglicher Hook-Handler-Funktionen). ────────────────────
         foreach ($frontendAddons as $addon) {
             $handlers = $addon['manifest']['frontend_handlers'] ?? [];
             if (is_array($handlers)) {
@@ -537,6 +555,14 @@ class AddonManager
                     }
                 }
             }
+        }
+
+        // ── Phase 3: JETZT ERST Hooks registrieren - siehe bootAdmin() für
+        // den vollständigen Hintergrund (is_callable() muss die
+        // Handler-Funktion bereits kennen, die evtl. erst in einer
+        // frontend_handlers-Datei DESSELBEN Addons definiert wird).
+        foreach ($frontendAddons as $addon) {
+            $this->registerAddonHooks($addon);
         }
     }
 

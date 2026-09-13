@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -134,6 +134,7 @@ if ($action === 'save_team' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $cnt->execute([$tid]);
             if ((int)$cnt->fetchColumn() === 0) {
                 $db->prepare('DELETE FROM '.tbl('teams_global').' WHERE id=?')->execute([$tid]);
+                doHook('team.deleted', ['team_id' => $tid]); // siehe Docblock bei delete_global_team weiter unten
             }
             flash(t('hl_flash_team_taken_from_db'));
         } else {
@@ -332,6 +333,17 @@ if ($action === 'delete_global_team' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $cnt->execute([$tid]);
             if ((int)$cnt->fetchColumn() === 0) {
                 $db->prepare('DELETE FROM '.tbl('teams_global').' WHERE id=?')->execute([$tid]);
+                // Neuer Hook-Punkt (Beitrag: Integrationsprüfung eines
+                // Drittanbieter-Addons, das sich auf dieses Event verlässt,
+                // ohne dass es zuvor im Core existierte) - erlaubt Addons,
+                // eigene, an das Team gebundene Daten zu bereinigen (z.B.
+                // Notizen, Zusatzfelder), statt verwaist in der Datenbank
+                // zurückzubleiben. Analog zum bereits etablierten
+                // Hook-Muster im Frontend (liga.saved etc.), hier erstmals
+                // auch im Admin-Bereich genutzt - doHook() ist dort über
+                // dieselbe global registrierte AddonManager-Instanz (siehe
+                // admin.php) ebenso verfügbar.
+                doHook('team.deleted', ['team_id' => $tid]);
                 flash(t('hl_flash_team_deleted'));
             } else {
                 flash(t('hl_flash_team_delete_blocked'), 'error');
@@ -369,6 +381,13 @@ if ($action === 'merge_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare('DELETE FROM '.tbl('teams_global').' WHERE id=?')
                ->execute([$deleteId]);
             $db->commit();
+            // WICHTIG: Hook erst NACH dem commit() auslösen (nicht davor
+            // oder innerhalb der Transaktion) - bei einem Rollback würde
+            // das Team ja gar nicht wirklich gelöscht, ein vorher
+            // gefeuerter Hook hätte dann fälschlich schon Aufräumarbeiten
+            // eines Addons ausgelöst. Siehe auch delete_global_team weiter
+            // unten für den vollständigen Hintergrund zu diesem Hook.
+            doHook('team.deleted', ['team_id' => $deleteId]);
             flash(t('hl_flash_teams_merged'));
         } catch (Throwable $e) {
             if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
