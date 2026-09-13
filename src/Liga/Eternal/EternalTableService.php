@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/Eternal/EternalTableService.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.2.0
  *
  * @author    Dietmar Kersting <webmaster@liga-manager-online.org>
  * @author    Torsten Hofmann <entwickler@bastel-code.de>
@@ -132,26 +132,201 @@ final class EternalTableService
         return $rows;
     }
     /**
+     * Löst Team-Verknüpfungen (Umbenennung/Fusion/Abspaltung, siehe
+     * admin/bootstrap.php addTeamLink()/team_links) für eine Menge von
+     * Team-IDs auf. Liefert für jede übergebene ID die "kanonische"
+     * (aktuelle/heutige) Team-ID, unter der sie in der Ewigen Tabelle
+     * zusammengefasst werden soll, sowie den Namen jeder kanonischen ID.
+     *
+     * Auflösung nach demselben Prinzip wie
+     * HeadToHead::resolveLinkedTeamIds()/resolveCanonicalTeamId() im
+     * teamvergleich-Addon (dort für den Direktvergleich zweier Teams),
+     * hier unabhängig implementiert und für beliebig viele Teams
+     * gleichzeitig - team_links ist eine reine Core-Tabelle, es besteht
+     * bewusst keine Abhängigkeit zwischen den beiden Standalone-Addons:
+     *   1. Transitive Gruppierung über alle team_links-Kanten (BFS) -
+     *      auch Ketten wie A->B->C werden zu einer Gruppe zusammengefasst.
+     *   2. Innerhalb jeder Gruppe die "wird abgelöst durch"-Kette
+     *      (newer_team_id) auflösen. Führen alle Ketten eindeutig zum
+     *      selben Ziel, ist DAS der kanonische Name.
+     *   3. Ist keine (eindeutige) Richtung hinterlegt (newer_team_id
+     *      NULL oder Kette uneindeutig/zyklisch), Fallback: das Team mit
+     *      der höchsten Team-ID der Gruppe gilt als kanonisch - neu
+     *      angelegte Teams haben in aller Regel die höhere ID, das trifft
+     *      in der Praxis meist den aktuelleren Namen, ohne eine weitere
+     *      Datenbankabfrage (z.B. nach dem jüngsten Spiel) zu benötigen.
+     *
+     * Nur für die übergebenen Team-IDs relevante Verknüpfungen werden
+     * aufgelöst (nicht das gesamte System) - team_links selbst wird
+     * einmalig komplett geladen (i.d.R. eine kleine, nur vom Admin
+     * gepflegte Tabelle), die BFS-Traversierung bleibt aber auf die
+     * übergebene Menge beschränkt.
+     *
+     * @param int[] $teamIds
+     * @return array{canonical: array<int,int>, names: array<int,string>}
+     */
+    private function resolveTeamLinkGroups(array $teamIds): array
+    {
+        $canonical = [];
+        $names     = [];
+        if (empty($teamIds)) {
+            return ['canonical' => $canonical, 'names' => $names];
+        }
+
+        try {
+            $edges = getDB()->query(
+                'SELECT team_a_id, team_b_id, newer_team_id FROM ' . tbl('team_links')
+            )->fetchAll();
+        } catch (\Throwable) {
+            $edges = [];
+        }
+
+        // Adjazenzliste + "wird abgelöst durch"-Kette aus ALLEN Kanten
+        // (nicht nur den für $teamIds relevanten) - eine Gruppe kann auch
+        // Teams enthalten, die selbst nicht in $teamIds vorkommen (z.B.
+        // ein Zwischenglied einer Umbenennungskette ohne eigene Saison in
+        // den ausgewählten Ligen).
+        $adj = [];
+        $supersededBy = [];
+        foreach ($edges as $e) {
+            $a = (int)$e['team_a_id'];
+            $b = (int)$e['team_b_id'];
+            $adj[$a][] = $b;
+            $adj[$b][] = $a;
+            $newer = $e['newer_team_id'] !== null ? (int)$e['newer_team_id'] : null;
+            if ($newer !== null) {
+                $other = ($a === $newer) ? $b : $a;
+                $supersededBy[$other] = $newer;
+            }
+        }
+
+        $groupOf = []; // teamId => niedrigste ID der Gruppe (Gruppen-Schlüssel)
+        foreach ($teamIds as $start) {
+            $start = (int)$start;
+            if (isset($groupOf[$start])) {
+                continue; // schon einer Gruppe zugeordnet
+            }
+            // BFS über die vollständige Adjazenzliste (auch über Teams
+            // hinweg, die nicht in $teamIds liegen).
+            $visited = [$start => true];
+            $queue   = [$start];
+            while ($queue !== []) {
+                $current = array_shift($queue);
+                foreach ($adj[$current] ?? [] as $next) {
+                    if (!isset($visited[$next])) {
+                        $visited[$next] = true;
+                        $queue[] = $next;
+                    }
+                }
+            }
+            $groupIds = array_keys($visited);
+
+            // Kanonische ID der Gruppe bestimmen.
+            $canonicalId = null;
+            if (count($groupIds) > 1) {
+                $terminals = [];
+                foreach ($groupIds as $gid) {
+                    $current = $gid;
+                    $seen = [$current => true];
+                    while (isset($supersededBy[$current])) {
+                        $current = $supersededBy[$current];
+                        if (isset($seen[$current])) { break; } // Zyklus-Schutz
+                        $seen[$current] = true;
+                    }
+                    $terminals[$current] = true;
+                }
+                if (count($terminals) === 1) {
+                    $canonicalId = array_key_first($terminals);
+                } else {
+                    $canonicalId = max($groupIds); // Fallback: höchste ID
+                }
+            } else {
+                $canonicalId = $start; // keine Verknüpfung vorhanden
+            }
+
+            foreach ($groupIds as $gid) {
+                $groupOf[$gid] = $canonicalId;
+            }
+        }
+
+        foreach ($teamIds as $tid) {
+            $tid = (int)$tid;
+            $canonical[$tid] = $groupOf[$tid] ?? $tid;
+        }
+
+        // Namen der kanonischen IDs nachladen (nur die tatsächlich
+        // benötigten - falls die kanonische ID selbst nicht in $teamIds
+        // vorkam, z.B. weil sie in keiner der ausgewählten Ligen spielte).
+        $canonicalIds = array_values(array_unique(array_values($canonical)));
+        if (!empty($canonicalIds)) {
+            try {
+                $ph = implode(',', array_fill(0, count($canonicalIds), '?'));
+                $s = getDB()->prepare(
+                    'SELECT id, name FROM ' . tbl('teams_global') . ' WHERE id IN (' . $ph . ')'
+                );
+                $s->execute($canonicalIds);
+                foreach ($s->fetchAll() as $row) {
+                    $names[(int)$row['id']] = $row['name'];
+                }
+            } catch (\Throwable) {
+                // $names bleibt für nicht geladene IDs leer - Aufrufer
+                // fällt in diesem Fall auf den Namen aus den bereits
+                // vorhandenen Saison-Zeilen zurück.
+            }
+        }
+
+        return ['canonical' => $canonical, 'names' => $names];
+    }
+
+    /**
      * Ewige Tabelle: summiert Sp/S/U/N/Tore/Punkte je globalem Team
      * über alle ausgewählten Ligen. Sortierung wie bei computeStandings
      * (Punkte → Tordifferenz → geschossene Tore → Name).
+     *
+     * Team-Verknüpfungen (siehe resolveTeamLinkGroups()) werden dabei
+     * automatisch berücksichtigt: verknüpfte Teams (Umbenennung, Fusion,
+     * Abspaltung) werden unter der kanonischen (aktuellen) Team-ID
+     * zusammengefasst, ihre unter anderem Namen gespielten Saisons zählen
+     * mit. Das Feld 'former_names' enthält die Namen, unter denen dieselbe
+     * kanonische Gruppe in den ausgewählten Ligen sonst noch aufgetreten
+     * ist (leer, wenn keine Verknüpfung vorliegt) - die Darstellung
+     * (z.B. "AktuellerName (ehem. AlterName)") obliegt bewusst dem
+     * aufrufenden Addon, nicht diesem Core-Service, der keine eigenen
+     * Sprachschlüssel besitzt.
      *
      * @param int[] $ligaIds
      */
     public function eternalStandings(array $ligaIds): array
     {
-        $agg = [];
-
+        // Erst alle Saison-Zeilen roh sammeln (wie bisher) - die
+        // Verknüpfungsauflösung braucht die vollständige Menge der
+        // tatsächlich vorkommenden Team-IDs, bevor sie einmalig läuft.
+        $rawBySeasonTeam = [];
+        $allTeamIds = [];
         foreach ($ligaIds as $lid) {
-            // historische Tabelle der Saison
             foreach ($this->leagueStandings((int)$lid) as $r) {
-
                 $id = (int)$r['id'];
+                $rawBySeasonTeam[(int)$lid][$id] = $r;
+                $allTeamIds[$id] = true;
+            }
+        }
+
+        $linkInfo       = $this->resolveTeamLinkGroups(array_keys($allTeamIds));
+        $canonicalOf    = $linkInfo['canonical'];
+        $canonicalNames = $linkInfo['names'];
+
+        $agg = [];
+        $formerNamesOf = []; // canonicalId => [ehemaligerName => true]
+
+        foreach ($rawBySeasonTeam as $lid => $teamsInSeason) {
+            foreach ($teamsInSeason as $origId => $r) {
+
+                $id = $canonicalOf[$origId] ?? $origId;
 
                 if (!isset($agg[$id])) {
                     $agg[$id] = [
                         'id'      => $id,
-                        'name'    => $r['name'],
+                        'name'    => $canonicalNames[$id] ?? $r['name'],
                         'kurz'    => $r['kurz'] ?? '',
                         'saisons' => 0,
                         'sp'      => 0,
@@ -177,7 +352,12 @@ final class EternalTableService
                         'torekorrektur'   => 0,
                         'minuspunktekorrektur' => 0,
                         'strafgruende'    => [],  // ['Liganame: Grund', ...]
+                        'former_names'    => [],  // siehe Docblock oben
                     ];
+                }
+
+                if ($origId !== $id && $r['name'] !== $agg[$id]['name']) {
+                    $formerNamesOf[$id][$r['name']] = true;
                 }
 
                 $agg[$id]['saisons']++;
@@ -208,6 +388,13 @@ final class EternalTableService
                 }
             }
         }
+
+        foreach ($agg as $id => &$row) {
+            if (!empty($formerNamesOf[$id])) {
+                $row['former_names'] = array_keys($formerNamesOf[$id]);
+            }
+        }
+        unset($row);
 
         $rows = array_values($agg);
 
@@ -246,13 +433,18 @@ final class EternalTableService
      * Liefert ein assoziatives Array
      *   ['seasons' => [ligaId => ligaName], 'teams' => [teamId => name], 'matrix' => [teamId => [ligaId => ['rang'=>..,'pkt'=>..]]]]
      *
+     * Team-Verknüpfungen werden wie bei eternalStandings() berücksichtigt
+     * (siehe resolveTeamLinkGroups()) - ein umbenanntes/fusioniertes Team
+     * erscheint als EINE Zeile unter seiner kanonischen ID, mit den
+     * Saison-Zellen aller verknüpften Namen darin.
+     *
      * @param int[] $ligaIds  Reihenfolge = Spaltenreihenfolge (chronologisch)
      */
     public function seasonMatrix(array $ligaIds): array
     {
         $seasons = [];
-        $teams   = [];
-        $matrix  = [];
+        $rawByLiga = []; // ligaId => [teamId => Zeile]
+        $allTeamIds = [];
 
         foreach ($ligaIds as $lid) {
             $lid = (int)$lid;
@@ -260,7 +452,21 @@ final class EternalTableService
             $seasons[$lid] = $info['name'] ?? ('Liga ' . $lid);
             foreach ($this->leagueStandings($lid) as $r) {
                 $tid = (int)$r['id'];
-                $teams[$tid] = $r['name'];
+                $rawByLiga[$lid][$tid] = $r;
+                $allTeamIds[$tid] = true;
+            }
+        }
+
+        $linkInfo       = $this->resolveTeamLinkGroups(array_keys($allTeamIds));
+        $canonicalOf    = $linkInfo['canonical'];
+        $canonicalNames = $linkInfo['names'];
+
+        $teams  = [];
+        $matrix = [];
+        foreach ($rawByLiga as $lid => $teamsInSeason) {
+            foreach ($teamsInSeason as $origId => $r) {
+                $tid = $canonicalOf[$origId] ?? $origId;
+                $teams[$tid] = $canonicalNames[$tid] ?? $r['name'];
                 $matrix[$tid][$lid] = ['rang' => (int)$r['rang'], 'pkt' => (int)$r['pkt']];
             }
         }
