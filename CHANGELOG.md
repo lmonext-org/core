@@ -1548,6 +1548,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.17.11 - KRITISCHER Nachfix (gemeldet: die vorherige Korrektur der Kreuztabelle-Ausrichtung - .st-team-logo-wrap auf min-width:26px - zeigte keine sichtbare Verbesserung): min-width garantiert nur eine UNTERGRENZE, kein Logo mit natürlicher Breite über 26px (team-logo-inline hat width:auto bei fester Höhe, die tatsächliche Breite hängt vom Seitenverhältnis jedes einzelnen Vereinswappens ab) wurde dadurch begrenzt - der Wrapper wuchs bei breiteren Logos einfach mit, die Ausrichtung blieb inkonsistent. Fix: .st-team-logo-wrap bekommt jetzt eine FESTE Box (width:26px;height:18px), das Logo darin wird per object-fit:contain proportional ohne Verzerrung eingepasst (.st-team-logo-wrap .team-logo-inline, höhere Selektor-Spezifität überschreibt die globale team-logo-inline-Regel nur innerhalb des Wrappers, alle anderen Verwendungsstellen dieser Klasse bleiben unberührt). margin-right auf den Wrapper verschoben (vorher auf dem Bild selbst), da das Bild jetzt margin:0 braucht, um die Box exakt auszufüllen.
 - Changelog: 1.17.10 - Diagonale Spaltenüberschriften nochmal korrigiert: Drehpunkt liegt jetzt fest am linken Rand der jeweils eigenen Spalte (left:2px, kein translateX(-50%)/left:50% mehr), statt von der Textlänge abhängig zu sein. Grund: die vorherige "left:50% + translateX(-50%)"-Zentrierung ließ den tatsächlichen Drehpunkt bei langen Wörtern wie "Niederlagen" spürbar in die linke Nachbarspalte hineinwandern (im Livesystem als Screenshot bestätigt: "Niederlagen" überlappte sichtbar mit "Siege"). Die getestete Alternative "origin: center bottom" (siehe 1.17.7-1.17.8) verursachte stattdessen ein Hineinragen in die Datenzeile. Der jetzt feste Drehpunkt je Spalte vermeidet beides: jede Beschriftung beginnt exakt an ihrer eigenen Spalte, unabhängig von der Wortlänge. Mit Playwright unter realistischen schmalen Spaltenbreiten verifiziert.
 - Changelog: 1.17.9 - table.standings-table thead th: vertical-align:bottom ergänzt, damit auch die (jetzt teils horizontalen, siehe VolleyballProfile.php 1.2.0) Kopfzellen unten in der Zeile sitzen und mit den diagonalen Beschriftungen auf einer Linie bleiben, statt vertikal mittig in der durch die diagonalen Nachbarspalten hohen Kopfzeile zu "schweben". Wirkt sich nur auf Tabellen mit mindestens einer diagonalen Spalte aus (nur dort ist die Kopfzeile überhaupt höher als der reine Zellinhalt) - kurz/mittel-Ansichten unverändert.
 - Changelog: 1.17.8 - Regression aus 1.17.7 zurückgenommen: transform-origin zurück auf "left bottom" gesetzt. "center bottom" zentrierte den Drehpunkt zwar exakt, führte aber bei den tatsächlich sehr schmalen Datenspalten (Breite richtet sich nach dem kurzen Zahlenwert, nicht nach der langen Kopfzeile) zu Textüberlappungen zwischen benachbarten Diagonal-Überschriften und mit der Datenzeile darunter - im echten Livesystem bestätigt (Screenshot). Mit Playwright unter realistischen, schmalen Spaltenbreiten nachgestellt und verifiziert, dass "left bottom" hier weniger überlappt, bevor die Rücknahme übernommen wurde.
@@ -1569,6 +1570,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/colored/layout.tpl.php
 
+- Changelog: 1.6.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.6.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.6.9 - vertical-align:bottom ergänzt wie default 1.17.9.
 - Changelog: 1.6.8 - Regression aus 1.6.7 zurückgenommen, siehe default 1.17.8.
@@ -1590,6 +1592,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/dark/layout.tpl.php
 
+- Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.5.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.5.9 - vertical-align:bottom ergänzt wie default 1.17.9.
 - Changelog: 1.5.8 - Regression aus 1.5.7 zurückgenommen, siehe default 1.17.8.
@@ -1611,6 +1614,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/light/layout.tpl.php
 
+- Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
 - Changelog: 1.5.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.5.9 - vertical-align:bottom ergänzt wie default 1.17.9.
 - Changelog: 1.5.8 - Regression aus 1.5.7 zurückgenommen, siehe default 1.17.8.
@@ -1632,6 +1636,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.2.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width. Betrifft insbesondere die Kreuztabelle, die dieses Template im gemeldeten Screenshot sichtbar nutzte (Footer: "Template: Matchday").
 - Changelog: 1.2.10 - Fester Drehpunkt am linken Spaltenrand wie default 1.17.10.
 - Changelog: 1.2.9 - vertical-align:bottom ergänzt wie default 1.17.9.
 - Changelog: 1.2.8 - Regression aus 1.2.7 zurückgenommen, siehe default 1.17.8.

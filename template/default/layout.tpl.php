@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: default | Filename: layout.tpl.php | Fileversion: 1.17.10
+  Template: default | Filename: layout.tpl.php | Fileversion: 1.17.11
   HTML-Grundgerüst der ganzen Seite. Enthält AUSSCHLIESSLICH Markup und
   Platzhalter der Form <comment>Name</comment> (als HTML-Kommentar), kein PHP. Alle Werte
   werden von den Root-Controllern (home.php, liga.php) über
@@ -43,7 +43,8 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
 a{color:inherit}
 .team-logo-inline{height:18px;width:auto;vertical-align:middle;margin-right:5px;margin-left:5px;border-radius:3px}
-.st-team-logo-wrap{display:inline-block;min-width:26px;text-align:center;vertical-align:middle}
+.st-team-logo-wrap{display:inline-block;width:26px;height:18px;text-align:center;vertical-align:middle;margin-right:5px}
+.st-team-logo-wrap .team-logo-inline{width:100%;height:100%;object-fit:contain;margin:0}
 
 header.site{background:var(--surface);border-bottom:1px solid var(--border);
   padding:14px 28px;display:flex;align-items:center;gap:16px}

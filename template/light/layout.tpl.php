@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: light | Filename: layout.tpl.php | Fileversion: 1.5.10
+  Template: light | Filename: layout.tpl.php | Fileversion: 1.5.11
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -40,7 +40,8 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
 a{color:inherit}
 .team-logo-inline{height:18px;width:auto;vertical-align:middle;margin-right:5px;margin-left:5px;border-radius:3px}
-.st-team-logo-wrap{display:inline-block;min-width:26px;text-align:center;vertical-align:middle}
+.st-team-logo-wrap{display:inline-block;width:26px;height:18px;text-align:center;vertical-align:middle;margin-right:5px}
+.st-team-logo-wrap .team-logo-inline{width:100%;height:100%;object-fit:contain;margin:0}
 
 main{max-width:920px;margin:0 auto;padding:28px 20px 60px}
 

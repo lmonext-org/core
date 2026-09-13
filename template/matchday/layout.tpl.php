@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.2.10
+  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.2.11
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -51,7 +51,8 @@ a{color:inherit}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
 
 .team-logo-inline{height:18px;width:auto;vertical-align:middle;margin-right:6px;margin-left:6px;border-radius:2px}
-.st-team-logo-wrap{display:inline-block;min-width:26px;text-align:center;vertical-align:middle}
+.st-team-logo-wrap{display:inline-block;width:26px;height:18px;text-align:center;vertical-align:middle;margin-right:6px}
+.st-team-logo-wrap .team-logo-inline{width:100%;height:100%;object-fit:contain;margin:0}
 
 .lang-switch select,.template-switch select{background:var(--bg-alt);border:1px solid var(--line);
   border-radius:var(--radius);padding:7px 11px;font-size:.82rem;color:var(--ink);
