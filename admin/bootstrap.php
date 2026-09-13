@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.25.0
+ * Fileversion: 1.26.0
  *
  * PHP version 8.2
  *
@@ -1167,6 +1167,64 @@ function ensureSpielstatusColumns() : void
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0');
         }
     } catch (Throwable) {}
+}
+
+/**
+ * Admin-eigenständige Kopie von TeamRepositoryTrait::migrateFavSelTeamToStableId()
+ * (siehe dort für den vollständigen Hintergrund zum behobenen favTeam/selTeam-
+ * Bug). KRITISCHER Bugfix (gemeldet: Liga-Einstellungen komplett kaputt -
+ * Teams-Tab leer, alle Tab-Navigations-Links ohne "id="): admin/data_loader.php
+ * rief ursprünglich \LMOnext\Liga\LigaService::migrateFavSelTeamToStableId()
+ * auf - diese Klasse (und ihre Trait-Kette) wird aber AUSSCHLIESSLICH von
+ * frontend/data_liga.php geladen, NICHT von admin/bootstrap.php (bewusste
+ * Trennung von Admin-/Frontend-Bootstrap, siehe Kommentar bei den Sport-
+ * Profil-Requires weiter oben - getDB()/tbl() sind hier eigenständig
+ * definiert). Der Aufruf einer nicht geladenen Klasse wirft einen
+ * \Error("Class ... not found"), der vom äußeren catch(Throwable){} in
+ * admin/data_loader.php lautlos gefangen wurde, OHNE dass der Rest des
+ * try-Blocks (inkl. $ligaSettingsData['teams']/['lid']) noch ausgeführt
+ * wurde - dadurch blieb $lid in view_liga_settings.php leer (jede Tab-
+ * Navigation verlor die Liga-ID) und die Teams-Liste komplett leer, für
+ * JEDE Liga, deren Migrations-Flag noch nicht gesetzt war. Eigenständige
+ * Kopie statt die Trait-Kette im Admin-Bereich einzubinden, konsistent mit
+ * dem bereits etablierten Muster dieses Projekts (z.B. team_matching.php
+ * im url-import-Addon: "eigene, umbenannte Kopie statt Wiederverwendung").
+ */
+function adminMigrateFavSelTeamToStableId(int $ligaId, array &$opts) : void
+{
+    if (($opts['FavSelTeamMigrated'] ?? '0') === '1') {
+        return;
+    }
+    try {
+        $db = getDB();
+        $s = $db->prepare(
+            'SELECT g.id
+               FROM ' . tbl('teams_global') . ' g
+               JOIN ' . tbl('liga_teams') . ' lt ON lt.team_id = g.id
+              WHERE lt.liga_id = ?
+              ORDER BY g.name'
+        );
+        $s->execute([$ligaId]);
+        $orderedIds = array_map('intval', $s->fetchAll(PDO::FETCH_COLUMN));
+
+        $stmt = $db->prepare(
+            'INSERT INTO ' . tbl('liga_options') . ' (liga_id, option_key, option_value)
+             VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value)'
+        );
+        foreach (['favTeam', 'selTeam'] as $key) {
+            $oldPosition = (int)($opts[$key] ?? 0);
+            if ($oldPosition > 0 && isset($orderedIds[$oldPosition - 1])) {
+                $newId = $orderedIds[$oldPosition - 1];
+                $stmt->execute([$ligaId, $key, (string)$newId]);
+                $opts[$key] = (string)$newId;
+            }
+        }
+        $stmt->execute([$ligaId, 'FavSelTeamMigrated', '1']);
+        $opts['FavSelTeamMigrated'] = '1';
+    } catch (Throwable) {
+        // Bei einem Fehler bleibt das Flag unbesetzt - die Migration wird
+        // beim nächsten Aufruf erneut versucht.
+    }
 }
 
 /**

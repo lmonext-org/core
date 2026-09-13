@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -351,7 +351,15 @@ if ($action === 'liga_settings' && isLoggedIn()) {
             // frontend/data_liga.php nirgends ein), daher hier separat
             // ergänzt, sonst würde die Migration nur beim Frontend-Aufruf
             // dieser Liga greifen, nicht beim Öffnen der Liga-Einstellungen.
-            \LMOnext\Liga\LigaService::migrateFavSelTeamToStableId($lid, $ligaSettingsData['opts']);
+            // BUGFIX: ruft jetzt die eigenständige admin-lokale Kopie
+            // adminMigrateFavSelTeamToStableId() (admin/bootstrap.php) auf
+            // statt \LMOnext\Liga\LigaService:: - diese Klasse ist im
+            // Admin-Bereich NICHT geladen (nur frontend/data_liga.php lädt
+            // sie), der vorherige Aufruf warf dadurch einen von diesem
+            // try/catch lautlos verschluckten Fehler, wodurch $ligaSettingsData
+            // weder 'teams' noch 'lid' je erreichte - sichtbar als leerer
+            // Teams-Tab und fehlendes "id=" in jedem Tab-Navigations-Link.
+            adminMigrateFavSelTeamToStableId($lid, $ligaSettingsData['opts']);
             $sT = $db->prepare('SELECT g.id, g.name, g.kurz, g.mittel FROM '.tbl('teams_global').' g JOIN '.tbl('liga_teams').' lt ON lt.team_id=g.id WHERE lt.liga_id=? ORDER BY g.name');
             $sT->execute([$lid]);
             $ligaSettingsData['teams'] = $sT->fetchAll();
