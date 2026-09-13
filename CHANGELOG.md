@@ -1011,6 +1011,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.54.0 - liga_gt_footnote_line_no_real umformuliert (auf Wunsch): "{nicht_angetreten} ist nicht angetreten. Das Spiel wird mit {gewertet} für {sieger} gewertet." statt der bisherigen, weniger konkreten Formulierung - benennt jetzt direkt das nicht angetretene Team.
 - Changelog: 1.53.0 - liga_status_gt von "Wertung" auf "(*)" geändert (dezenter Hinweis direkt am gewerteten Ergebnis statt eines ausgeschriebenen Worts, die Erklärung steht jetzt als eigene Fußnote, siehe liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, neu ergänzt). Zwei Varianten der Fußnote, da sich "endete mit {real}" bei einem Nichtantritt (kein reales Ergebnis) nicht sinnvoll formulieren lässt.
 - Changelog: 1.52.0 - Neuer Schlüssel liga_status_gt ("Wertung") für eine Grüne-Tisch-Entscheidung, siehe TeamFormattingTrait::statusSuffix().
 - Changelog: 1.51.0 - Neuer Schlüssel liga_status_ng ("nicht gewertet") für rückwirkend annullierte Spiele, siehe TeamFormattingTrait::statusSuffix().
@@ -1090,6 +1091,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.54.0 - liga_gt_footnote_line_no_real reworded to match the German version - now names the team that did not show up directly instead of the previous, less specific phrasing.
 - Changelog: 1.53.0 - liga_status_gt changed from "awarded" to "(*)" (subtle marker right next to the credited score instead of a spelled-out word, the explanation now lives in its own footnote, see liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, newly added). Two footnote variants, since "ended {real}" doesn't make sense for a no-show (no real result exists).
 - Changelog: 1.52.0 - New key liga_status_gt ("awarded") for a sports court decision, see TeamFormattingTrait::statusSuffix().
 - Changelog: 1.51.0 - New key liga_status_ng ("not counted") for retroactively voided matches, see TeamFormattingTrait::statusSuffix().
@@ -1283,6 +1285,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.17.0 - Verfeinerung (auf Wunsch): renderGtFootnotes() nennt im Nichtantritt-Fall jetzt explizit das nicht angetretene ("schuldige") Team statt nur "Das Spiel X gegen Y fand nicht statt" - ermittelt aus der Entscheidung selbst (Heimteam siegt -> Gastteam ist nicht angetreten, und umgekehrt), siehe liga_gt_footnote_line_no_real (neuer Platzhalter {nicht_angetreten} statt {heim}/{gast}).
 - Changelog: 1.16.0 - Feature (auf Wunsch): formatScore() zeigt bei einer Grüne-Tisch-Entscheidung jetzt das ANGERECHNETE (gewertete) Ergebnis statt des real erzielten, mit "(*)" statt eines ausgeschriebenen "Wertung"-Texts (liga_status_gt), auch für den Nichtantritt-Fall (kein reales Ergebnis) korrekt mit statusSuffix() ergänzt - fehlte dort bisher komplett. Neue Funktion renderGtFootnotes(): baut die Fußnoten-Box unterhalb der Ergebnistabelle, die jede Grüne-Tisch-Entscheidung eines Spieltags im Klartext erklärt (reales Ergebnis, gewertetes Ergebnis, Sieger) - liefert '', wenn kein betroffenes Spiel vorhanden ist. Neues Partial gt_footnote.tpl.php (default + matchday, colored/dark/light fallen automatisch auf default zurück).
 - Changelog: 1.15.0 - Gleiches Ausrichtungsproblem wie in der Kreuztabelle (siehe 1.14.0), diesmal gemeldet für die Team-Auswahlliste links neben den Spielplänen: renderSpielplaeneView() nutzte für das Logo vor jedem Team-Kurznamen in der Sidebar (team_sidebar_item.tpl.php) ebenfalls das unverpackte renderTeamLogoImg() statt renderTeamLogoImgWrapped() - jetzt korrigiert. Alle übrigen renderTeamLogoImg()-Aufrufe in dieser Datei geprüft und als unproblematisch bestätigt (Kreuztabellen-Kopfzeile zeigt nur das Logo ohne folgenden Text, <h3>-Überschriften sind Einzelelemente, Heim/Gast-Namen stehen nebeneinander statt untereinander). Siehe auch frontend/data_liga_pretraits.php 2.27.0 für die identische Korrektur am eigenständigen Duplikat.
 - Changelog: 1.14.0 - Bugfix (gemeldet: Teamnamen in der Kreuztabelle-Zeilenbeschriftung standen bei aktivierten Logos je nach Logo-Breite unterschiedlich weit eingerückt): renderKreuztabelleView() nutzt jetzt renderTeamLogoImgWrapped() (TeamFormattingTrait, feste Mindestbreite via .st-team-logo-wrap) statt renderTeamLogoImg() - dieselbe Funktion, die bereits in der normalen Liga-Tabelle für exakt dieses Ausrichtungsproblem verwendet wird, hier bisher aber nicht in der Kreuztabelle. Siehe auch frontend/data_liga_pretraits.php 2.26.0 für die identische Korrektur am eigenständigen Duplikat dieser Funktion.

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.16.0
+ * Fileversion: 1.17.0
  *
  * PHP version 8.2
  *
@@ -171,8 +171,12 @@ trait RenderViewsTrait
                     'gewertet' => $gewertet, 'sieger' => $sieger,
                 ]);
             } else {
+                // Nicht angetretenes Team = das "schuldige" Team der
+                // Entscheidung (auf Wunsch): Heimteam siegt -> Gastteam ist
+                // nicht angetreten, und umgekehrt.
+                $nichtAngetreten = $gtEntscheidung === 1 ? $gast : $heim;
                 $text = tf('liga_gt_footnote_line_no_real', [
-                    'heim' => $heim, 'gast' => $gast,
+                    'nicht_angetreten' => $nichtAngetreten,
                     'gewertet' => $gewertet, 'sieger' => $sieger,
                 ]);
             }
