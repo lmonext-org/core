@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.50.0
+ * Fileversion: 1.50.1
  *
  * PHP version 8.2
  *
@@ -161,6 +161,13 @@ return [
 
     // ── Reiter-Navigation (Kalender/Ergebnisse/Spielpläne/Info) ──────────────
     'liga_tab_kalender'      => 'Kalender',
+    'liga_weekday_mo' => 'Mo',
+    'liga_weekday_di' => 'Di',
+    'liga_weekday_mi' => 'Mi',
+    'liga_weekday_do' => 'Do',
+    'liga_weekday_fr' => 'Fr',
+    'liga_weekday_sa' => 'Sa',
+    'liga_weekday_so' => 'So',
     'liga_tab_ergebnisse'    => 'Ergebnisse',
     'liga_tab_spielplaene'   => 'Spielpläne',
     'liga_tab_info'          => 'Info',

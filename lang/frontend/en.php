@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.50.0
+ * Fileversion: 1.50.1
  *
  * PHP version 8.2
  *
@@ -159,6 +159,13 @@ return [
 
     // ── Tab navigation (Calendar/Results/Bracket/Info) ───────────────────────
     'liga_tab_kalender'      => 'Calendar',
+    'liga_weekday_mo' => 'Mon',
+    'liga_weekday_di' => 'Tue',
+    'liga_weekday_mi' => 'Wed',
+    'liga_weekday_do' => 'Thu',
+    'liga_weekday_fr' => 'Fri',
+    'liga_weekday_sa' => 'Sat',
+    'liga_weekday_so' => 'Sun',
     'liga_tab_ergebnisse'    => 'Results',
     'liga_tab_spielplaene'   => 'Bracket',
     'liga_tab_info'          => 'Info',
