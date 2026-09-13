@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_addons.php
- * Fileversion: 1.3.0
+ * Fileversion: 1.3.1
  *
  * PHP version 8.2
  *
@@ -138,6 +138,7 @@ if ($addonAction === 'install_zip') {
             'zip_disallowed_filetype' => 'addons_install_err_disallowed_filetype',
             'php_lint_failed'         => 'addons_install_err_lint_failed',
             'dangerous_pattern_found' => 'addons_install_err_dangerous_pattern',
+            'copy_failed'             => 'addons_install_err_copy_failed',
         ];
         $msgKey = $errMsgKeys[$errCode] ?? '';
         if ($msgKey !== '') {
@@ -333,6 +334,7 @@ if ($addonAction === 'install_update') {
             'zip_disallowed_filetype'  => 'addons_install_err_disallowed_filetype',
             'php_lint_failed'          => 'addons_install_err_lint_failed',
             'dangerous_pattern_found'  => 'addons_install_err_dangerous_pattern',
+            'copy_failed'              => 'addons_install_err_copy_failed',
         ];
         $msgKey = $errMsgKeys[$errCode] ?? '';
         if ($msgKey !== '') {

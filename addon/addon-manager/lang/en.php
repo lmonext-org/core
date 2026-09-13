@@ -59,6 +59,7 @@ return [
     'addons_install_err_disallowed_filetype' => 'Security check failed: the ZIP contains a disallowed file type. Allowed: php, json, md, txt, png, jpg, jpeg, gif, svg, ico, webp, css, js.',
     'addons_install_err_lint_failed'         => 'Security check failed: the file "{file}" is not valid PHP code. Installation rejected.',
     'addons_install_err_dangerous_pattern'   => 'Security check failed: the file "{file}" contains a suspicious function call (e.g. shell execution or dynamic code execution). Installation rejected. If this is a false positive for a legitimate add-on, contact the add-on author.',
+    'addons_install_err_copy_failed'         => 'The new files could not be fully installed (e.g. because a file was currently in use). Nothing was changed - please try again.',
     'addons_demo_mode_blocked' => 'This action is disabled on this demo instance. Enabling/disabling already installed add-ons still works normally.',
     'addons_demo_mode_notice'  => 'On this demo instance, installing/updating add-on code is disabled. Enabling/disabling already installed add-ons is still possible.',
     'addons_purge_btn'           => '🗑️ Delete data',

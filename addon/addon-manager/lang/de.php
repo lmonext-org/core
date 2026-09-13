@@ -59,6 +59,7 @@ return [
     'addons_install_err_disallowed_filetype' => 'Sicherheitsprüfung fehlgeschlagen: die ZIP enthält einen nicht erlaubten Dateityp. Erlaubt sind nur: php, json, md, txt, png, jpg, jpeg, gif, svg, ico, webp, css, js.',
     'addons_install_err_lint_failed'         => 'Sicherheitsprüfung fehlgeschlagen: die Datei "{file}" enthält keinen gültigen PHP-Code. Installation abgelehnt.',
     'addons_install_err_dangerous_pattern'   => 'Sicherheitsprüfung fehlgeschlagen: die Datei "{file}" enthält einen verdächtigen Funktionsaufruf (z.B. Shell-Ausführung oder dynamische Codeausführung). Installation abgelehnt. Falls dies ein Fehlalarm bei einem legitimen Addon ist, wende dich an den Addon-Autor.',
+    'addons_install_err_copy_failed'         => 'Die neuen Dateien konnten nicht vollständig eingespielt werden (z.B. weil eine Datei gerade in Benutzung war). Es wurde nichts geändert - bitte erneut versuchen.',
     'addons_demo_mode_blocked' => 'Diese Aktion ist auf dieser Demo-Instanz deaktiviert. Aktivieren/Deaktivieren bereits installierter Addons funktioniert weiterhin normal.',
     'addons_demo_mode_notice'  => 'Auf dieser Demo-Instanz ist die Installation/Aktualisierung von Addon-Code deaktiviert. Aktivieren/Deaktivieren bereits installierter Addons ist weiterhin möglich.',
     'addons_purge_btn'           => '🗑️ Daten löschen',

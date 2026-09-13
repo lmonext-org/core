@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.4.2
+ * Fileversion: 1.5.1
  *
  * PHP version 8.2
  *
@@ -151,27 +151,14 @@ class AddonManager
      *
      * @return array<string> Liste der aktivierten Addon-Namen
      */
-    /**
-     * Core-Addons, die bei einer leeren addon_registry-Tabelle (frische
-     * Installation) automatisch als aktiviert gelten. Der addon-manager
-     * ist immer aktiviert (kann nicht deaktiviert werden).
-     */
-    private const CORE_ADDONS = [
-        'addon-manager',
-        'tipp',
-        'player',
-        'ewige',
-        'mini',
-        'viewer',
-        'relegation',
-        'tabellenrechner',
-        'translator',
-    ];
-
     public function loadEnabled(): array
     {
+        // addon-manager ist IMMER aktiviert (Core-Tool, kann nicht
+        // deaktiviert werden) - unabhängig von der DB, damit der Addon-
+        // Manager selbst niemals unerreichbar werden kann (z.B. bei
+        // fehlender DB-Verbindung).
         if ($this->db === null) {
-            return self::CORE_ADDONS;
+            return ['addon-manager'];
         }
 
         try {
@@ -179,25 +166,41 @@ class AddonManager
             $tableName = $this->registryTable();
             $stmt = $this->db->query("SELECT name FROM {$tableName} WHERE enabled = 1");
             if ($stmt === false) {
-                return self::CORE_ADDONS;
+                return ['addon-manager'];
             }
 
             $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
             $enabled = is_array($rows) ? array_map('strval', $rows) : [];
 
-            // Leere Tabelle = frische Installation: alle Core-Addons aktivieren
-            if (empty($enabled)) {
-                return self::CORE_ADDONS;
-            }
-
-            // addon-manager ist IMMER aktiviert (Core-Tool)
+            // WICHTIG (Bugfix, Beitrag: Nutzerreport - "Addon aktivieren
+            // deaktiviert alle anderen"): es gab früher hier einen
+            // "leere Tabelle = frische Installation, alle Core-Addons
+            // aktivieren"-Fallback (Konstante CORE_ADDONS, u.a. mit
+            // veralteten/nicht mehr existierenden Addon-Namen wie
+            // "translator"). Der Fallback konnte NICHT zwischen einer
+            // echten Erstinstallation (Tabelle hat GAR KEINE Zeilen) und
+            // dem Zustand "Tabelle hat Zeilen, aber zufällig gerade
+            // KEINE mit enabled=1" unterscheiden - beide Fälle lösten
+            // denselben Fallback aus. Solange z.B. tipp/relegation/
+            // tabellenrechner NIE eine echte enabled=1-Zeile hatten,
+            // erschienen sie NUR wegen dieses Fallbacks als aktiv. Sobald
+            // ein ANDERES Addon zum ersten Mal eine echte enabled=1-Zeile
+            // bekam (z.B. durch Aktivieren von ewige-tabelle), war
+            // $enabled nicht mehr leer, der Fallback griff nicht mehr,
+            // und alle Addons ohne echte Zeile erschienen plötzlich als
+            // deaktiviert - und umgekehrt beim erneuten Deaktivieren.
+            // Jetzt: JEDES Addon (außer addon-manager) startet konsistent
+            // als INAKTIV, bis es explizit per enable() aktiviert wurde -
+            // entspricht dem bereits für alle neueren Addons korrekt
+            // beobachteten Verhalten (liga-klassen-rekorde, mini-tabelle,
+            // spieltag-viewer starten ebenfalls inaktiv).
             if (!in_array('addon-manager', $enabled, true)) {
                 $enabled[] = 'addon-manager';
             }
 
             return $enabled;
         } catch (\Throwable) {
-            return self::CORE_ADDONS;
+            return ['addon-manager'];
         }
     }
 
@@ -1406,10 +1409,13 @@ Require all denied
         $backupZipPath = $backupDir . '/' . $name . '_' . $currentVer . '_' . date('Ymd-His') . '.zip';
         $this->zipDirectory($addonPath, $backupZipPath);
 
-        // ── 6. Alte Dateien raus, neue Dateien rein ───────────────────────────
-        $this->rrmdir($addonPath);
-        mkdir($addonPath, 0755, true);
-        $this->copyDirectory($sourceDir, $addonPath);
+        // ── 6. Alte Dateien raus, neue Dateien rein (ATOMAR, siehe
+        // atomicReplaceAddonDir() für den Hintergrund - wichtig gerade bei
+        // einem Selbst-Update von "addon-manager") ────────────────────────
+        if (!$this->atomicReplaceAddonDir($addonPath, $sourceDir)) {
+            $this->rrmdir($tmpExtract);
+            return ['success' => false, 'error' => 'copy_failed'];
+        }
 
         // ── 7. Aufräumen + Caches invalidieren ────────────────────────────────
         $this->rrmdir($tmpExtract);
@@ -1447,22 +1453,88 @@ Require all denied
 
     /**
      * Rekursiv Dateien von $src nach $dst kopieren (überschreibt Ziel).
+     *
+     * @return bool true, wenn ALLE Dateien erfolgreich kopiert wurden.
      */
-    private function copyDirectory(string $src, string $dst): void
+    private function copyDirectory(string $src, string $dst): bool
     {
-        if (!is_dir($dst)) {
-            mkdir($dst, 0755, true);
+        if (!is_dir($dst) && !@mkdir($dst, 0755, true) && !is_dir($dst)) {
+            return false;
         }
+        $ok = true;
         $items = array_diff((array)@scandir($src), ['.', '..']);
         foreach ($items as $item) {
             $s = $src . '/' . $item;
             $d = $dst . '/' . $item;
             if (is_dir($s)) {
-                $this->copyDirectory($s, $d);
+                $ok = $this->copyDirectory($s, $d) && $ok;
             } else {
-                copy($s, $d);
+                $ok = @copy($s, $d) && $ok;
             }
         }
+        return $ok;
+    }
+
+    /**
+     * Ersetzt ein Addon-Verzeichnis ATOMAR durch neue Dateien (Beitrag:
+     * Bugfix - "Update von addon-manager meldet Erfolg, Version bleibt
+     * unverändert"). Die vorherige Lösung (rrmdir() des Zielordners, dann
+     * copyDirectory() der neuen Dateien hinein) hat ein grundsätzliches
+     * Problem bei einem SELBST-Update des addon-manager-Addons: die gerade
+     * ausführende Datei (handler_addons.php, die diesen Update-Vorgang
+     * selbst durchführt) versucht sich dabei SELBST zu überschreiben.
+     * Auf manchen Server-Konfigurationen ist eine gerade ausgeführte PHP-
+     * Datei gesperrt - copy() schlägt für genau diese eine Datei (und
+     * ggf. addon.json selbst) STILL fehl (kein Fehler, kein Abbruch, da
+     * der Rückgabewert vorher nicht geprüft wurde), während alle anderen
+     * Dateien erfolgreich aktualisiert werden - der Vorgang meldete
+     * trotzdem "success", die installierte Version blieb aber unverändert.
+     *
+     * Fix: Standard-Muster für Selbst-Updates - neue Dateien zuerst in ein
+     * FRISCHES, noch unbenutztes Verzeichnis kopieren (dort kollidiert
+     * nichts mit offenen Datei-Handles), dann per rename() (auf den
+     * meisten Dateisystemen eine atomare Operation, die nur den
+     * Verzeichniseintrag ändert, nicht den Dateiinhalt selbst antastet -
+     * funktioniert daher auch bei offen gehaltenen Dateien problemlos) das
+     * alte Verzeichnis beiseiteschieben und das neue an dessen Stelle
+     * setzen. Das alte Verzeichnis wird erst NACH dem Umbenennen entfernt.
+     *
+     * @return bool true bei vollständigem Erfolg
+     */
+    private function atomicReplaceAddonDir(string $addonPath, string $sourceDir): bool
+    {
+        $tmpNew = $addonPath . '_new_' . bin2hex(random_bytes(4));
+        if (!$this->copyDirectory($sourceDir, $tmpNew)) {
+            $this->rrmdir($tmpNew);
+            return false;
+        }
+
+        if (is_dir($addonPath)) {
+            $tmpOld = $addonPath . '_old_' . bin2hex(random_bytes(4));
+            if (!@rename($addonPath, $tmpOld)) {
+                // Altes Verzeichnis konnte nicht beiseitegeschoben werden -
+                // kein Update, aufräumen und ehrlich Fehler melden statt
+                // stillschweigend nichts zu tun.
+                $this->rrmdir($tmpNew);
+                return false;
+            }
+            if (!@rename($tmpNew, $addonPath)) {
+                // Neues Verzeichnis konnte nicht an die Zielposition
+                // verschoben werden - altes Verzeichnis zurückholen, damit
+                // das Addon nicht in einem kaputten Zwischenzustand bleibt.
+                @rename($tmpOld, $addonPath);
+                $this->rrmdir($tmpNew);
+                return false;
+            }
+            $this->rrmdir($tmpOld);
+        } else {
+            if (!@rename($tmpNew, $addonPath)) {
+                $this->rrmdir($tmpNew);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -1869,12 +1941,15 @@ Require all denied
             $currentVer      = $currentManifest['version'] ?? 'unknown';
             $backupPath      = $backupDir . '/' . $name . '_' . $currentVer . '_replace_' . date('Ymd-His') . '.zip';
             $this->zipDirectory($addonPath, $backupPath);
-            $this->rrmdir($addonPath);
         }
 
-        // ── Neue Dateien kopieren ──────────────────────────────────────────────
-        mkdir($addonPath, 0755, true);
-        $this->copyDirectory($sourceDir, $addonPath);
+        // ── Neue Dateien kopieren (ATOMAR, siehe atomicReplaceAddonDir() für
+        // den Hintergrund - wichtig gerade bei einem Selbst-Update von
+        // "addon-manager" über diesen ZIP-Upload-Weg) ──────────────────────
+        if (!$this->atomicReplaceAddonDir($addonPath, $sourceDir)) {
+            $this->rrmdir($tmpExtract);
+            return ['success' => false, 'error' => 'copy_failed'];
+        }
 
         // ── Aufräumen ────────────────────────────────────────────────────────────
         $this->rrmdir($tmpExtract);

@@ -1,6 +1,6 @@
 {
     "name": "addon-manager",
-    "version": "1.5.2",
+    "version": "1.6.1",
     "type": "admin",
     "description": {
         "de": "Core-Addon: Verwaltung aller installierten Addons (Aktivieren/Deaktivieren, Status, Version).",
@@ -8,9 +8,9 @@
     },
     "author": "Torsten Hofmann",
     "license": "GPL-3.0-only",
-    "homepage": "",
+    "homepage": "https://github.com/henshingly/lmonext_addon-manager",
     "icon": "🧩",
-    "min_core_version": "1.9.0",
+    "min_core_version": "1.9.2",
     "dependencies": [],
     "admin_handlers": ["handler_addons.php"],
     "admin_views": {
