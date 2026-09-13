@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: install.php
- * Fileversion: 2.7.0
+ * Fileversion: 2.7.1
  *
  * PHP version 8.2
  *
@@ -745,8 +745,6 @@ function writeEnvFile(array $cfg) : bool
     DB_PASS={$esc($pass)}
     DB_CHARSET="utf8mb4"
     DB_PREFIX={$esc($prefix)}
-    DEFAULT_LANGUAGE="de"
-    DEFAULT_TEMPLATE="default"
 
     ENV;
 

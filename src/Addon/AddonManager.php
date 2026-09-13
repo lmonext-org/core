@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -714,7 +714,20 @@ class AddonManager
         $relDir  = (string)($addon['manifest']['lang_dir'] ?? 'lang/');
         $langDir = $addon['path'] . rtrim($relDir, '/\\') . '/';
 
-        foreach (['de', 'en'] as $lang) {
+        // Bugfix (gemeldet: Addon-Übersetzung für eine dritte Sprache "nl"
+        // wurde vom Übersetzungs-Editor korrekt erkannt und war vollständig
+        // ausgefüllt, erschien aber trotzdem nicht im laufenden System -
+        // nur der Core-Admin-Bereich selbst schaltete korrekt auf
+        // Niederländisch um). Diese Schleife war zuvor hartkodiert auf
+        // ['de', 'en'] - jede Addon-Sprachdatei für eine andere Sprache
+        // wurde dadurch komplett ignoriert, unabhängig davon, ob sie
+        // physisch existierte. Jetzt an AVAILABLE_LANGUAGES gekoppelt (siehe
+        // lang/i18n.php) - die zentrale, bewusst gepflegte Liste der
+        // tatsächlich unterstützten Sprachen, statt eines hartkodierten
+        // Duos oder eines unkontrollierten Verzeichnis-Scans (der auch
+        // versehentlich angelegte, unvollständige Sprachdateien sofort
+        // aktiv schalten würde).
+        foreach (array_keys(AVAILABLE_LANGUAGES) as $lang) {
             $file = $langDir . $lang . '.php';
             if (!is_file($file)) {
                 continue;
