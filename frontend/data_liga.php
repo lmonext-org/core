@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.2.0
+ * Fileversion: 3.3.0
  *
  * PHP version 8.2
  *
@@ -102,7 +102,7 @@ function getSpieltagPartien(int $spieltagId) : array
 // ── Teamvergleich (H2H) — als eigenständiges Addon "teamvergleich"
 // ausgegliedert (Beitrag: Nutzerwunsch, siehe Machbarkeitsstudie im Chat-
 // Verlauf sowie CHANGELOG.md). Diese vier Wrapper-Funktionen bleiben im Core
-// (viele Aufrufer: RenderViewsTrait.php, PdfExporter, data_liga_pretraits.php)
+// (viele Aufrufer: RenderViewsTrait.php, PdfExporter)
 // delegieren aber jetzt über einen Hook statt direkt an LigaService, das die
 // zugehörige Trait nicht mehr enthält. Ist das Addon nicht aktiv/installiert,
 // liefert doHook() einfach die unveränderten Ausgangsdaten zurück (leeres

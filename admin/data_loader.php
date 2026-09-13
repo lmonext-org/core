@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.11.0
+ * Fileversion: 1.12.0
  *
  * PHP version 8.2
  *
@@ -547,7 +547,7 @@ if ($action === 'archiv' && isLoggedIn()) {
                FROM '.tbl('liga').' l
                LEFT JOIN '.tbl('liga_options').' lo ON lo.liga_id=l.id AND lo.option_key="Type"
               WHERE l.archiv_folder_id IS NOT NULL
-              ORDER BY l.name'
+              ORDER BY l.datum DESC, l.name'
         )->fetchAll();
 
         // Offene Partien pro Liga (nicht gespielt: h_tore NULL oder -1)

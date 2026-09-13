@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/SpieltagRepositoryTrait.php
- * Fileversion: 1.5.0
+ * Fileversion: 1.6.0
  *
  * PHP version 8.2
  *
@@ -157,7 +157,8 @@ trait SpieltagRepositoryTrait
                    LEFT JOIN ' . tbl('teams_global') . ' th ON th.id = p.heim_id
                    LEFT JOIN ' . tbl('teams_global') . ' tg ON tg.id = p.gast_id
                   WHERE p.spieltag_id = ?
-                  ORDER BY CAST(SUBSTRING_INDEX(p.spiel_nr, "_", 1) AS UNSIGNED),
+                  ORDER BY p.zeit IS NULL, p.zeit ASC,
+                           CAST(SUBSTRING_INDEX(p.spiel_nr, "_", 1) AS UNSIGNED),
                            CAST(SUBSTRING_INDEX(p.spiel_nr, "_", -1) AS UNSIGNED)'
             );
             $s->execute([$spieltagId]);
