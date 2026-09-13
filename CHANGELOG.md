@@ -1284,6 +1284,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Home/HomeRepository.php
 
+- Changelog: 1.1.0 - Auf Wunsch: getArchivedLigenByFolder() sortiert archivierte Ligen innerhalb jedes Ordners jetzt absteigend nach Liganame (ORDER BY l.name DESC) statt aufsteigend - bei gleichem Liga-Basisnamen mit Saison-Suffix ergibt das korrekt neueste Saison zuerst (z.B. "2025/26" vor "1963/64"), analog zur selben Korrektur im Admin-Archiv (admin/data_loader.php). Feste Sortierung statt einer Steuerleiste, da diese Ansicht für Besucher gedacht ist.
 - Changelog: 1.0.0 - Initiale Version: Teil der Umstrukturierung von frontend/data_home.php (siehe frontend/data_home.php 3.0.0 für den vollen Kontext der Umstellung). Datenzugriff für die Startseite (aktive Ligen, Archiv-Ordnerbaum, archivierte Ligen je Ordner).
 
 ## src/Home/HomeService.php
