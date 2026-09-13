@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.48.0
+ * Fileversion: 1.50.0
  *
  * PHP version 8.2
  *
@@ -43,15 +43,12 @@ return [
     'liga_label_pick_matchday'   => 'Spieltag wählen:',
     'liga_label_pick_round'      => 'Runde wählen:',
     'liga_heading_matchday_range'=> '{n}. Spieltag {range}',
-    'liga_col_nr'                => 'Nr.',
     'liga_col_datum'             => 'Datum',
-    'liga_stand_datum'           => 'Stand: {datum}',
     'liga_col_heim'              => 'Heim',
     'liga_col_gast'              => 'Gast',
     'liga_col_ergebnis'          => 'Ergebnis',
     'liga_pdf_export_button'     => 'Als PDF exportieren',
     'liga_pdf_title_matchday'    => 'Ergebnisse Spieltag {n}',
-    'liga_pdf_footer'            => '© {year} www.liga-manager-online.org. Alle Rechte vorbehalten. Version {version}',
 
     // ── Tabelle (Standings) ───────────────────────────────────────────────────
     'liga_tab_tabelle'            => 'Tabelle',
@@ -61,7 +58,6 @@ return [
     'liga_tab_spielerstatistik'   => 'Spielerstatistik',
     'liga_fieberkurve_no_data'    => 'Für die Fieberkurve werden erst Ergebnisse benötigt.',
     'liga_col_spieltag_short'     => 'ST',
-    'liga_col_spieltag_long'      => 'Spieltag',
     'liga_stat_home'              => 'Heim',
     'liga_stat_away'              => 'Auswärts',
     'liga_stat_home_short'        => 'H',
@@ -147,14 +143,6 @@ return [
     'liga_schedule_pick_team'     => 'Bitte wählen Sie jetzt eine Mannschaft aus.',
 
     // ── Direkter Vergleich (Vergleichs-Modal) ─────────────────────────────────
-    'liga_h2h_icon_title'         => 'Direkter Vergleich',
-    'liga_h2h_modal_title'        => '{heim} vs {gast}',
-    'liga_h2h_wins'               => 'Siege {team}',
-    'liga_h2h_draw'               => 'Unent.',
-    'liga_h2h_no_matches'         => 'Bisher noch keine Begegnungen zwischen diesen beiden Mannschaften.',
-    'liga_h2h_close'              => 'Schließen',
-    'h2h_today_prefix'            => 'heute',
-    'h2h_pdf_renamed_note'        => 'Hinweis: {list} (jeweils selbes Team unter früherem Namen)',
     'liga_status_ie'             => 'i.E.',
     'liga_status_nv'             => 'n.V.',
     'liga_stats_line'            => 'Schnitt Heim: {heim}   Schnitt Gast: {gast}   Tore: {tore}   Tore/Spiel: {proSpiel}',
@@ -200,13 +188,6 @@ return [
     'liga_month_10' => 'Oktober',
     'liga_month_11' => 'November',
     'liga_month_12' => 'Dezember',
-    'liga_weekday_mo' => 'Mo',
-    'liga_weekday_di' => 'Di',
-    'liga_weekday_mi' => 'Mi',
-    'liga_weekday_do' => 'Do',
-    'liga_weekday_fr' => 'Fr',
-    'liga_weekday_sa' => 'Sa',
-    'liga_weekday_so' => 'So',
 
     // ── Wartungsmodus (Beitrag: Torsten Hofmann) ───────────────────────────────
     'maintenance_title'            => 'Wartungsmodus',

@@ -985,6 +985,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.50.0 - Systematische Nachprüfung aller übrigen Addons ergab 8 weitere, tatsächlich exklusive Sprachschlüssel: liga_stand_datum ins mini-Addon (addon/mini/lang/de.php) verschoben; liga_weekday_mo/di/mi/do/fr/sa/so (7 Schlüssel) ins viewer-Addon (addon/viewer/lang/de.php) verschoben.
+- Changelog: 1.49.0 - Bei genauerer Prüfung waren 11 Sprachschlüssel entgegen erster Einschätzung doch addon-exklusiv (keine echte Verwendung außerhalb von PdfExporter.php/HeadToHead.php): liga_col_nr, liga_pdf_footer, h2h_pdf_renamed_note ins pdf-export-Addon (addon/pdf-export/lang/de.php) verschoben; liga_col_spieltag_long, liga_h2h_icon_title, liga_h2h_modal_title, liga_h2h_wins, liga_h2h_draw, liga_h2h_no_matches, liga_h2h_close, h2h_today_prefix ins teamvergleich-Addon (addon/teamvergleich/lang/de.php) verschoben.
 - Changelog: 1.48.0 - Spielerstatistik-Sprachschlüssel (8× spst_*) ins player-Addon ausgelagert (addon/player/lang/de.php), siehe lang/admin/de.php 1.34.0. Verwaisten Abschnittskommentar "Spielerstatistik (Besucheransicht)" entfernt.
 - Changelog: 1.47.0 - Tippspiel-Sprachschlüssel (193× tf_tipp_*) ins tipp-Addon ausgelagert (addon/tipp/lang/de.php), siehe lang/admin/de.php 1.33.0. Verwaisten Abschnittskommentar "Tippspiel (Tipper-Ansicht, vorläufig)" entfernt.
 - Changelog: 1.46.0 - Verwaiste Sprachschlüssel mini_next_* (10 Stück) entfernt: gehörten zum mini-Addon, das mit der Addon-Manager-Integration aus dem Core extrahiert wurde (siehe src/Addon/AddonManager.php 1.0.0) und seine eigenen Sprachdateien jetzt selbst mitbringt (addon/mini/lang/de.php).
@@ -1058,6 +1060,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.50.0 - Same 8 keys as lang/frontend/de.php 1.50.0 moved out: liga_stand_datum into the mini add-on (addon/mini/lang/en.php); liga_weekday_mo/di/mi/do/fr/sa/so (7 keys) into the viewer add-on (addon/viewer/lang/en.php).
+- Changelog: 1.49.0 - Same 11 addon-exclusive keys as lang/frontend/de.php 1.49.0 moved out: liga_col_nr, liga_pdf_footer, h2h_pdf_renamed_note into the pdf-export add-on (addon/pdf-export/lang/en.php); liga_col_spieltag_long, liga_h2h_icon_title, liga_h2h_modal_title, liga_h2h_wins, liga_h2h_draw, liga_h2h_no_matches, liga_h2h_close, h2h_today_prefix into the teamvergleich add-on (addon/teamvergleich/lang/en.php).
 - Changelog: 1.48.0 - Player statistics language keys (8× spst_*) moved into the player add-on (addon/player/lang/en.php), see lang/admin/en.php 1.33.0.
 - Changelog: 1.47.0 - Prediction game language keys (193× tf_tipp_*) moved into the tipp add-on (addon/tipp/lang/en.php), see lang/admin/en.php 1.32.0. Removed the now-orphaned "Prediction game (tipster view, preliminary)" section comment.
 - Changelog: 1.46.0 - Removed orphaned language keys mini_next_* (10 keys): belonged to the mini add-on, which was extracted from the core with the addon manager integration (see src/Addon/AddonManager.php 1.0.0) and now ships its own language files (addon/mini/lang/en.php).

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.48.0
+ * Fileversion: 1.50.0
  *
  * PHP version 8.2
  *
@@ -41,15 +41,12 @@ return [
     'liga_label_pick_matchday'   => 'Select matchday:',
     'liga_label_pick_round'      => 'Select round:',
     'liga_heading_matchday_range'=> 'Matchday {n} {range}',
-    'liga_col_nr'                => 'No.',
     'liga_col_datum'             => 'Date',
-    'liga_stand_datum'           => 'As of: {datum}',
     'liga_col_heim'              => 'Home',
     'liga_col_gast'              => 'Away',
     'liga_col_ergebnis'          => 'Result',
     'liga_pdf_export_button'     => 'Export as PDF',
     'liga_pdf_title_matchday'    => 'Results Matchday {n}',
-    'liga_pdf_footer'            => '© {year} www.liga-manager-online.org. All rights reserved. Version {version}',
 
     // ── Standings ─────────────────────────────────────────────────────────────
     'liga_tab_tabelle'            => 'Standings',
@@ -59,7 +56,6 @@ return [
     'liga_tab_spielerstatistik'   => 'Player stats',
     'liga_fieberkurve_no_data'    => 'Results are needed before the position chart can be shown.',
     'liga_col_spieltag_short'     => 'MD',
-    'liga_col_spieltag_long'      => 'Matchday',
     'liga_stat_home'              => 'Home',
     'liga_stat_away'              => 'Away',
     'liga_stat_home_short'        => 'H',
@@ -145,14 +141,6 @@ return [
     'liga_schedule_pick_team'     => 'Please select a team now.',
 
     // ── Head-to-head comparison modal ─────────────────────────────────────────
-    'liga_h2h_icon_title'         => 'Head-to-head comparison',
-    'liga_h2h_modal_title'        => '{heim} vs {gast}',
-    'liga_h2h_wins'               => 'Wins {team}',
-    'liga_h2h_draw'               => 'Draw',
-    'liga_h2h_no_matches'         => 'No previous matches between these two teams yet.',
-    'liga_h2h_close'              => 'Close',
-    'h2h_today_prefix'            => 'today',
-    'h2h_pdf_renamed_note'        => 'Note: {list} (same team, former name)',
     'liga_status_ie'             => 'pens.',
     'liga_status_nv'             => 'AET',
     'liga_stats_line'            => 'Average home: {heim}   Average away: {gast}   Goals: {tore}   Goals/match: {proSpiel}',
@@ -198,13 +186,6 @@ return [
     'liga_month_10' => 'October',
     'liga_month_11' => 'November',
     'liga_month_12' => 'December',
-    'liga_weekday_mo' => 'Mon',
-    'liga_weekday_di' => 'Tue',
-    'liga_weekday_mi' => 'Wed',
-    'liga_weekday_do' => 'Thu',
-    'liga_weekday_fr' => 'Fri',
-    'liga_weekday_sa' => 'Sat',
-    'liga_weekday_so' => 'Sun',
 
     // ── Player stats (visitor view) ──────────────────────────────────────────
 
