@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.19.0
+ * Fileversion: 1.20.0
  *
  * PHP version 8.2
  *
@@ -53,7 +53,11 @@ trait RenderViewsTrait
             // den Suffix sonst selbst anhängt) nicht durchläuft.
             $gtEntscheidung = (int)($partie['gt_entscheidung'] ?? 0);
             if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
-                $credited = \LMOnext\Liga\LigaService::gtCreditedScore($gtEntscheidung, null, null);
+                $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
+                    $gtEntscheidung, null, null,
+                    (int)($partie['_gt_tore_gespielt'] ?? 2),
+                    (int)($partie['_gt_tore_nichtantritt'] ?? 3)
+                );
                 return h($credited['h_tore'] . ' : ' . $credited['g_tore']) . self::statusSuffix($partie);
             }
             return '- : -';
@@ -162,7 +166,11 @@ trait RenderViewsTrait
             $sieger = $gtEntscheidung === 1 ? $heim : $gast;
             $hTore = $p['h_tore'] !== null ? (int)$p['h_tore'] : null;
             $gTore = $p['g_tore'] !== null ? (int)$p['g_tore'] : null;
-            $credited = \LMOnext\Liga\LigaService::gtCreditedScore($gtEntscheidung, $hTore, $gTore);
+            $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
+                $gtEntscheidung, $hTore, $gTore,
+                (int)($p['_gt_tore_gespielt'] ?? 2),
+                (int)($p['_gt_tore_nichtantritt'] ?? 3)
+            );
             $gewertet = h($credited['h_tore'] . ':' . $credited['g_tore']);
             if ($hTore !== null && $gTore !== null) {
                 $text = tf('liga_gt_footnote_line', [

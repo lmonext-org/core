@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.16.0
+ * Fileversion: 3.17.0
  *
  * PHP version 8.2
  *
@@ -254,7 +254,23 @@ switch ($currentView) {
         // _liga_id für die sport-profil-abhängige Ergebnis-Anzeige (Beitrag:
         // Torsten Hofmann, siehe RenderViewsTrait::formatScore()) - getSpieltagPartien()
         // kennt die Liga selbst nicht (nur den Spieltag), daher hier ergänzt.
-        foreach ($partien as &$_p) { $_p['_liga_id'] = $ligaId; }
+        // _gt_tore_gespielt/_gt_tore_nichtantritt (auf Wunsch, nach Nutzer-
+        // Recherche zu den 21 DFB-Landesverbänden: die Standardwertung einer
+        // Grüne-Tisch-Entscheidung ist NICHT bundeseinheitlich, z.B. 2:0 bei
+        // den meisten west-/norddeutschen Verbänden, 5:0 beim BFV/HFV/
+        // Badischen FV) - liga_options-Werte (bereits oben als $opts
+        // geladen), siehe admin/view_liga_settings.php ("Strafen"-Tab) für
+        // die Eingabe. Selbes Injektions-Muster wie _liga_id, da
+        // formatScore()/FootballProfile::formatResult()/renderGtFootnotes()
+        // die Liga-ID zwar kennen, aber nicht erneut getLigaOptions()
+        // aufrufen sollen (unnötige Mehrfachabfrage pro Zeile).
+        $gtToreGespielt     = (int)($opts['GtToreGespielt'] ?? 2);
+        $gtToreNichtantritt = (int)($opts['GtToreNichtantritt'] ?? 3);
+        foreach ($partien as &$_p) {
+            $_p['_liga_id'] = $ligaId;
+            $_p['_gt_tore_gespielt'] = $gtToreGespielt;
+            $_p['_gt_tore_nichtantritt'] = $gtToreNichtantritt;
+        }
         unset($_p);
         // Reine Leer-Begegnungen (kein Team, kein Label auf beiden Seiten – z.B.
         // Freilos-Auffüllplätze bei KO-Turnieren) werden nicht angezeigt, siehe

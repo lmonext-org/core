@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -156,6 +156,19 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'strafen':
+                // Grüne-Tisch-Standardwertung, pro Liga einstellbar (auf
+                // Wunsch, nach Nutzer-Recherche zu den 21 DFB-
+                // Landesverbänden: die Wertung eines Nichtantritts/einer
+                // Grüne-Tisch-Entscheidung ist NICHT bundeseinheitlich
+                // geregelt - z.B. 2:0 bei den meisten west-/norddeutschen
+                // Verbänden, 5:0 beim BFV/HFV/Badischen FV). Freie
+                // Zahleneingabe statt fester Auswahl, damit auch andere
+                // Sportarten/Werte abgebildet werden können. Siehe
+                // StandingsTrait::gtCreditedScore() für die Anwendung
+                // dieser beiden Werte.
+                $save('GtToreGespielt', (string)max(0, (int)($_POST['gt_tore_gespielt'] ?? 2)));
+                $save('GtToreNichtantritt', (string)max(0, (int)($_POST['gt_tore_nichtantritt'] ?? 3)));
+
                 // Eigener Zweig, NICHT über den liga_options-$save()-Helper -
                 // Strafpunkte/Straftore/Tore-Korrektur leben pro Liga+Team in
                 // einer eigenen Tabelle (liga_strafpunkte), damit eine

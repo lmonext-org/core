@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.37.0
+ * Fileversion: 1.38.0
  *
  * PHP version 8.2
  *
@@ -326,7 +326,7 @@ return [
     'sp_status_ie_short'             => 'i.E.',
     'sp_status_nv_short'             => 'n.V.',
     'sp_col_gt'                      => 'Sportgericht',
-    'sp_gt_tip'                      => 'Grüne-Tisch-Entscheidung: bitte nur auswählen, wenn wirklich eine solche Entscheidung unabhängig vom Spielergebnis getroffen wurde. Standardwertung nach DFB-Spielordnung: 2:0 für die siegende Mannschaft, wenn das Spiel stattgefunden hat (z.B. Abbruch), 3:0 bei Nichtantritt (kein Ergebnis eingetragen) - jeweils außer das real erzielte Ergebnis war für sie noch höher.',
+    'sp_gt_tip'                      => 'Grüne-Tisch-Entscheidung: bitte nur auswählen, wenn wirklich eine solche Entscheidung unabhängig vom Spielergebnis getroffen wurde. Standardwertung für die siegende Mannschaft ist im Strafen-Tab dieser Liga einstellbar (Vorgabe: 2:0 bei stattgefundenem Spiel, z.B. Abbruch, 3:0 bei Nichtantritt), außer das real erzielte Ergebnis war für sie noch höher.',
     'sp_gt_dash'                     => '–',
     'sp_gt_heim'                     => 'Heimteam siegt',
     'sp_gt_gast'                     => 'Gastteam siegt',
@@ -572,6 +572,9 @@ return [
     'ls_annullieren_checkbox_tip' => 'Setzt alle Spiele dieses Teams in dieser Liga auf "nicht gewertet".',
     'ls_annullieren_label' => 'Annullieren',
     'ls_annullieren_aktiv' => 'Annulliert',
+    'ls_gt_label_gespielt' => 'Grüne-Tisch-Wertung: Spiel fand statt',
+    'ls_gt_label_nichtantritt' => 'Grüne-Tisch-Wertung: Nichtantritt',
+    'ls_gt_hinweis' => 'Standard-Torzahl für die siegende Mannschaft bei einer Grüne-Tisch-Entscheidung (Sportgericht). Die genaue Wertung ist zwischen den 21 DFB-Landesverbänden nicht einheitlich geregelt (häufig 2:0, teils 5:0) - hier pro Liga frei einstellbar. Wirkt sich nur aus, wenn das reale Ergebnis (falls vorhanden) nicht ohnehin höher für die siegende Mannschaft war.',
     'ls_tab_spieltage'     => 'Spieltags- und Spiel-Anzahl',
 
     'ls_label_liga_name'   => 'Name der Liga',

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -665,6 +665,21 @@ if ($tab === 'grundwerte') { ?>
           <p style="font-size:.82rem;color:var(--muted);max-width:640px;margin-bottom:14px">
             ⚠️ <?= h(t('ls_annullieren_hinweis')) ?>
           </p>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;padding:12px 14px;background:var(--bg-alt,rgba(255,255,255,.03));border-radius:var(--radius)">
+            <div>
+              <label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px"><?= h(t('ls_gt_label_gespielt')) ?></label>
+              <input type="number" name="gt_tore_gespielt" min="0" inputmode="numeric"
+                     value="<?= h($o('GtToreGespielt', '2')) ?>"
+                     style="width:70px;text-align:center;<?= $selSt ?>">
+            </div>
+            <div>
+              <label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px"><?= h(t('ls_gt_label_nichtantritt')) ?></label>
+              <input type="number" name="gt_tore_nichtantritt" min="0" inputmode="numeric"
+                     value="<?= h($o('GtToreNichtantritt', '3')) ?>"
+                     style="width:70px;text-align:center;<?= $selSt ?>">
+            </div>
+            <p style="font-size:.76rem;color:var(--muted);max-width:420px;margin:0"><?= h(t('ls_gt_hinweis')) ?></p>
+          </div>
 <?php if (empty($ligaTeams)) { ?>
           <p class="empty-msg"><?= h(t('ls_strafen_keine_teams')) ?></p>
 <?php } else { ?>

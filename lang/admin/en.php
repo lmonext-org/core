@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.36.0
+ * Fileversion: 1.37.0
  *
  * PHP version 8.2
  *
@@ -325,7 +325,7 @@ return [
     'sp_status_ie_short'             => 'pens.',
     'sp_status_nv_short'             => 'a.e.t.',
     'sp_col_gt'                      => 'Sports court',
-    'sp_gt_tip'                      => 'Sports court decision (forfeit/awarded match): only select this if such a decision was really made independent of the match result. Default scoring per DFB rules: 2:0 for the winning team if the match took place (e.g. abandoned), 3:0 if the match did not take place at all (no result entered) - in each case unless the real result was even more favorable for them.',
+    'sp_gt_tip'                      => 'Sports court decision (forfeit/awarded match): only select this if such a decision was really made independent of the match result. Default scoring for the winning team is adjustable in this league\'s Penalties tab (defaults: 2:0 if the match took place, e.g. abandoned, 3:0 for a no-show), unless the real result was even more favorable for them.',
     'sp_gt_dash'                     => '–',
     'sp_gt_heim'                     => 'Home team wins',
     'sp_gt_gast'                     => 'Away team wins',
@@ -571,6 +571,9 @@ return [
     'ls_annullieren_checkbox_tip' => 'Sets all matches of this team in this league to "not counted".',
     'ls_annullieren_label' => 'Void',
     'ls_annullieren_aktiv' => 'Voided',
+    'ls_gt_label_gespielt' => 'Sports court score: match took place',
+    'ls_gt_label_nichtantritt' => 'Sports court score: no-show',
+    'ls_gt_hinweis' => 'Default number of goals for the winning team in a sports court decision. The exact scoring is not uniformly regulated across the 21 German regional football associations (often 2:0, sometimes 5:0) - freely adjustable per league here. Only takes effect if the real result (if any) was not already higher for the winning team.',
     'ls_tab_spieltage'     => 'Matchday & match count',
 
     'ls_label_liga_name'   => 'League name',

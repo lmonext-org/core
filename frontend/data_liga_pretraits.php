@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.28.0
+ * Fileversion: 2.29.0
  *
  * PHP version 8.2
  *
@@ -683,7 +683,9 @@ function formatScoreWithGt(array $partie) : string
         $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
             $gtEntscheidung,
             $partie['h_tore'] !== null ? (int)$partie['h_tore'] : null,
-            $partie['g_tore'] !== null ? (int)$partie['g_tore'] : null
+            $partie['g_tore'] !== null ? (int)$partie['g_tore'] : null,
+            (int)($partie['_gt_tore_gespielt'] ?? 2),
+            (int)($partie['_gt_tore_nichtantritt'] ?? 3)
         );
         return h((string)$credited['h_tore']) . ' : ' . h((string)$credited['g_tore']) . h(statusSuffix($partie));
     }

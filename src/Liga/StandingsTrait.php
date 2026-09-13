@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/StandingsTrait.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -100,10 +100,44 @@ trait StandingsTrait
      * @param int|null $gTore        real eingetragenes Gast-Ergebnis (falls vorhanden)
      * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
      */
-    public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore) : array
+    /**
+     * Berechnet die "Wertung" (angerechnetes Ergebnis) für eine Grüne-Tisch-
+     * Entscheidung (Sportgericht). Die beiden Standardwerte (Tore für die
+     * siegende Mannschaft je nach Szenario) sind auf Wunsch PRO LIGA
+     * einstellbar (siehe liga_options "GtToreGespielt"/"GtToreNichtantritt",
+     * Recherche des Nutzers zu den 21 DFB-Landesverbänden: die genaue
+     * Ausgestaltung ist NICHT bundeseinheitlich - z.B. 2:0 bei den meisten
+     * west-/norddeutschen Verbänden, 5:0 beim BFV/HFV/Badischen FV). Die
+     * Parameter-Defaults (2/3) sind der bisherige DFB-Standard und greifen,
+     * wenn ein Aufrufer keine Liga-spezifischen Werte übergibt.
+     *
+     * 1. Das Spiel HAT STATTGEFUNDEN (wurde abgebrochen oder nachträglich
+     *    z.B. wegen eines nicht spielberechtigten Akteurs gewertet) -
+     *    erkennbar daran, dass ein reales Ergebnis eingetragen wurde (auch
+     *    ein Teilergebnis bei Abbruch zählt als "stattgefunden"):
+     *    Standardwertung $toreGespielt:0 für die siegende Mannschaft.
+     * 2. Das Spiel hat NICHT STATTGEFUNDEN (Nichtantritt/kurzfristige
+     *    Absage) - erkennbar daran, dass KEIN reales Ergebnis eingetragen
+     *    ist: Standardwertung $toreNichtantritt:0.
+     *
+     * In beiden Fällen gilt dieselbe Ausnahme: hat die unschuldige
+     * Mannschaft real mit MEHR Toren Differenz gewonnen als die jeweilige
+     * Standardwertung vorsieht, bleibt ihr tatsächlich erzieltes
+     * Torergebnis bestehen. Die schuldige Mannschaft bekommt in jedem Fall
+     * 0 Tore gutgeschrieben - unabhängig davon, was real erzielt wurde.
+     *
+     * @param int      $entscheidung 1 = Heimteam siegt (Gastteam schuldig),
+     *                                2 = Gastteam siegt (Heimteam schuldig)
+     * @param int|null $hTore        real eingetragenes Heim-Ergebnis (falls vorhanden)
+     * @param int|null $gTore        real eingetragenes Gast-Ergebnis (falls vorhanden)
+     * @param int      $toreGespielt      Standardtore für die siegende Mannschaft, wenn das Spiel stattfand (Liga-Einstellung, Default 2)
+     * @param int      $toreNichtantritt  Standardtore für die siegende Mannschaft bei Nichtantritt (Liga-Einstellung, Default 3)
+     * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
+     */
+    public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore, int $toreGespielt = 2, int $toreNichtantritt = 3) : array
     {
         $spielHatStattgefunden = $hTore !== null && $gTore !== null;
-        $standardTore = $spielHatStattgefunden ? 2 : 3;
+        $standardTore = $spielHatStattgefunden ? $toreGespielt : $toreNichtantritt;
 
         if ($entscheidung === 1) {
             // Heimteam ist unschuldig/siegt, Gastteam ist schuldig.
@@ -205,7 +239,9 @@ trait StandingsTrait
                 $credited = self::gtCreditedScore(
                     $gtEntscheidung,
                     $p['h_tore'] !== null ? (int)$p['h_tore'] : null,
-                    $p['g_tore'] !== null ? (int)$p['g_tore'] : null
+                    $p['g_tore'] !== null ? (int)$p['g_tore'] : null,
+                    (int)($ligaOptions['GtToreGespielt'] ?? 2),
+                    (int)($ligaOptions['GtToreNichtantritt'] ?? 3)
                 );
                 $ht = $credited['h_tore'];
                 $gt = $credited['g_tore'];
