@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.0.7
+ * Fileversion: 3.1.0
  *
  * PHP version 8.2
  *
@@ -24,7 +24,11 @@ require_once __DIR__ . '/../src/Liga/LigaRepositoryTrait.php';
 require_once __DIR__ . '/../src/Liga/SpieltagRepositoryTrait.php';
 require_once __DIR__ . '/../src/Liga/TeamRepositoryTrait.php';
 require_once __DIR__ . '/../src/Liga/TeamFormattingTrait.php';
-require_once __DIR__ . '/../src/Liga/HeadToHeadTrait.php';
+// require_once auf HeadToHeadTrait.php ENTFERNT (Beitrag: Auslagerung als
+// eigenständiges Addon "teamvergleich", siehe CHANGELOG.md) - die Datei
+// existiert im Core nicht mehr, liegt jetzt unter
+// addon/teamvergleich/HeadToHead.php und wird nur geladen, wenn das Addon
+// aktiv ist (siehe dortige addon.json, Feld "frontend_handlers").
 require_once __DIR__ . '/../src/Liga/TournamentTrait.php';
 require_once __DIR__ . '/../src/Liga/StandingsTrait.php';
 require_once __DIR__ . '/../src/Liga/StatisticsTrait.php';
@@ -95,34 +99,45 @@ function getSpieltagPartien(int $spieltagId) : array
     return \LMOnext\Liga\LigaService::getSpieltagPartien($spieltagId);
 }
 
-function resolveLinkedTeamIds(int $teamId) : array
-{
-    return \LMOnext\Liga\LigaService::resolveLinkedTeamIds($teamId);
-}
-
-function resolveCanonicalTeamId(array $groupIds) : ?int
-{
-    return \LMOnext\Liga\LigaService::resolveCanonicalTeamId($groupIds);
-}
-
+// ── Teamvergleich (H2H) — als eigenständiges Addon "teamvergleich"
+// ausgegliedert (Beitrag: Nutzerwunsch, siehe Machbarkeitsstudie im Chat-
+// Verlauf sowie CHANGELOG.md). Diese vier Wrapper-Funktionen bleiben im Core
+// (viele Aufrufer: RenderViewsTrait.php, PdfExporter, data_liga_pretraits.php)
+// delegieren aber jetzt über einen Hook statt direkt an LigaService, das die
+// zugehörige Trait nicht mehr enthält. Ist das Addon nicht aktiv/installiert,
+// liefert doHook() einfach die unveränderten Ausgangsdaten zurück (leeres
+// Array/leerer String) - kein Fehler, der Teamvergleich fällt einfach weg.
+// resolveLinkedTeamIds()/resolveCanonicalTeamId() brauchen KEINE globalen
+// Wrapper mehr, da sie nur intern von der jetzt ausgelagerten
+// getHeadToHeadMatches()-Logik selbst genutzt wurden, kein externer Aufrufer.
 function getHeadToHeadMatches(int $idA, int $idB) : array
 {
-    return \LMOnext\Liga\LigaService::getHeadToHeadMatches($idA, $idB);
+    $result = doHook('liga.h2h_matches', ['idA' => $idA, 'idB' => $idB, 'matches' => []]);
+    return is_array($result['matches'] ?? null) ? $result['matches'] : [];
 }
 
 function buildHeadToHeadPayload(int $idA, int $idB, string $nameA, string $nameB, bool $showLogos = false) : string
 {
-    return \LMOnext\Liga\LigaService::buildHeadToHeadPayload($idA, $idB, $nameA, $nameB, $showLogos);
+    $result = doHook('liga.h2h_payload', [
+        'idA' => $idA, 'idB' => $idB, 'nameA' => $nameA, 'nameB' => $nameB,
+        'showLogos' => $showLogos, 'json' => '{}',
+    ]);
+    return (string)($result['json'] ?? '{}');
 }
 
 function renderH2hIcon(int $heimId, int $gastId, string $heimName, string $gastName, bool $showLogos = false) : string
 {
-    return \LMOnext\Liga\LigaService::renderH2hIcon($heimId, $gastId, $heimName, $gastName, $showLogos);
+    $result = doHook('liga.compare_icon', [
+        'heim_id' => $heimId, 'gast_id' => $gastId, 'heim_name' => $heimName,
+        'gast_name' => $gastName, 'show_logos' => $showLogos, 'html' => '',
+    ]);
+    return (string)($result['html'] ?? '');
 }
 
 function renderH2hModalAssets() : string
 {
-    return \LMOnext\Liga\LigaService::renderH2hModalAssets();
+    $result = doHook('liga.compare_modal_assets', ['html' => '']);
+    return (string)($result['html'] ?? '');
 }
 
 function statusSuffix(array $partie) : string

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.11.2
+ * Fileversion: 1.12.0
  *
  * PHP version 8.2
  *
@@ -80,7 +80,13 @@ trait RenderViewsTrait
             'ErgebnisOffenClass'  => $gespielt ? '' : ' ergebnis-offen',
             'HeimClass'           => ($favTeamId !== null && $hId === $favTeamId) ? ' schedule-own' : '',
             'GastClass'           => ($favTeamId !== null && $gId === $favTeamId) ? ' schedule-own' : '',
-            'CompareIcon'         => self::renderH2hIcon($hId, $gId, $heimRaw, $gastRaw, $showLogos),
+            // \renderH2hIcon() ist die GLOBALE Funktion aus frontend/data_liga.php
+            // (führender Backslash = Root-Namespace, nicht self:: - seit der
+            // Auslagerung des Teamvergleichs als eigenständiges Addon
+            // "teamvergleich" existiert HeadToHeadTrait/self::renderH2hIcon()
+            // in dieser Klasse nicht mehr, siehe CHANGELOG.md). Liefert '',
+            // wenn das Addon nicht aktiv ist - kein Fehler.
+            'CompareIcon'         => \renderH2hIcon($hId, $gId, $heimRaw, $gastRaw, $showLogos),
         ]);
     }
     /**
@@ -102,7 +108,7 @@ trait RenderViewsTrait
             'ColGast'     => h(tf('liga_col_gast')),
             'ColErgebnis' => h(tf('liga_col_ergebnis')),
             'Zeilen'      => $rows,
-        ]) . self::renderH2hModalAssets();
+        ]) . \renderH2hModalAssets();
     }
     /**
      * Baut den Statistik-Block (Überschrift + Zeile) für eine Liste von Partien
@@ -402,7 +408,7 @@ trait RenderViewsTrait
                     'Heim'        => $heim,
                     'Gast'        => $gast,
                     'Score'       => $score,
-                    'CompareIcon' => self::renderH2hIcon($pairing['heim_id'], $pairing['gast_id'], $heimRaw, $gastRaw, $showLogos),
+                    'CompareIcon' => \renderH2hIcon($pairing['heim_id'], $pairing['gast_id'], $heimRaw, $gastRaw, $showLogos),
                     'Kickoff'     => h($kickoff),
                 ]);
             }
@@ -413,7 +419,7 @@ trait RenderViewsTrait
             ]);
         }
     
-        return renderPartial('bracket_view', ['Rounds' => $roundsHtml]) . self::renderH2hModalAssets();
+        return renderPartial('bracket_view', ['Rounds' => $roundsHtml]) . \renderH2hModalAssets();
     }
     /**
      * Baut die Liga-Tabelle.
@@ -795,10 +801,10 @@ trait RenderViewsTrait
                     'Gast'         => self::partieTeamNameWithLogo($p, 'gast', $showLogos),
                     'Ergebnis'     => $score,
                     'ErgebnisOffenClass' => $gespielt ? '' : ' ergebnis-offen',
-                    'CompareIcon'  => self::renderH2hIcon($hId, $gId, $heimRaw, $gastRaw, $showLogos),
+                    'CompareIcon'  => \renderH2hIcon($hId, $gId, $heimRaw, $gastRaw, $showLogos),
                 ]);
             }
-            $contentHtml = renderPartial('team_schedule_table', ['Rows' => $rowsHtml]) . self::renderH2hModalAssets();
+            $contentHtml = renderPartial('team_schedule_table', ['Rows' => $rowsHtml]) . \renderH2hModalAssets();
         }
 
         if ($useDropdownPicker) {

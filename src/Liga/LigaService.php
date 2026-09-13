@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/LigaService.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.1.0
  *
  * PHP version 8.2
  *
@@ -28,7 +28,11 @@ final class LigaService
     use SpieltagRepositoryTrait;
     use TeamRepositoryTrait;
     use TeamFormattingTrait;
-    use HeadToHeadTrait;
+    // use HeadToHeadTrait; ENTFERNT (Beitrag: Auslagerung als eigenständiges
+    // Addon "teamvergleich", siehe CHANGELOG.md) - die Logik lebt jetzt unter
+    // addon/teamvergleich/HeadToHead.php, nicht mehr als Trait in dieser
+    // Klasse. Aufrufer (RenderViewsTrait, PdfExporter, frontend/data_liga.php)
+    // gehen über Hooks statt direkter self::-Methodenaufrufe.
     use TournamentTrait;
     use StandingsTrait;
     use StatisticsTrait;

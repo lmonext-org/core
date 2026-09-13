@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.13.0
+ * Fileversion: 3.14.0
  *
  * PHP version 8.2
  *
@@ -38,8 +38,14 @@ if (function_exists('addonManager') && addonManager()->isEnabled('pdf-export')) 
 // der normalen id/view-Auflösung abgefangen. Zusätzliche Prüfung auf das
 // pdf-export-Addon (Beitrag: Auslagerung als eigenständiges Addon) - ohne
 // aktives Addon existiert exportH2hPdf() schlicht nicht, ein Aufruf würde
-// sonst mit "Call to undefined function" fatal abbrechen.
+// sonst mit "Call to undefined function" fatal abbrechen. ZUSÄTZLICH auf das
+// teamvergleich-Addon geprüft (Beitrag: Auslagerung als eigenständiges Addon,
+// siehe CHANGELOG.md) - ohne aktives teamvergleich-Addon liefert
+// getHeadToHeadMatches() zwar dank Hook-Fallback kein Fatal, aber ein
+// inhaltsleeres PDF ohne echte Daten wäre trotzdem verwirrend, deshalb hier
+// schon abgefangen.
 if (isset($_GET['h2h_pdf']) && function_exists('addonManager') && addonManager()->isEnabled('pdf-export')
+    && addonManager()->isEnabled('teamvergleich')
     && getAdminSetting('show_pdf_buttons', '1') === '1') {
     $teamAId = (int)($_GET['a'] ?? 0);
     $teamBId = (int)($_GET['b'] ?? 0);

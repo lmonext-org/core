@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_settings.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -41,6 +41,7 @@ $activeTemplate     = getAdminSetting('active_template', DEFAULT_TEMPLATE);
 if (!array_key_exists($activeTemplate, $availableTemplates)) { $activeTemplate = DEFAULT_TEMPLATE; }
 $allowTemplateSwitch = getAdminSetting('allow_template_switch', '0') === '1';
 $showPdfButtons      = getAdminSetting('show_pdf_buttons', '1') === '1';
+$showTeamvergleich   = getAdminSetting('show_teamvergleich', '1') === '1';
 $showLanguageSwitcher = getAdminSetting('show_language_switcher', '1') === '1';
 $showBackLink        = getAdminSetting('show_back_link', '1') === '1';
 
@@ -161,6 +162,19 @@ foreach ($mainTabs as $key => $label) {
             </select>
             <div style="font-size:.78rem;color:var(--muted);margin-top:4px">
               <?= h(t('settings_hint_show_pdf_buttons')) ?>
+            </div>
+          </div>
+<?php } ?>
+<?php if (function_exists('addonManager') && addonManager()->isEnabled('teamvergleich')) { ?>
+          <div class="form-group">
+            <label><?= h(t('settings_label_show_teamvergleich')) ?></label>
+            <select name="show_teamvergleich" style="width:100%;background:var(--bg);border:1px solid var(--border);
+                   color:var(--text);border-radius:var(--radius);padding:8px 10px;font-size:.87rem;margin-top:4px">
+              <option value="1"<?= $showTeamvergleich ? ' selected' : '' ?>><?= h(t('common_yes')) ?></option>
+              <option value="0"<?= !$showTeamvergleich ? ' selected' : '' ?>><?= h(t('common_no')) ?></option>
+            </select>
+            <div style="font-size:.78rem;color:var(--muted);margin-top:4px">
+              <?= h(t('settings_hint_show_teamvergleich')) ?>
             </div>
           </div>
 <?php } ?>

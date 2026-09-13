@@ -732,6 +732,8 @@ return [
     'settings_hint_allow_template_switch'  => 'If yes, visitors can pick a different template than the one active here via a dropdown (only for their own session).',
     'settings_label_show_pdf_buttons'      => 'Show PDF export to visitors?',
     'settings_hint_show_pdf_buttons'       => 'If no, the PDF button is hidden entirely from visitors in results, standings, schedules, and the head-to-head comparison – for both KO and regular leagues, on every page.',
+    'settings_label_show_teamvergleich'    => 'Show team comparison (head-to-head) to visitors?',
+    'settings_hint_show_teamvergleich'     => 'If no, the comparison icon is hidden entirely from visitors on all matchups (results, schedules, KO bracket).',
     'settings_label_show_language_switcher' => 'Show language selector?',
     'settings_hint_show_language_switcher'  => 'If no, the language selector is hidden from visitors on every page of the frontend.',
     'settings_label_show_back_link'        => 'Show league overview?',

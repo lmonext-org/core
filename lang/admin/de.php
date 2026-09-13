@@ -733,6 +733,8 @@ return [
     'settings_hint_allow_template_switch'  => 'Wenn ja, können Besucher über ein Dropdown ein anderes als das hier aktive Template auswählen (nur für ihre eigene Sitzung).',
     'settings_label_show_pdf_buttons'      => 'PDF-Export für Besucher anzeigen?',
     'settings_hint_show_pdf_buttons'       => 'Wenn nein, wird der PDF-Button in Ergebnisse, Tabelle, Spielplänen und dem Teamvergleich für Besucher komplett ausgeblendet – bei KO- und regulären Ligen gleichermaßen, auf allen Seiten.',
+    'settings_label_show_teamvergleich'    => 'Teamvergleich (Direkter Vergleich) für Besucher anzeigen?',
+    'settings_hint_show_teamvergleich'     => 'Wenn nein, wird das Vergleichs-Icon bei allen Begegnungen (Ergebnisse, Spielpläne, KO-Baum) für Besucher komplett ausgeblendet.',
     'settings_label_show_language_switcher' => 'Sprachauswahl anzeigen?',
     'settings_hint_show_language_switcher'  => 'Wenn nein, wird die Sprachauswahl für Besucher auf allen Seiten der Besucheransicht ausgeblendet.',
     'settings_label_show_back_link'        => 'Liga-Übersicht anzeigen?',

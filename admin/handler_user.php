@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_user.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -253,6 +253,10 @@ if ($action === 'save_admin_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') 
 
         if (isset($_POST['show_pdf_buttons'])) {
             $s->execute(['show_pdf_buttons', $_POST['show_pdf_buttons'] === '1' ? '1' : '0']);
+        }
+
+        if (isset($_POST['show_teamvergleich'])) {
+            $s->execute(['show_teamvergleich', $_POST['show_teamvergleich'] === '1' ? '1' : '0']);
         }
 
         if (isset($_POST['show_language_switcher'])) {
