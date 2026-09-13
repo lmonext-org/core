@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -380,21 +380,39 @@ if ($action === 'liga_settings' && isLoggedIn()) {
             // (auf Wunsch: Vereins-Spielbetrieb-Einstellung mit rückwirkender
             // Annullierung, z.B. Lizenzentzug, siehe admin/handler_settings.php
             // Aktion "strafe_annullieren" sowie StandingsTrait::computeStandings()).
-            // Ein Team gilt als "annulliert", sobald mindestens eines seiner
-            // Spiele in dieser Liga so markiert ist - aktuell gibt es nur die
-            // Bulk-Aktion (alle Spiele eines Teams auf einmal), es kann also
-            // nur "alle" oder "keins" geben, kein Zwischenzustand.
+            //
+            // BUGFIX (gemeldet: nach Annullierung eines einzelnen Teams
+            // zeigte die Strafen-Übersicht plötzlich ALLE Teams als
+            // "Annulliert" an, obwohl nur eines wirklich betroffen war):
+            // die vorherige Prüfung ("mindestens ein annulliertes Spiel
+            // dieses Teams") war falsch, sobald ein GEGNER des annullierten
+            // Teams selbst weit mehr als nur dieses eine Spiel in der Liga
+            // hat - z.B. spielt jedes andere Team in einer normalen
+            // Ein-/Zweifach-Runde mindestens einmal gegen das annullierte
+            // Team, und genau DIESES eine Spiel wird ja ebenfalls
+            // annulliert (siehe computeStandings() - eine Annullierung
+            // betrifft immer beide Seiten eines Spiels). Jedes dieser
+            // Gegner-Teams hat also mindestens ein annulliertes Spiel,
+            // obwohl der Rest seines Spielplans normal ist - "mindestens
+            // eins" erfasste damit praktisch die gesamte Liga statt nur
+            // des einen tatsächlich zurückgezogenen Teams.
+            // Korrekt ist: ein Team gilt nur dann als "annulliert", wenn
+            // ALLE seine Spiele in dieser Liga so markiert sind (0 nicht-
+            // annullierte Spiele) - GROUP BY + HAVING statt eines reinen
+            // Existenz-Checks.
             try {
                 $sA = $db->prepare(
-                    'SELECT DISTINCT team_id FROM (
-                        SELECT p.heim_id AS team_id FROM ' . tbl('liga_partien') . ' p
+                    'SELECT team_id FROM (
+                        SELECT p.heim_id AS team_id, p.nicht_gewertet AS ng FROM ' . tbl('liga_partien') . ' p
                           JOIN ' . tbl('liga_spieltage') . ' st ON st.id = p.spieltag_id
-                         WHERE st.liga_id = ? AND p.nicht_gewertet = 1
-                        UNION
-                        SELECT p.gast_id AS team_id FROM ' . tbl('liga_partien') . ' p
+                         WHERE st.liga_id = ?
+                        UNION ALL
+                        SELECT p.gast_id AS team_id, p.nicht_gewertet AS ng FROM ' . tbl('liga_partien') . ' p
                           JOIN ' . tbl('liga_spieltage') . ' st ON st.id = p.spieltag_id
-                         WHERE st.liga_id = ? AND p.nicht_gewertet = 1
-                     ) x'
+                         WHERE st.liga_id = ?
+                     ) x
+                     GROUP BY team_id
+                     HAVING SUM(CASE WHEN ng = 0 OR ng IS NULL THEN 1 ELSE 0 END) = 0'
                 );
                 $sA->execute([$lid, $lid]);
                 $ligaSettingsData['annullierte_teams'] = array_fill_keys(
