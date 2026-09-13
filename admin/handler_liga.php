@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.11.0
+ * Fileversion: 1.12.0
  *
  * PHP version 8.2
  *
@@ -283,6 +283,17 @@ if ($action === 'delete_liga' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare('DELETE FROM '.tbl('liga_options').' WHERE liga_id=?')->execute([$id]);
             $db->prepare('DELETE FROM '.tbl('liga').' WHERE id=?')->execute([$id]);
             $db->commit();
+            // Neuer Hook-Punkt (Beitrag: Integrationsprüfung eines
+            // Drittanbieter-Addons, das sich auf dieses Event verlässt, ohne
+            // dass es zuvor im Core existierte - siehe auch team.deleted,
+            // dasselbe Muster). Erlaubt Addons, eigene, an die Liga gebundene
+            // Daten zu bereinigen, statt verwaist in der Datenbank
+            // zurückzubleiben. Bewusst ERST NACH dem commit() gefeuert (nicht
+            // davor/innerhalb der Transaktion) - bei einem Rollback würde die
+            // Liga ja gar nicht wirklich gelöscht, ein vorher gefeuerter Hook
+            // hätte dann fälschlich schon Aufräumarbeiten eines Addons
+            // ausgelöst.
+            doHook('liga.deleted', ['liga_id' => $id, 'liga_name' => $ligaName]);
             logAdminAction('liga_deleted', $ligaName);
             flash(t('hl_flash_liga_deleted'));
         } catch (Throwable $e) {
