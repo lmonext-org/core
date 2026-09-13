@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_archiv.php
- * Fileversion: 1.6.1
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -16,8 +16,28 @@ $folders     = $archivData['folders']     ?? [];
 $archivLigen = $archivData['archivLigen'] ?? [];
 $folderMap   = $archivData['folderMap']   ?? [];
 $archivOffen = $archivData['offen']       ?? [];
+$archivSort  = $archivData['sort']        ?? 'name';
+$archivDir   = $archivData['dir']         ?? 'desc';
 $totalOffen  = array_sum($archivOffen);
 $ligenMitOffen = count(array_filter($archivOffen, fn($n) => $n > 0));
+
+// Sortier-Steuerleiste (auf Wunsch, statt einer festen Vorgabe): baut den
+// Link für eine Sortier-Spalte - bei erneutem Klick auf die bereits aktive
+// Spalte kehrt sich die Richtung um, sonst wird auf die neue Spalte mit
+// ihrer sinnvollen Standardrichtung gewechselt (Name/Erstellt: absteigend
+// als Default, ID: aufsteigend als Default).
+function archivSortLink(string $key, string $label, string $activeSort, string $activeDir): string
+{
+    $isActive = $key === $activeSort;
+    $defaultDir = $key === 'id' ? 'asc' : 'desc';
+    $nextDir = $isActive ? ($activeDir === 'asc' ? 'desc' : 'asc') : $defaultDir;
+    $arrow = $isActive ? ($activeDir === 'asc' ? ' ↑' : ' ↓') : '';
+    $color = $isActive ? 'var(--accent)' : 'var(--muted)';
+    $weight = $isActive ? '600' : '400';
+    return '<a href="?action=archiv&sort=' . h($key) . '&dir=' . h($nextDir) . '"'
+         . ' style="color:' . $color . ';text-decoration:none;font-size:.82rem;font-weight:' . $weight . ';margin-right:16px">'
+         . h($label) . $arrow . '</a>';
+}
 
 // Ligen nach Ordner-ID gruppieren
 $ligenByFolder = [];
@@ -148,6 +168,14 @@ $tree = archivBuildTree($folders);
   <span style="font-size:.83rem;color:var(--muted);margin-left:auto">
     <?= h(t('arch_summary_line', ['folders' => count($folders), 'ligen' => count($archivLigen)])) ?>
   </span>
+</div>
+
+<!-- Sortierung der Ligen innerhalb jedes Ordners (auf Wunsch) -->
+<div style="margin-bottom:12px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">
+  <span style="font-size:.78rem;color:var(--muted);margin-right:10px"><?= h(t('arch_sort_label')) ?></span>
+  <?= archivSortLink('id', t('arch_sort_id'), $archivSort, $archivDir) ?>
+  <?= archivSortLink('name', t('arch_sort_name'), $archivSort, $archivDir) ?>
+  <?= archivSortLink('datum', t('arch_sort_datum'), $archivSort, $archivDir) ?>
 </div>
 
 <!-- Baum oder Leer-Hinweis -->

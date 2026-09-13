@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.39.0
+ * Fileversion: 1.40.0
  *
  * PHP version 8.2
  *
@@ -453,6 +453,10 @@ return [
     'arch_btn_missing_results_one'  => '⚠️ 1 Liga mit fehlenden Ergebnissen',
     'arch_btn_missing_results_many' => '⚠️ {n} Ligen mit fehlenden Ergebnissen',
     'arch_summary_line'         => '{folders} Ordner · {ligen} archivierte Ligen',
+    'arch_sort_label'           => 'Sortieren nach:',
+    'arch_sort_id'              => 'ID',
+    'arch_sort_name'            => 'Liganame',
+    'arch_sort_datum'           => 'Erstellt',
     'arch_empty_line1'          => 'Noch keine Archivordner vorhanden.',
     'arch_empty_line2'          => 'Klicke auf <strong>📁 Neuer Ordner</strong> um einen Ordner anzulegen.',
     'arch_empty_line3'          => 'Ligen können danach über <strong>⚙️ Einstellungen → Archivieren</strong> in einen Ordner verschoben werden.',

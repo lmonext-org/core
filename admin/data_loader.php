@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.13.0
+ * Fileversion: 1.14.0
  *
  * PHP version 8.2
  *
@@ -549,13 +549,28 @@ if ($action === 'archiv' && isLoggedIn()) {
         $db = getDB();
         // Alle Ordner
         $folders = $db->query('SELECT * FROM '.tbl('liga_archiv_folders').' ORDER BY sort,name')->fetchAll();
+        // Sortierung der archivierten Ligen innerhalb jedes Ordners (auf
+        // Wunsch, per klickbarer Steuerleiste statt einer festen Vorgabe -
+        // die vorherige feste "ORDER BY l.datum DESC" ging fälschlich davon
+        // aus, dass "datum" das Saison-Startdatum ist; tatsächlich scheint
+        // es eher dem Erstellungszeitpunkt des DB-Eintrags zu entsprechen,
+        // wodurch batch-weise importierte Ligen in Import-Reihenfolge statt
+        // Saison-Reihenfolge gruppiert erschienen). Whitelist statt direkter
+        // Übernahme von $_GET, da diese Werte direkt in die SQL-Klausel
+        // eingesetzt werden (keine Bind-Parameter für ORDER BY möglich).
+        $archivSortMap = ['id' => 'l.id', 'name' => 'l.name', 'datum' => 'l.datum'];
+        $archivSort = (string)($_GET['sort'] ?? 'name');
+        if (!isset($archivSortMap[$archivSort])) { $archivSort = 'name'; }
+        $archivDir = (strtoupper((string)($_GET['dir'] ?? 'DESC')) === 'ASC') ? 'ASC' : 'DESC';
+        $archivData_sort = $archivSort;
+        $archivData_dir  = strtolower($archivDir);
         // Alle archivierten Ligen
         $archivLigen = $db->query(
             'SELECT l.*, lo.option_value AS liga_type
                FROM '.tbl('liga').' l
                LEFT JOIN '.tbl('liga_options').' lo ON lo.liga_id=l.id AND lo.option_key="Type"
               WHERE l.archiv_folder_id IS NOT NULL
-              ORDER BY l.datum DESC, l.name'
+              ORDER BY ' . $archivSortMap[$archivSort] . ' ' . $archivDir . ', l.name'
         )->fetchAll();
 
         // Offene Partien pro Liga (nicht gespielt: h_tore NULL oder -1)
@@ -579,8 +594,10 @@ if ($action === 'archiv' && isLoggedIn()) {
             'archivLigen' => $archivLigen,
             'folderMap'   => array_column($folders, null, 'id'),
             'offen'       => $archivOffen,
+            'sort'        => $archivData_sort,
+            'dir'         => $archivData_dir,
         ];
-    } catch (Throwable) { $archivData = ['folders'=>[],'archivLigen'=>[],'folderMap'=>[],'offen'=>[]]; }
+    } catch (Throwable) { $archivData = ['folders'=>[],'archivLigen'=>[],'folderMap'=>[],'offen'=>[],'sort'=>'name','dir'=>'desc']; }
 }
 
 

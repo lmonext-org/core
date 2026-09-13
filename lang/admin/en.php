@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.38.0
+ * Fileversion: 1.39.0
  *
  * PHP version 8.2
  *
@@ -452,6 +452,10 @@ return [
     'arch_btn_missing_results_one'  => '⚠️ 1 league with missing results',
     'arch_btn_missing_results_many' => '⚠️ {n} leagues with missing results',
     'arch_summary_line'         => '{folders} folders · {ligen} archived leagues',
+    'arch_sort_label'           => 'Sort by:',
+    'arch_sort_id'              => 'ID',
+    'arch_sort_name'            => 'League name',
+    'arch_sort_datum'           => 'Created',
     'arch_empty_line1'          => 'No archive folders yet.',
     'arch_empty_line2'          => 'Click <strong>📁 New folder</strong> to create one.',
     'arch_empty_line3'          => 'Leagues can then be moved into a folder via <strong>⚙️ Settings → Archive</strong>.',

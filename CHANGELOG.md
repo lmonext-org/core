@@ -249,6 +249,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/data_loader.php
 
+- Changelog: 1.14.0 - Bugfix/Feature (gemeldet: die vorherige feste Sortierung "ORDER BY l.datum DESC" für archivierte Ligen ergab keine sinnvolle Reihenfolge - batch-weise importierte Ligen erschienen in Import-Reihenfolge statt Saison-Reihenfolge, da "datum" offenbar eher dem Erstellungszeitpunkt des DB-Eintrags entspricht als dem Saison-Startdatum): archiv-Aktion unterstützt jetzt eine per Klick umschaltbare Sortierung (GET-Parameter sort=id|name|datum, dir=asc|desc, Whitelist-geprüft gegen SQL-Injection, da ORDER BY keine Bind-Parameter erlaubt) statt einer festen Vorgabe. Default weiterhin "name" absteigend (String-Sortierung bei gleichem Liga-Basisnamen mit Saison-Suffix ergibt korrekt neueste-zuerst, z.B. "2025/26" vor "1963/64" - mit einem Sortier-Test verifiziert).
 - Changelog: 1.13.0 - Ruft jetzt adminMigrateFavSelTeamToStableId() (admin/bootstrap.php 1.26.0) statt der nicht geladenen \LMOnext\Liga\LigaService::migrateFavSelTeamToStableId() auf - siehe dortiger Changelog-Eintrag für den vollständigen, kritischen Bugfix-Hintergrund.
 - Changelog: 1.12.0 - Auf Wunsch: archivierte Ligen innerhalb eines Archiv-Ordners werden jetzt nach Datum absteigend sortiert (neueste zuerst) statt alphabetisch nach Liganamen - bei Saison-Namen wie "1963/64" wirkte die alphabetische Sortierung zufällig chronologisch aufsteigend, was nicht dem gewünschten "neueste zuerst" entsprach. Nutzt dasselbe Datumsfeld, das bereits für die nicht-archivierten Ligen als Sortierkriterium etabliert ist.
 - Changelog: 1.11.0 - Liga-Einstellungen rufen jetzt ebenfalls migrateFavSelTeamToStableId() auf (siehe TeamRepositoryTrait.php 1.1.0) - der Admin-Bereich lädt liga_options per eigener SQL-Abfrage statt über getLigaOptions(), daher hier separat ergänzt, sonst hätte die Migration nur beim Frontend-Aufruf der Liga gegriffen, nicht beim Öffnen der Liga-Einstellungen selbst.
@@ -440,6 +441,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_archiv.php
 
+- Changelog: 1.7.0 - Neue Sortier-Steuerleiste über der Archiv-Baumansicht (auf Wunsch, siehe admin/data_loader.php 1.14.0): drei klickbare Links (ID/Liganame/Erstellt), die bei erneutem Klick auf die bereits aktive Spalte die Richtung umkehren, sonst auf die neue Spalte mit sinnvollem Standard wechseln (Name/Erstellt: absteigend, ID: aufsteigend) - da die Ligen als gruppierte Liste pro Ordner gerendert werden (keine <table>), keine klassischen klickbaren Spaltenüberschriften, sondern eine globale, für alle Ordner gleichermaßen wirkende Steuerleiste.
 - Changelog: 1.6.1 - Sicherheitsfix: csrfField() in jedes POST-Formular eingefügt (CSRF-Schutz, siehe admin/bootstrap.php).
 - Changelog: 1.6.0 - Bugfix: der "Reaktivieren"-Link im Archiv war funktionslos - er war die bereits vorausgewählte erste Option in einem <select onchange="this.form.submit()">-Dropdown, wodurch Browser beim Anklicken kein change-Ereignis auslösten (der Wert ändert sich ja nicht). Reaktivieren ist jetzt ein eigenständiger Button, das Dropdown daneben dient nur noch zum gezielten Verschieben in einen anderen Ordner.
 - Changelog: 1.5.1 - Liga-ID (#123) wird jetzt auch in den Archiv-Zeilen angezeigt (sowohl innerhalb von Ordnern als auch bei Ligen ohne Ordner), analog zur ID-Spalte in der Ligen-Übersicht
@@ -835,6 +837,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.40.0 - Neue Schlüssel arch_sort_label/arch_sort_id/arch_sort_name/arch_sort_datum für die neue Sortier-Steuerleiste im Archiv.
 - Changelog: 1.39.0 - sp_gt_tip aktualisiert: nennt jetzt einheitlich 2:0 für beide Grüne-Tisch-Szenarien (Spiel fand statt/Nichtantritt) statt zuvor 2:0/3:0.
 - Changelog: 1.38.0 - Neue Schlüssel ls_gt_label_gespielt/ls_gt_label_nichtantritt/ls_gt_hinweis für die neue Grüne-Tisch-Standardwertung im Strafen-Tab. sp_gt_tip aktualisiert: verweist jetzt auf die einstellbaren Werte im Strafen-Tab statt fest "2:0"/"3:0 nach DFB-Regel" zu behaupten, da dies jetzt pro Liga abweichen kann.
 - Changelog: 1.37.0 - sp_gt_tip aktualisiert: beschreibt jetzt die verfeinerte DFB-Zwei-Szenarien-Regel (2:0 bei stattgefundenem Spiel, 3:0 bei Nichtantritt) statt der vorherigen pauschalen 3:0-Regel, siehe StandingsTrait::gtCreditedScore() 1.9.0.
@@ -934,6 +937,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.39.0 - New keys arch_sort_label/arch_sort_id/arch_sort_name/arch_sort_datum for the new archive sort control bar.
 - Changelog: 1.38.0 - sp_gt_tip updated: now states a uniform 2:0 default for both sports court scenarios (match took place/no-show) instead of the previous 2:0/3:0.
 - Changelog: 1.37.0 - New keys ls_gt_label_gespielt/ls_gt_label_nichtantritt/ls_gt_hinweis for the new configurable sports court default scoring in the Penalties tab. sp_gt_tip updated to reference the adjustable values in the Penalties tab instead of asserting fixed "2:0"/"3:0 per DFB rules", since this can now differ per league.
 - Changelog: 1.36.0 - sp_gt_tip updated: now describes the refined DFB two-scenario rule (2:0 if the match took place, 3:0 for a no-show) instead of the previous flat 3:0 rule, see StandingsTrait::gtCreditedScore() 1.9.0.
