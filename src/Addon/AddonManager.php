@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.4.1
+ * Fileversion: 1.4.2
  *
  * PHP version 8.2
  *
@@ -222,6 +222,42 @@ class AddonManager
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
         $this->db->exec($sql);
+
+        // ── Nachträgliche Migration: UNIQUE-Constraint auf "name" sicherstellen
+        // (Beitrag: Bugfix-Absicherung) ─────────────────────────────────────────
+        // "CREATE TABLE IF NOT EXISTS" ändert an einer BEREITS bestehenden
+        // Tabelle nichts mehr - falls diese Tabelle auf einer Installation vor
+        // dem disable()-Bugfix (siehe dortiger Changelog-Eintrag) angelegt
+        // wurde, könnte das UNIQUE-Constraint fehlen. Ohne es wäre "INSERT ...
+        // ON DUPLICATE KEY UPDATE" (in enable()/disable() genutzt) wirkungslos
+        // und würde bei jedem Aufruf eine ZUSÄTZLICHE Zeile statt eines Updates
+        // erzeugen. Wird bei jedem Request geprüft (günstige SHOW-Abfrage),
+        // aber nur bei Bedarf tatsächlich geändert.
+        try {
+            $idxCheck = $this->db->query(
+                "SHOW INDEX FROM {$tableName} WHERE Column_name = 'name' AND Non_unique = 0"
+            );
+            $hasUnique = $idxCheck !== false && $idxCheck->fetch() !== false;
+            if (!$hasUnique) {
+                // Eventuelle Duplikate zuerst bereinigen (nur die neueste Zeile
+                // pro Addon-Name behalten) - ein UNIQUE-Constraint lässt sich
+                // sonst nicht anlegen, wenn bereits doppelte Werte vorhanden
+                // sind (durch den früheren disable()-Bug bzw. durch enable()-
+                // Aufrufe ohne wirksames ON DUPLICATE KEY UPDATE theoretisch
+                // möglich).
+                $this->db->exec(
+                    "DELETE t1 FROM {$tableName} t1
+                     INNER JOIN {$tableName} t2
+                     ON t1.name = t2.name AND t1.id < t2.id"
+                );
+                $this->db->exec("ALTER TABLE {$tableName} ADD UNIQUE KEY uniq_name (name)");
+            }
+        } catch (\Throwable $e) {
+            // Migration fehlgeschlagen (z.B. fehlende ALTER-Berechtigung) -
+            // kein harter Abbruch, aber geloggt, damit es nicht stillschweigend
+            // untergeht.
+            error_log('[AddonManager] Registry-UNIQUE-Migration fehlgeschlagen: ' . $e->getMessage());
+        }
 
         // addon_settings Tabelle für Core-Einstellungen (z.B. GitHub Token)
         $settingsTable = '`' . $this->tablePrefix . 'addon_settings`';
