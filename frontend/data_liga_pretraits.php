@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_liga.php
- * Fileversion: 2.21.0
+ * Fileversion: 2.22.0
  *
  * PHP version 8.2
  *
@@ -639,7 +639,17 @@ function renderH2hModalAssets() : string
         return '';
     }
     $emitted = true;
-    $showPdfButtons = getAdminSetting('show_pdf_buttons', '1') === '1';
+    // Zusätzliche Prüfung auf das pdf-export-Addon (Beitrag: Auslagerung als
+    // eigenständiges Addon, siehe CHANGELOG.md) - ohne diese Ergänzung würde
+    // der PDF-Button IM Teamvergleich-Popup weiterhin sichtbar sein, obwohl
+    // das Addon deaktiviert ist und der Klick darauf ins Leere liefe (liga.php
+    // blockt den eigentlichen h2h_pdf-Aufruf bereits korrekt ab, aber der
+    // BUTTON selbst wäre ohne diese Ergänzung trotzdem da - schlechte UX).
+    // HINWEIS: dieselbe H2H-Modal-Logik existiert dupliziert in
+    // src/Liga/HeadToHeadTrait.php::renderH2hModalAssets() - dort identische
+    // Ergänzung nötig, siehe dortiger Changelog-Eintrag.
+    $showPdfButtons = function_exists('addonManager') && addonManager()->isEnabled('pdf-export')
+        && getAdminSetting('show_pdf_buttons', '1') === '1';
 
     $html  = '<div class="h2h-overlay" id="h2h-overlay" hidden>';
     $html .= '<div class="h2h-modal" role="dialog" aria-modal="true">';

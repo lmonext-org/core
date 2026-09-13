@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.12.0
+ * Fileversion: 3.13.0
  *
  * PHP version 8.2
  *
@@ -14,7 +14,20 @@
 declare(strict_types = 1);
 
 require_once __DIR__ . '/frontend/bootstrap.php';
-require_once __DIR__ . '/frontend/pdf_export.php';
+// GEZIELTES, bedingtes Laden statt eines unbedingten require_once (Beitrag:
+// Auslagerung als eigenständiges Addon "pdf-export", siehe CHANGELOG.md).
+// WICHTIG: bewusst NICHT über AddonManager::bootFrontend()/frontend_handlers
+// im addon.json geladen - das würde die Datei bei JEDEM Frontend-Request
+// laden (auch home.php, Mini-Addons usw.), nicht nur hier in liga.php, wo sie
+// tatsächlich gebraucht wird (siehe bereits bestehender Kommentar dazu in
+// frontend/bootstrap.php, der genau das für die alte, feste Einbindung
+// vermeiden wollte - dieselbe Überlegung gilt jetzt für das Addon).
+// Ist das Addon nicht installiert/aktiv, existieren die exportXxxPdf()-
+// Funktionen schlicht nicht - deshalb prüfen ALLE Aufrufstellen unten
+// zusätzlich zu $showPdfButtons/isEnabled('pdf-export'), niemals blind.
+if (function_exists('addonManager') && addonManager()->isEnabled('pdf-export')) {
+    require_once __DIR__ . '/addon/pdf-export/pdf_export.php';
+}
 
 // renderBackLinkBlock() ist jetzt in frontend/data_liga.php definiert (wird
 // über bootstrap.php geladen) - dadurch kann auch home.php (Tippspiel-View)
@@ -22,8 +35,12 @@ require_once __DIR__ . '/frontend/pdf_export.php';
 
 // ── PDF-Export des Team-Vergleichs (Direkter Vergleich) ──────────────────────
 // Teamübergreifend, nicht an eine bestimmte Liga gebunden – deshalb hier vor
-// der normalen id/view-Auflösung abgefangen.
-if (isset($_GET['h2h_pdf']) && getAdminSetting('show_pdf_buttons', '1') === '1') {
+// der normalen id/view-Auflösung abgefangen. Zusätzliche Prüfung auf das
+// pdf-export-Addon (Beitrag: Auslagerung als eigenständiges Addon) - ohne
+// aktives Addon existiert exportH2hPdf() schlicht nicht, ein Aufruf würde
+// sonst mit "Call to undefined function" fatal abbrechen.
+if (isset($_GET['h2h_pdf']) && function_exists('addonManager') && addonManager()->isEnabled('pdf-export')
+    && getAdminSetting('show_pdf_buttons', '1') === '1') {
     $teamAId = (int)($_GET['a'] ?? 0);
     $teamBId = (int)($_GET['b'] ?? 0);
     if ($teamAId > 0 && $teamBId > 0) {
@@ -57,7 +74,12 @@ $showSpielfrei = ($opts['ShowSpielfrei'] ?? '1') === '1';
 // alle Liga-Typen und alle PDF-Exporte gleichermaßen. Blockiert bei
 // Deaktivierung nicht nur den Button, sondern auch den direkten Aufruf über
 // ?pdf=1 (sonst wäre die Datei trotz ausgeblendetem Button weiter abrufbar).
-$showPdfButtons = getAdminSetting('show_pdf_buttons', '1') === '1';
+// Zusätzliche Prüfung auf das pdf-export-Addon (Beitrag: Auslagerung als
+// eigenständiges Addon, siehe CHANGELOG.md) - ohne aktives Addon existieren
+// die exportXxxPdf()-Funktionen schlicht nicht, ALLE unten von dieser
+// Variable abhängigen Aufrufstellen sind dadurch automatisch mit-geschützt.
+$showPdfButtons = function_exists('addonManager') && addonManager()->isEnabled('pdf-export')
+    && getAdminSetting('show_pdf_buttons', '1') === '1';
 // Tabelle und Kreuztabelle ergeben bei KO-Turnieren (Ausscheidungsmodus) keinen
 // Sinn – nur für reguläre (Round-Robin-)Ligen anzeigen.
 if ($isKO) {

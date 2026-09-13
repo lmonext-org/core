@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_settings.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -151,6 +151,7 @@ foreach ($mainTabs as $key => $label) {
               <?= h(t('settings_hint_allow_template_switch')) ?>
             </div>
           </div>
+<?php if (function_exists('addonManager') && addonManager()->isEnabled('pdf-export')) { ?>
           <div class="form-group">
             <label><?= h(t('settings_label_show_pdf_buttons')) ?></label>
             <select name="show_pdf_buttons" style="width:100%;background:var(--bg);border:1px solid var(--border);
@@ -162,6 +163,7 @@ foreach ($mainTabs as $key => $label) {
               <?= h(t('settings_hint_show_pdf_buttons')) ?>
             </div>
           </div>
+<?php } ?>
           <div class="form-group">
             <label><?= h(t('settings_label_show_language_switcher')) ?></label>
             <select name="show_language_switcher" style="width:100%;background:var(--bg);border:1px solid var(--border);

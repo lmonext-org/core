@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/HeadToHeadTrait.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.1.0
  *
  * PHP version 8.2
  *
@@ -374,7 +374,13 @@ trait HeadToHeadTrait
             return '';
         }
         $emitted = true;
-        $showPdfButtons = getAdminSetting('show_pdf_buttons', '1') === '1';
+        // Zusätzliche Prüfung auf das pdf-export-Addon (Beitrag: Auslagerung
+        // als eigenständiges Addon, siehe CHANGELOG.md und die identische
+        // Ergänzung in frontend/data_liga_pretraits.php - beide Implementierungen
+        // enthalten dieselbe H2H-Modal-Logik, siehe dortiger Kommentar zur
+        // Code-Duplikation).
+        $showPdfButtons = function_exists('addonManager') && addonManager()->isEnabled('pdf-export')
+            && getAdminSetting('show_pdf_buttons', '1') === '1';
     
         $html  = '<div class="h2h-overlay" id="h2h-overlay" hidden>';
         $html .= '<div class="h2h-modal" role="dialog" aria-modal="true">';
