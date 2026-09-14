@@ -1040,6 +1040,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.56.0 - KRITISCHER Bugfix (gemeldet: PDF-Export des pdf-export-Addons zeigte im Footer buchstäblich "liga_pdf_footer" statt eines übersetzten Textes): dieser Schlüssel wurde vom Addon verwendet (tf('liga_pdf_footer', ['year'=>..., 'version'=>...])), war aber weder im Core noch in irgendeiner Addon-eigenen Sprachdatei definiert - das Addon hat bewusst kein eigenes lang_dir (addon.json), verlässt sich also auf Core-Schlüssel. Systematische Prüfung aller von der kompletten Addon-Sammlung verwendeten liga_-Schlüssel gegen alle vorhandenen Sprachdateien ergab einen zweiten, verwandten fehlenden Schlüssel derselben Datei: liga_col_nr (Spaltenüberschrift "Nr." - alle Geschwister-Schlüssel liga_col_datum/heim/gast/ergebnis existierten bereits, nur dieser eine fehlte). Beide ergänzt, liga_pdf_footer im selben Stil wie der bestehende HTML-Copyright-Hinweis ("LMOnext {version} {year}").
 - Changelog: 1.55.0 - Auf Wunsch umformuliert: liga_gt_footnote_heading von "(*) Grüne-Tisch-Entscheidungen" auf "Grüne-Tisch-Entscheidung" (kein "(*)"-Präfix, Singular), liga_gt_footnote_line von "endete mit {real}" auf "endete {real}" (ohne "mit").
 - Changelog: 1.54.0 - liga_gt_footnote_line_no_real umformuliert (auf Wunsch): "{nicht_angetreten} ist nicht angetreten. Das Spiel wird mit {gewertet} für {sieger} gewertet." statt der bisherigen, weniger konkreten Formulierung - benennt jetzt direkt das nicht angetretene Team.
 - Changelog: 1.53.0 - liga_status_gt von "Wertung" auf "(*)" geändert (dezenter Hinweis direkt am gewerteten Ergebnis statt eines ausgeschriebenen Worts, die Erklärung steht jetzt als eigene Fußnote, siehe liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, neu ergänzt). Zwei Varianten der Fußnote, da sich "endete mit {real}" bei einem Nichtantritt (kein reales Ergebnis) nicht sinnvoll formulieren lässt.
@@ -1121,6 +1122,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.56.0 - Gleicher Fix wie lang/frontend/de.php 1.56.0 - liga_pdf_footer und liga_col_nr ergänzt.
 - Changelog: 1.55.0 - liga_gt_footnote_heading von "(*) Sports court decisions" auf "Sports court decision" angepasst, konsistent zur deutschen Änderung (siehe lang/frontend/de.php 1.55.0). liga_gt_footnote_line war bereits als "ended {real}" formuliert, keine Änderung nötig.
 - Changelog: 1.54.0 - liga_gt_footnote_line_no_real reworded to match the German version - now names the team that did not show up directly instead of the previous, less specific phrasing.
 - Changelog: 1.53.0 - liga_status_gt changed from "awarded" to "(*)" (subtle marker right next to the credited score instead of a spelled-out word, the explanation now lives in its own footnote, see liga_gt_footnote_heading/liga_gt_footnote_line/liga_gt_footnote_line_no_real, newly added). Two footnote variants, since "ended {real}" doesn't make sense for a no-show (no real result exists).

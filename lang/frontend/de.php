@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.55.0
+ * Fileversion: 1.56.0
  *
  * PHP version 8.2
  *
@@ -47,8 +47,10 @@ return [
     'liga_col_heim'              => 'Heim',
     'liga_col_gast'              => 'Gast',
     'liga_col_ergebnis'          => 'Ergebnis',
+    'liga_col_nr'                => 'Nr.',
     'liga_pdf_export_button'     => 'Als PDF exportieren',
     'liga_pdf_title_matchday'    => 'Ergebnisse Spieltag {n}',
+    'liga_pdf_footer'            => 'LMOnext {version} · © {year}',
 
     // ── Tabelle (Standings) ───────────────────────────────────────────────────
     'liga_tab_tabelle'            => 'Tabelle',
