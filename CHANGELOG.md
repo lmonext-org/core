@@ -1523,6 +1523,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/partials/standings_row.tpl.php
 
+- Changelog: 1.6.0 - Auf Wunsch: Trend-Spalte (.st-trend) von der letzten Position an die zweite Stelle verschoben, direkt zwischen Platz und Teamname.
 - Changelog: 1.5.0 - Neue Platzhalter "Form"/"Trend" (Beitrag Torsten Hofmann).
 - Changelog: 1.4.0 - Neuer Platzhalter "StrafHinweis" (⚠-Marker mit Tooltip bei Strafpunkten/ Straftoren, siehe renderStrafHinweis() in src/Liga/StandingsTrait.php)
 - Changelog: 1.3.0 - Platzhalter "Logo" von "Team" getrennt (eigenes <span> mit fester Breite), damit die Teamnamen untereinander bündig ausgerichtet bleiben, auch wenn die Logos unterschiedlich breit sind (siehe .st-team-logo-wrap CSS)
@@ -1532,6 +1533,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/partials/standings_view.tpl.php
 
+- Changelog: 1.5.0 - Auf Wunsch: Trend-Spaltenkopf (ColTrend) von der letzten Position an die zweite Stelle verschoben, direkt zwischen Platz und Teamname - analog zur selben Änderung in standings_row.tpl.php.
 - Changelog: 1.4.0 - Neue Spaltenüberschriften "ColForm"/"ColTrend" (Beitrag Torsten Hofmann).
 - Changelog: 1.3.0 - Neue Platzhalter "SpieltagNavOben"/"SpieltagNavUnten" für die vorheriger/nächster-Spieltag-Navigation (siehe RenderViewsTrait.php 1.4.0).
 - Changelog: 1.2.0 - Neuer Platzhalter "Fussnoten" für die Strafpunkte-Begründungen im Wikipedia-Stil ("(1) Begründungstext" unter der Tabelle, siehe renderStrafFootnotes() in src/Liga/StandingsTrait.php)
@@ -1592,11 +1594,13 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/partials/standings_row.tpl.php
 
+- Changelog: 1.3.0 - Auf Wunsch: Trend-Spalte (.st-trend) von der letzten Position an die zweite Stelle verschoben, direkt zwischen Platz und Teamname.
 - Changelog: 1.2.0 - Neue Platzhalter "Form"/"Trend" (siehe default 1.5.0).
 - Changelog: 1.1.0 - Neuer Platzhalter "StrafHinweis" (⚠-Marker mit Tooltip bei Strafpunkten/ Straftoren, siehe default 1.4.0 für die Begründung)
 
 ## template/matchday/partials/standings_view.tpl.php
 
+- Changelog: 1.4.0 - Auf Wunsch: Trend-Spaltenkopf (ColTrend) von der letzten Position an die zweite Stelle verschoben, direkt zwischen Platz und Teamname - analog zur selben Änderung in standings_row.tpl.php.
 - Changelog: 1.3.0 - Neue Spaltenüberschriften "ColForm"/"ColTrend" (siehe default 1.4.0).
 - Changelog: 1.2.0 - Neue Platzhalter "SpieltagNavOben"/"SpieltagNavUnten" (siehe default 1.3.0).
 - Changelog: 1.1.0 - Neuer Platzhalter "Fussnoten" (siehe default 1.2.0)
