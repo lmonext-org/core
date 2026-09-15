@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: default | Filename: layout.tpl.php | Fileversion: 1.17.13
+  Template: default | Filename: layout.tpl.php | Fileversion: 1.17.14
   HTML-Grundgerüst der ganzen Seite. Enthält AUSSCHLIESSLICH Markup und
   Platzhalter der Form <comment>Name</comment> (als HTML-Kommentar), kein PHP. Alle Werte
   werden von den Root-Controllern (home.php, liga.php) über
@@ -164,6 +164,10 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .spielfrei-note{font-size:.85rem;color:var(--muted);margin:-8px 0 16px;padding:8px 12px;
   background:var(--bg);border-radius:var(--radius);border:1px dashed var(--border)}
 .spielfrei-note strong{color:var(--text)}
+.liga-ticker{font-size:.88rem;color:var(--text);margin:0 0 16px;padding:10px 14px;
+  background:var(--bg);border-radius:var(--radius);border-left:4px solid var(--accent);
+  display:flex;align-items:flex-start;gap:8px}
+.liga-ticker-text{flex:1;word-break:break-word}
 .gt-footnote{font-size:.85rem;color:var(--muted);margin:16px 0;padding:8px 12px;
   background:var(--bg);border-radius:var(--radius);border:1px dashed var(--border)}
 .gt-footnote > strong{color:var(--text);display:block;margin-bottom:4px}

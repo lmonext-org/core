@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.3.0
+ * Fileversion: 3.4.0
  *
  * PHP version 8.2
  *
@@ -153,6 +153,11 @@ function findSpielfreiTeams(int $ligaId, array $partien) : array
 function renderSpielfreiNote(int $ligaId, array $partien) : string
 {
     return \LMOnext\Liga\LigaService::renderSpielfreiNote($ligaId, $partien);
+}
+
+function renderTickerBlock(int $ligaId) : string
+{
+    return \LMOnext\Liga\LigaService::renderTickerBlock($ligaId);
 }
 
 function partieIsEmptyPlaceholder(array $partie) : bool

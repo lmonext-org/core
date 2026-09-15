@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.18.0
+ * Fileversion: 3.19.0
  *
  * PHP version 8.2
  *
@@ -377,6 +377,7 @@ renderTemplate($activeTemplate, 'liga', [
     'LigaName'     => h($liga['name']),
     'TypChipClass' => $isKO ? 'chip-yellow' : 'chip-blue',
     'TypLabel'     => $isKO ? h(tf('home_type_ko')) : h(tf('home_type_liga')),
+    'TickerBlock'  => renderTickerBlock($ligaId),
     'TabsBar'      => $tabsBar,
     'ViewInhalt'   => $viewInhalt,
 ]);

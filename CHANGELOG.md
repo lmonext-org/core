@@ -665,6 +665,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_liga.php
 
+- Changelog: 3.4.0 - Neuer Wrapper renderTickerBlock(), delegiert an LigaService::renderTickerBlock() (siehe RenderViewsTrait.php 1.22.0).
 - Changelog: 3.3.0 - Veralteten Kommentarverweis auf frontend/data_liga_pretraits.php entfernt, nachdem diese Datei komplett gelöscht wurde (siehe dortiger Changelog-Eintrag).
 - Changelog: 3.2.0 - Neuer Wrapper renderGtFootnotes(), delegiert an LigaService::renderGtFootnotes() (siehe RenderViewsTrait.php 1.16.0) - von liga.php für die neue Grüne-Tisch-Fußnote unterhalb der Ergebnistabelle genutzt.
 - Changelog: 3.1.0 - Teamvergleich (H2H) als eigenständiges Addon "teamvergleich" ausgegliedert. Die vier Wrapper-Funktionen getHeadToHeadMatches()/buildHeadToHeadPayload()/renderH2hIcon()/renderH2hModalAssets() delegieren jetzt über je einen Hook (liga.h2h_matches/liga.h2h_payload/liga.compare_icon/liga.compare_modal_assets) statt direkt an LigaService (das die zugehörige Trait nicht mehr enthält, siehe LigaService.php 1.1.0). resolveLinkedTeamIds()/resolveCanonicalTeamId() als globale Wrapper komplett entfernt - hatten keinen externen Aufrufer außerhalb der jetzt ausgelagerten H2H-Logik selbst. require_once auf das entfernte src/Liga/HeadToHeadTrait.php ebenfalls entfernt. Ist das Addon nicht aktiv, liefern alle vier Funktionen einfach leere Werte (kein Teamvergleich sichtbar), kein Fehler. WICHTIG für Bestandsinstallationen: nach diesem Core-Update ist der Teamvergleich nicht mehr verfügbar, bis das neue Addon zusätzlich installiert und aktiviert wird.
@@ -1215,6 +1216,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## liga.php
 
+- Changelog: 3.19.0 - Übergibt jetzt TickerBlock (renderTickerBlock($ligaId)) an das liga.tpl.php-Template, siehe RenderViewsTrait.php 1.22.0 für den vollständigen Bugfix-Hintergrund.
 - Changelog: 3.18.0 - Default-Fallback für GtToreNichtantritt von 3 auf 2 geändert (siehe StandingsTrait::gtCreditedScore() 1.11.0), konsistent mit dem neuen einheitlichen 2:0-Standard für beide Grüne-Tisch-Szenarien.
 - Changelog: 3.17.0 - Liga-Optionen GtToreGespielt/GtToreNichtantritt (siehe StandingsTrait::gtCreditedScore() 1.10.0) werden jetzt zusätzlich zu _liga_id in jede Partie injiziert (_gt_tore_gespielt/_gt_tore_nichtantritt), damit die verschiedenen Anzeige-Funktionen (formatScore(), FootballProfile::formatResult(), renderGtFootnotes()) sie nutzen können, ohne selbst erneut getLigaOptions() aufzurufen - nutzt die bereits geladene $opts-Variable, kein zusätzlicher Datenbankzugriff.
 - Changelog: 3.16.0 - Neue Funktion assignGtFootnoteNumbers() (auf Wunsch): nummeriert jede Grüne-Tisch-Entscheidung eines Spieltags durch (1, 2, 3, ...) statt eines nicht unterscheidbaren "(*)" für alle - wichtig, sobald mehrere Entscheidungen am selben Spieltag vorkommen, sonst ließe sich die Score-Markierung keiner bestimmten Fußnotenzeile zuordnen. Wird vor renderResultsTable()/renderGtFootnotes() aufgerufen, pro KO-Gruppe (Finale/Spiel um Platz 3) separat, damit die Nummerierung in jeder eigenen Fußnotenbox wieder bei 1 beginnt.
@@ -1323,6 +1325,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.22.0 - KRITISCHER Bugfix (gemeldet: der im Admin-Tab "Anzeigen/Darstellung" gespeicherte Tickertext wurde nirgends im Frontend angezeigt): neue Funktion renderTickerBlock() - das Admin-Formular (Checkbox "Ticker anzeigen?" + Textfeld "Tickertext") speicherte die Werte (liga_options "ticker"/"tickertext") zwar seit jeher korrekt, es gab aber im gesamten Frontend/Template-Bereich KEINEN Code, der sie ausliest und darstellt - das Feature war nur zur Hälfte umgesetzt (Speichern ohne Anzeigen). Erscheint jetzt oberhalb der Tab-Leiste auf liga.tpl.php (also auf jedem Reiter sichtbar, nicht nur einem einzelnen Tab), nur wenn aktiviert und nicht leer. Text wird escaped, Zeilenumbrüche über nl2br() NACH dem Escaping in <br> umgewandelt (kein XSS möglich, mit einem Payload-Testfall verifiziert).
 - Changelog: 1.21.0 - Default-Fallback für _gt_tore_nichtantritt von 3 auf 2 geändert (formatScore() und renderGtFootnotes()), siehe StandingsTrait::gtCreditedScore() 1.11.0.
 - Changelog: 1.20.0 - formatScore() (Nichtantritt-Zweig) und renderGtFootnotes() übergeben jetzt ebenfalls die pro Liga einstellbaren Grüne-Tisch-Standardwerte an gtCreditedScore() (siehe liga.php 3.17.0) statt der Funktions-Defaults 2/3 - damit zeigen sowohl die Score-Anzeige ohne reales Ergebnis als auch die Fußnoten-Erklärung konsistent dieselbe, liga-spezifische Wertung.
 - Changelog: 1.19.0 - Bugfix (gemeldet: die hochgestellte Fußnoten-Nummer erschien in eigener Zeile über dem Erklärungstext statt inline davor): renderGtFootnotes() gibt der Nummer-Markierung jetzt eine eigene Klasse (gt-footnote-nr) statt des generischen <strong> - dieses teilte sich bisher denselben CSS-Selektor mit der äußeren Fußnoten-Überschrift (.gt-footnote strong), die bewusst als Block dargestellt wird. Auf Wunsch außerdem: liga_gt_footnote_heading/liga_gt_footnote_line umformuliert (siehe lang/frontend/de.php 1.55.0).
@@ -1425,6 +1428,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/liga.tpl.php
 
+- Changelog: 2.2.0 - Neuer Platzhalter <!--TickerBlock--> zwischen Titel und Tab-Leiste eingefügt (auf Wunsch, siehe src/Liga/RenderViewsTrait.php 1.22.0).
 - Changelog: 2.1.0 - "ZurueckLinkBlock" (vollständiger HTML-Block statt nur Text) ersetzt die bisher fest verankerte Verlinkung, damit sich der Link über die neue globale Einstellung "Übersicht-Link anzeigen?" komplett ausblenden lässt (siehe renderBackLinkBlock() in liga.php) Inhalt der Liga-Detailseite. Reines Markup + Platzhalter, kein PHP. Werte kommen vom Root-Controller liga.php. "TabsBar" und "ViewInhalt" sind bereits fertige HTML-Blöcke – ViewInhalt enthält je nach gewähltem Reiter (Kalender/Ergebnisse/Spielpläne/Info) unterschiedlichen Inhalt.
 
 ## template/default/liga_not_found.tpl.php
@@ -1586,6 +1590,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/liga.tpl.php
 
+- Changelog: 1.2.0 - Neuer Platzhalter <!--TickerBlock--> zwischen Titel und Tab-Leiste eingefügt (auf Wunsch, siehe src/Liga/RenderViewsTrait.php 1.22.0).
 - Changelog: 1.1.0 - "ZurueckLinkBlock" ersetzt die fest verankerte Verlinkung, damit sich der Link über die neue globale Einstellung "Übersicht-Link anzeigen?" komplett ausblenden lässt (siehe renderBackLinkBlock() in liga.php)
 - Changelog: 1.0.0 - Initiale Version (eigenständiges Template, siehe layout.tpl.php) Inhalt der Liga-Detailseite. Reines Markup + Platzhalter, kein PHP. Werte kommen vom Root-Controller liga.php. "TabsBar" und "ViewInhalt" sind bereits fertige HTML-Blöcke.
 
@@ -1615,6 +1620,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.17.14 - Neue CSS-Klassen .liga-ticker/.liga-ticker-text für den neuen Ticker-Hinweis (siehe src/Liga/RenderViewsTrait.php 1.22.0) - hervorgehobene Box mit Akzentfarben-Balken links, analog zur bestehenden .spielfrei-note, aber bewusst auffälliger gestaltet.
 - Changelog: 1.17.13 - Bugfix: .gt-footnote strong (traf sowohl die Fußnoten-Überschrift als auch die Zeilen-Nummer-Markierung) auf .gt-footnote > strong (nur direktes Kind, trifft nur noch die Überschrift) umgestellt, plus explizite .gt-footnote-line .gt-footnote-nr{display:inline}-Regel für die Nummer-Markierung - diese erschien zuvor fälschlich in eigener Zeile statt inline vor dem Erklärungstext.
 - Changelog: 1.17.12 - Neue CSS-Regeln .gt-footnote/.gt-footnote-line (Fußnoten-Box für Grüne-Tisch-Entscheidungen, analog zu .spielfrei-note gestylt), siehe RenderViewsTrait::renderGtFootnotes() 1.16.0.
 - Changelog: 1.17.11 - KRITISCHER Nachfix (gemeldet: die vorherige Korrektur der Kreuztabelle-Ausrichtung - .st-team-logo-wrap auf min-width:26px - zeigte keine sichtbare Verbesserung): min-width garantiert nur eine UNTERGRENZE, kein Logo mit natürlicher Breite über 26px (team-logo-inline hat width:auto bei fester Höhe, die tatsächliche Breite hängt vom Seitenverhältnis jedes einzelnen Vereinswappens ab) wurde dadurch begrenzt - der Wrapper wuchs bei breiteren Logos einfach mit, die Ausrichtung blieb inkonsistent. Fix: .st-team-logo-wrap bekommt jetzt eine FESTE Box (width:26px;height:18px), das Logo darin wird per object-fit:contain proportional ohne Verzerrung eingepasst (.st-team-logo-wrap .team-logo-inline, höhere Selektor-Spezifität überschreibt die globale team-logo-inline-Regel nur innerhalb des Wrappers, alle anderen Verwendungsstellen dieser Klasse bleiben unberührt). margin-right auf den Wrapper verschoben (vorher auf dem Bild selbst), da das Bild jetzt margin:0 braucht, um die Box exakt auszufüllen.
@@ -1711,6 +1717,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.2.14 - Gleiche neue CSS-Klassen wie template/default/layout.tpl.php 1.17.14, mit den für dieses Template üblichen Farbvariablen (--ink/--bg-alt statt --text/--bg).
 - Changelog: 1.2.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.2.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12, hier an das Matchday-Kartenstyling (border-left statt dashed border) angepasst.
 - Changelog: 1.2.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width. Betrifft insbesondere die Kreuztabelle, die dieses Template im gemeldeten Screenshot sichtbar nutzte (Footer: "Template: Matchday").
@@ -1853,3 +1860,11 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 ## template/matchday/partials/gt_footnote.tpl.php
 
 - Changelog: 1.0.0 - Gleiches neues Partial wie template/default/partials/gt_footnote.tpl.php 1.0.0.
+
+## template/default/partials/ticker_block.tpl.php
+
+- Changelog: 1.0.0 - Neues Partial (auf Wunsch, KRITISCHER Bugfix): rendert den Liga-Ticker-Hinweis oberhalb der Tab-Leiste, siehe RenderViewsTrait::renderTickerBlock() für den vollständigen Hintergrund (Admin-Speicherung existierte, Frontend-Anzeige fehlte komplett).
+
+## template/matchday/partials/ticker_block.tpl.php
+
+- Changelog: 1.0.0 - Gleiches neues Partial wie template/default/partials/ticker_block.tpl.php 1.0.0.

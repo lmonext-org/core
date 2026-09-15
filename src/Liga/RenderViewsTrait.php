@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.21.0
+ * Fileversion: 1.22.0
  *
  * PHP version 8.2
  *
@@ -1305,6 +1305,33 @@ trait RenderViewsTrait
         return renderPartial('spielfrei_note', [
             'Label' => h(tf('liga_spielfrei_label')),
             'Teams' => $names,
+        ]);
+    }
+
+    /**
+     * Ticker-Hinweis oberhalb der Tabs (auf Wunsch, gemeldet: der im
+     * Strafen-Tab... nein, im "Anzeigen/Darstellung"-Tab gespeicherte
+     * Tickertext wurde nirgends im Frontend angezeigt - das Admin-Formular
+     * (Checkbox "Ticker anzeigen?" + Textfeld "Tickertext") speicherte den
+     * Wert zwar korrekt in liga_options ("ticker"/"tickertext"), aber es
+     * gab bislang KEINEN Code, der diese Werte im Frontend ausliest und
+     * darstellt - das Feature war nur zur Hälfte fertig. Erscheint nur,
+     * wenn "ticker"='1' UND ein nicht-leerer Text hinterlegt ist, oberhalb
+     * der Tab-Leiste (liga.tpl.php), damit er auf jedem Reiter sichtbar
+     * bleibt, nicht nur auf einem einzelnen Tab.
+     */
+    public static function renderTickerBlock(int $ligaId) : string
+    {
+        $opts = self::getLigaOptions($ligaId);
+        if (($opts['ticker'] ?? '0') !== '1') {
+            return '';
+        }
+        $text = trim((string)($opts['tickertext'] ?? ''));
+        if ($text === '') {
+            return '';
+        }
+        return renderPartial('ticker_block', [
+            'Text' => nl2br(h($text), false),
         ]);
     }
 

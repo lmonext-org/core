@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.2.13
+  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.2.14
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -177,6 +177,10 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .spielfrei-note{font-size:.8rem;color:var(--muted);margin:-6px 0 20px;padding:9px 14px;
   background:var(--bg-alt);border-left:3px solid var(--accent)}
 .spielfrei-note strong{color:var(--ink);font-weight:700}
+.liga-ticker{font-size:.85rem;color:var(--ink);margin:0 0 20px;padding:10px 14px;
+  background:var(--bg-alt);border-left:3px solid var(--accent);
+  display:flex;align-items:flex-start;gap:8px}
+.liga-ticker-text{flex:1;word-break:break-word}
 .gt-footnote{font-size:.8rem;color:var(--muted);margin:16px 0;padding:9px 14px;
   background:var(--bg-alt);border-left:3px solid var(--accent)}
 .gt-footnote > strong{color:var(--ink);font-weight:700;display:block;margin-bottom:4px}
