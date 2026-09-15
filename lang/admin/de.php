@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.41.0
+ * Fileversion: 1.42.0
  *
  * PHP version 8.2
  *
@@ -617,6 +617,10 @@ return [
     'ls_cb_ligastatistik'     => 'Ligastatistik',
     'ls_heading_ticker'       => 'Ticker',
     'ls_label_ticker_show'    => 'Ticker anzeigen?',
+    'ls_label_tickerart'      => 'Ticker-Art',
+    'ls_tickerart_text'       => 'Freier Text',
+    'ls_tickerart_ergebnisse' => 'Ergebnisticker (letzte Ergebnisse laufen durch)',
+    'ls_hint_tickerart_text_only' => 'Dieser Text wird nur bei Ticker-Art "Freier Text" angezeigt.',
     'ls_placeholder_tickertext' => 'Freitext, der oberhalb der Liga angezeigt wird…',
     'ls_heading_verlinkungen' => 'Verlinkungen',
     'ls_cb_team_homepage'     => 'Mannschafts-Homepages verlinken',

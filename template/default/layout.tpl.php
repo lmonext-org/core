@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: default | Filename: layout.tpl.php | Fileversion: 1.17.14
+  Template: default | Filename: layout.tpl.php | Fileversion: 1.17.15
   HTML-Grundgerüst der ganzen Seite. Enthält AUSSCHLIESSLICH Markup und
   Platzhalter der Form <comment>Name</comment> (als HTML-Kommentar), kein PHP. Alle Werte
   werden von den Root-Controllern (home.php, liga.php) über
@@ -166,8 +166,17 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .spielfrei-note strong{color:var(--text)}
 .liga-ticker{font-size:.88rem;color:var(--text);margin:0 0 16px;padding:10px 14px;
   background:var(--bg);border-radius:var(--radius);border-left:4px solid var(--accent);
-  display:flex;align-items:flex-start;gap:8px}
-.liga-ticker-text{flex:1;word-break:break-word}
+  display:flex;align-items:center;gap:10px;overflow:hidden}
+.liga-ticker-icon{flex:0 0 auto}
+.liga-ticker-viewport{flex:1;overflow:hidden;min-width:0}
+.liga-ticker-track{display:flex;white-space:nowrap;width:max-content;
+  animation:liga-ticker-scroll 30s linear infinite}
+.liga-ticker-track:hover{animation-play-state:paused}
+.liga-ticker-text{white-space:nowrap;padding-right:60px}
+@keyframes liga-ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.liga-ticker-track{animation:none}
+  .liga-ticker-viewport{overflow-x:auto}
+  .liga-ticker-text[aria-hidden="true"]{display:none}}
 .gt-footnote{font-size:.85rem;color:var(--muted);margin:16px 0;padding:8px 12px;
   background:var(--bg);border-radius:var(--radius);border:1px dashed var(--border)}
 .gt-footnote > strong{color:var(--text);display:block;margin-bottom:4px}

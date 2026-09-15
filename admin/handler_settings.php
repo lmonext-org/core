@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -87,6 +87,7 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $save('kurve1',     isset($_POST['kurve1'])     ? '1' : '0');
                 $save('kurve2',     isset($_POST['kurve2'])     ? '1' : '0');
                 $save('ticker',     isset($_POST['ticker'])     ? '1' : '0');
+                $save('tickerart',  in_array($_POST['tickerart'] ?? '', ['text', 'ergebnisse'], true) ? $_POST['tickerart'] : 'text');
                 $save('tickertext', trim($_POST['tickertext']   ?? ''));
                 $save('urlT',       isset($_POST['urlT'])       ? '1' : '0');
                 $save('urlB',       isset($_POST['urlB'])       ? '1' : '0');
@@ -147,6 +148,7 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             case 'ticker':
                 $save('ticker',     $_POST['ticker'] === '1' ? '1' : '0');
+                $save('tickerart',  in_array($_POST['tickerart'] ?? '', ['text', 'ergebnisse'], true) ? $_POST['tickerart'] : 'text');
                 $save('tickertext', trim($_POST['tickertext'] ?? ''));
                 break;
 

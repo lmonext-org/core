@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.13.0
+ * Fileversion: 1.14.0
  *
  * PHP version 8.2
  *
@@ -496,6 +496,15 @@ if ($tab === 'grundwerte') { ?>
               </td>
             </tr>
             <tr>
+              <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_label_tickerart')) ?></td>
+              <td style="padding:5px 10px">
+                <select name="tickerart" style="<?= $selSt ?>">
+                  <option value="text"<?= $o('tickerart', 'text') === 'text' ? ' selected' : '' ?>><?= h(t('ls_tickerart_text')) ?></option>
+                  <option value="ergebnisse"<?= $o('tickerart', 'text') === 'ergebnisse' ? ' selected' : '' ?>><?= h(t('ls_tickerart_ergebnisse')) ?></option>
+                </select>
+              </td>
+            </tr>
+            <tr>
               <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted);vertical-align:top"><?= h(t('sp_ticker_text_label')) ?></td>
               <td style="padding:5px 10px">
                 <textarea name="tickertext" rows="3"
@@ -503,6 +512,7 @@ if ($tab === 'grundwerte') { ?>
                                  color:var(--text);border-radius:var(--radius);padding:8px 10px;font-size:.87rem;
                                  font-family:inherit;resize:vertical"
                           placeholder="<?= h(t('ls_placeholder_tickertext')) ?>"><?= h($opts['tickertext'] ?? '') ?></textarea>
+                <div style="font-size:.76rem;color:var(--muted);margin-top:4px"><?= h(t('ls_hint_tickerart_text_only')) ?></div>
               </td>
             </tr>
             <tr>

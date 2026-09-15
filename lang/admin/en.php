@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.40.0
+ * Fileversion: 1.41.0
  *
  * PHP version 8.2
  *
@@ -616,6 +616,10 @@ return [
     'ls_cb_ligastatistik'     => 'League statistics',
     'ls_heading_ticker'       => 'Ticker',
     'ls_label_ticker_show'    => 'Show ticker?',
+    'ls_label_tickerart'      => 'Ticker type',
+    'ls_tickerart_text'       => 'Free text',
+    'ls_tickerart_ergebnisse' => 'Results ticker (recent results scroll through)',
+    'ls_hint_tickerart_text_only' => 'This text is only shown when ticker type is "Free text".',
     'ls_placeholder_tickertext' => 'Free text shown above the league…',
     'ls_heading_verlinkungen' => 'Links',
     'ls_cb_team_homepage'     => 'Link team homepages',

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.22.0
+ * Fileversion: 1.23.0
  *
  * PHP version 8.2
  *
@@ -1320,19 +1320,104 @@ trait RenderViewsTrait
      * der Tab-Leiste (liga.tpl.php), damit er auf jedem Reiter sichtbar
      * bleibt, nicht nur auf einem einzelnen Tab.
      */
+    /**
+     * Ticker-Hinweis oberhalb der Tabs (auf Wunsch, gemeldet: der im
+     * "Anzeigen/Darstellung"-Tab gespeicherte Tickertext wurde nirgends im
+     * Frontend angezeigt - das Admin-Formular speicherte den Wert zwar
+     * korrekt in liga_options ("ticker"/"tickertext"), aber es gab
+     * bislang KEINEN Code, der diese Werte im Frontend ausliest und
+     * darstellt - das Feature war nur zur Hälfte fertig).
+     *
+     * Auf weiteren Wunsch (Nutzer erinnerte an den echten Lauftext/
+     * "Laufband"-Charakter des alten LMO-Newstickers, siehe dessen
+     * "tickerart"-Parameter: 1=Ergebnisticker, 2=freier Text) jetzt zwei
+     * Varianten statt nur des freien Texts:
+     * - tickerart="text" (Standard, rückwärtskompatibel mit dem bisherigen
+     *   Verhalten): der frei eingegebene Tickertext.
+     * - tickerart="ergebnisse": die letzten gespielten Partien dieser Liga
+     *   als durchlaufende Ergebnisliste (analog zum alten "tickerart=1").
+     * Beide laufen als CSS-Marquee durch (siehe ticker_block.tpl.php) -
+     * der Text wird dafür im Partial dupliziert, um einen nahtlosen Loop
+     * zu ermöglichen (siehe dortiger Kommentar).
+     *
+     * Erscheint nur, wenn "ticker"='1' UND es etwas Anzeigbares gibt,
+     * oberhalb der Tab-Leiste (liga.tpl.php), damit er auf jedem Reiter
+     * sichtbar bleibt, nicht nur auf einem einzelnen Tab.
+     */
     public static function renderTickerBlock(int $ligaId) : string
     {
         $opts = self::getLigaOptions($ligaId);
         if (($opts['ticker'] ?? '0') !== '1') {
             return '';
         }
-        $text = trim((string)($opts['tickertext'] ?? ''));
-        if ($text === '') {
+        $tickerart = ($opts['tickerart'] ?? 'text') === 'ergebnisse' ? 'ergebnisse' : 'text';
+
+        if ($tickerart === 'ergebnisse') {
+            $content = self::renderTickerErgebnisText($ligaId);
+        } else {
+            // Zeilenumbrüche im freien Text werden zu Trennzeichen statt
+            // <br> - ein Laufband ist eine einzige, fortlaufende Zeile, in
+            // der ein "harter" Umbruch keinen Sinn ergibt.
+            $rawText = trim((string)($opts['tickertext'] ?? ''));
+            $lines = array_filter(array_map('trim', preg_split('/\R/', $rawText)), static fn(string $l) : bool => $l !== '');
+            $content = implode(' &nbsp;•&nbsp; ', array_map('h', $lines));
+        }
+        if ($content === '') {
             return '';
         }
         return renderPartial('ticker_block', [
-            'Text' => nl2br(h($text), false),
+            'Text' => $content,
         ]);
+    }
+
+    /**
+     * Baut den durchlaufenden Ergebnistext für tickerart="ergebnisse"
+     * (siehe renderTickerBlock()) - die letzten gespielten Partien dieser
+     * Liga, neueste zuerst, durch " • " getrennt. Nutzt dieselbe Grüne-
+     * Tisch-Wertungslogik wie die restliche Anzeige (gtCreditedScore()),
+     * damit ein annulliertes/gewertetes Spiel im Ticker nicht als "kein
+     * Ergebnis" fehlt.
+     */
+    private static function renderTickerErgebnisText(int $ligaId) : string
+    {
+        $allSpieltage = self::getAllSpieltage($ligaId);
+        $partien = self::getAllLigaPartien($allSpieltage);
+        $opts = self::getLigaOptions($ligaId);
+        $gtToreGespielt     = (int)($opts['GtToreGespielt'] ?? 2);
+        $gtToreNichtantritt = (int)($opts['GtToreNichtantritt'] ?? 2);
+
+        $gespielt = [];
+        foreach ($partien as $p) {
+            $gtEntscheidung = (int)($p['gt_entscheidung'] ?? 0);
+            $hTore = $p['h_tore'] !== null ? (int)$p['h_tore'] : null;
+            $gTore = $p['g_tore'] !== null ? (int)$p['g_tore'] : null;
+            if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
+                $credited = self::gtCreditedScore($gtEntscheidung, $hTore, $gTore, $gtToreGespielt, $gtToreNichtantritt);
+                $hTore = $credited['h_tore'];
+                $gTore = $credited['g_tore'];
+            }
+            if ($hTore === null || $gTore === null) {
+                continue; // noch nicht gespielt -> nicht im Ergebnisticker
+            }
+            $gespielt[] = [
+                'zeit'  => $p['zeit'] ?? '',
+                'heim'  => (string)($p['heim_name'] ?? $p['heim_label'] ?? ''),
+                'gast'  => (string)($p['gast_name'] ?? $p['gast_label'] ?? ''),
+                'hTore' => $hTore,
+                'gTore' => $gTore,
+            ];
+        }
+        if ($gespielt === []) {
+            return '';
+        }
+        usort($gespielt, static fn(array $a, array $b) : int => strcmp((string)$b['zeit'], (string)$a['zeit']));
+        $gespielt = array_slice($gespielt, 0, 15);
+
+        $parts = array_map(
+            static fn(array $g) : string => h($g['heim']) . ' ' . (string)$g['hTore'] . ':' . (string)$g['gTore'] . ' ' . h($g['gast']),
+            $gespielt
+        );
+        return implode(' &nbsp;•&nbsp; ', $parts);
     }
 
     /**
