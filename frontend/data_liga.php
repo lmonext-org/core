@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.4.0
+ * Fileversion: 3.5.0
  *
  * PHP version 8.2
  *
@@ -155,9 +155,15 @@ function renderSpielfreiNote(int $ligaId, array $partien) : string
     return \LMOnext\Liga\LigaService::renderSpielfreiNote($ligaId, $partien);
 }
 
+// Ticker (auf Wunsch als eigenständiges Addon "ticker" ausgegliedert, analog
+// zum teamvergleich-Addon-Muster - der alte LMO hatte den Newsticker auch
+// im addon/-Ordner, nicht im Core). Core kennt nur diesen einen Hook-Punkt;
+// ohne aktives Addon bleibt der Ticker komplett unsichtbar (auf Wunsch, kein
+// Fallback), 'html' bleibt dann bei seinem leeren Ausgangswert.
 function renderTickerBlock(int $ligaId) : string
 {
-    return \LMOnext\Liga\LigaService::renderTickerBlock($ligaId);
+    $result = doHook('liga.ticker_block', ['liga_id' => $ligaId, 'html' => '']);
+    return (string)($result['html'] ?? '');
 }
 
 function partieIsEmptyPlaceholder(array $partie) : bool

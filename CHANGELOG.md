@@ -361,6 +361,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_settings.php
 
+- Changelog: 1.11.0 - Ticker jetzt als eigenständiges Addon "ticker" ausgegliedert (auf Wunsch, Nutzer erinnerte daran, dass der Newsticker im alten LMO4 ebenfalls im addon/-Ordner lag, nicht im Core): beide Speicherstellen (Haupt-Tab und der eigenständige "ticker"-Speicher-Endpunkt) jetzt mit isEnabled('ticker') abgesichert, analog zum bereits bestehenden player-Addon-Muster - ohne aktives Addon wird nichts gespeichert, das Formularfeld ist ja auch ausgeblendet.
 - Changelog: 1.10.0 - Speichert jetzt zusätzlich "tickerart" ("text"/"ergebnisse", Whitelist-geprüft) an beiden Stellen, die den Ticker speichern - siehe src/Liga/RenderViewsTrait.php 1.23.0 für den fachlichen Hintergrund (Nutzer erinnerte an den echten Lauftext-Charakter des alten LMO-Newstickers mit Ergebnisticker-Variante).
 - Changelog: 1.9.0 - Default-Fallback für gt_tore_nichtantritt beim Speichern von 3 auf 2 geändert, siehe StandingsTrait::gtCreditedScore() 1.11.0.
 - Changelog: 1.8.0 - Neue Liga-Optionen GtToreGespielt/GtToreNichtantritt im Strafen-Tab-Handler ergänzt (auf Wunsch, siehe StandingsTrait::gtCreditedScore() 1.10.0 für den fachlichen Hintergrund zu den unterschiedlichen DFB-Landesverband-Regelungen) - über den bereits bestehenden $save()-Helfer für liga_options, freie Zahleneingabe statt fester Auswahl.
@@ -492,6 +493,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_liga_settings.php
 
+- Changelog: 1.15.0 - Der komplette Ticker-Einstellungsbereich (Ein/Aus, Ticker-Art, freier Text) ist jetzt mit isEnabled('ticker') umschlossen, siehe admin/handler_settings.php 1.11.0 für den vollständigen Hintergrund zur Auslagerung als eigenständiges Addon.
 - Changelog: 1.14.0 - Neue Ticker-Art-Auswahl ("Freier Text"/"Ergebnisticker") im Anzeigen/Darstellung-Tab, siehe admin/handler_settings.php 1.10.0 und src/Liga/RenderViewsTrait.php 1.23.0.
 - Changelog: 1.13.0 - Defensiver Bugfix (gemeldet: wiederholte "Undefined array key 'lid'"-Warnungen im Error-Log über mehrere Stunden verteilt): admin/data_loader.php lässt $ligaSettingsData bewusst NULL, wenn die id in der URL fehlt/ungültig ist oder die Liga nicht (mehr) existiert - z.B. bei einem alten Browser-Lesezeichen/Verlaufseintrag mit leerer "id=" (siehe der zuvor behobene Bug mit den kaputten Tab-Navigations-Links, admin/bootstrap.php 1.26.0), einer manuell bearbeiteten URL, oder einem Link auf eine inzwischen gelöschte Liga. Zeigt jetzt eine klare, freundliche "Liga nicht gefunden"-Meldung mit Link zurück zur Übersicht, statt PHP-Warnungen zu produzieren und eine Seite voller kaputter/leerer Werte zu rendern.
 - Changelog: 1.12.0 - favTeam/selTeam-Dropdowns speichern jetzt direkt die echte, unveränderliche teams_global.id ($tNr = (int)$t['id']) statt der bisherigen Position in der sortierten Teamliste ($tNr = $i + 1) - siehe TeamRepositoryTrait.php 1.1.0 für den vollständigen Hintergrund zum behobenen Bug.
@@ -667,6 +669,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_liga.php
 
+- Changelog: 3.5.0 - renderTickerBlock() ist nach der Auslagerung als eigenständiges Addon "ticker" jetzt ein reiner Hook-Wrapper (doHook('liga.ticker_block', ...)) statt eines Aufrufs an \LMOnext\Liga\LigaService:: - Core kennt den Ticker nur noch über diesen einen Hook-Punkt, kein Fallback ohne aktives Addon (auf Wunsch, wie beim alten LMO4-Newsticker, der ebenfalls ein eigenständiges Addon war).
 - Changelog: 3.4.0 - Neuer Wrapper renderTickerBlock(), delegiert an LigaService::renderTickerBlock() (siehe RenderViewsTrait.php 1.22.0).
 - Changelog: 3.3.0 - Veralteten Kommentarverweis auf frontend/data_liga_pretraits.php entfernt, nachdem diese Datei komplett gelöscht wurde (siehe dortiger Changelog-Eintrag).
 - Changelog: 3.2.0 - Neuer Wrapper renderGtFootnotes(), delegiert an LigaService::renderGtFootnotes() (siehe RenderViewsTrait.php 1.16.0) - von liga.php für die neue Grüne-Tisch-Fußnote unterhalb der Ergebnistabelle genutzt.
@@ -1329,6 +1332,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.24.0 - renderTickerBlock() und renderTickerErgebnisText() komplett entfernt (auf Wunsch als eigenständiges Addon "ticker" ausgegliedert, siehe frontend/data_liga.php 3.5.0 für den neuen Hook-Wrapper) - leben jetzt unverändert in addon/ticker/TickerRenderer.php.
 - Changelog: 1.23.0 - Feature (auf Wunsch, Nutzer erinnerte nach dem vorherigen statischen Ticker-Fix an den echten Lauftext-"Laufband"-Charakter des alten LMO-Newstickers, inkl. dessen "tickerart"-Parameter 1=Ergebnisticker/2=Text): renderTickerBlock() unterstützt jetzt zwei Varianten statt nur des freien Texts - tickerart="text" (Standard, rückwärtskompatibel) wie bisher, tickerart="ergebnisse" zeigt über die neue private Methode renderTickerErgebnisText() die letzten 15 gespielten Partien der Liga (neueste zuerst, noch nicht gespielte übersprungen, Grüne-Tisch-Wertung berücksichtigt über gtCreditedScore()) als durchlaufende Liste. Zeilenumbrüche im freien Text werden jetzt zu Trennzeichen statt zu <br>, da ein Laufband eine einzige fortlaufende Zeile ist. Mit einem Testfall (Sortierung, Filterung unplatzierter Partien, Formatierung) verifiziert.
 - Changelog: 1.22.0 - KRITISCHER Bugfix (gemeldet: der im Admin-Tab "Anzeigen/Darstellung" gespeicherte Tickertext wurde nirgends im Frontend angezeigt): neue Funktion renderTickerBlock() - das Admin-Formular (Checkbox "Ticker anzeigen?" + Textfeld "Tickertext") speicherte die Werte (liga_options "ticker"/"tickertext") zwar seit jeher korrekt, es gab aber im gesamten Frontend/Template-Bereich KEINEN Code, der sie ausliest und darstellt - das Feature war nur zur Hälfte umgesetzt (Speichern ohne Anzeigen). Erscheint jetzt oberhalb der Tab-Leiste auf liga.tpl.php (also auf jedem Reiter sichtbar, nicht nur einem einzelnen Tab), nur wenn aktiviert und nicht leer. Text wird escaped, Zeilenumbrüche über nl2br() NACH dem Escaping in <br> umgewandelt (kein XSS möglich, mit einem Payload-Testfall verifiziert).
 - Changelog: 1.21.0 - Default-Fallback für _gt_tore_nichtantritt von 3 auf 2 geändert (formatScore() und renderGtFootnotes()), siehe StandingsTrait::gtCreditedScore() 1.11.0.
@@ -1625,6 +1629,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.17.16 - .liga-ticker-CSS komplett entfernt (auf Wunsch als eigenständiges Addon "ticker" ausgegliedert) - lebt jetzt als Inline-<style>-Block im Hook-Ergebnis (addon/ticker/TickerRenderer.php), da das Addon keinen festen Platz mehr im Core-Template-CSS hat.
 - Changelog: 1.17.15 - .liga-ticker/.liga-ticker-text CSS komplett auf einen echten CSS-Marquee-Scroll umgebaut (auf Wunsch, siehe src/Liga/RenderViewsTrait.php 1.23.0 und das neue ticker_block.tpl.php 2.0.0) - Viewport mit overflow:hidden + Track mit @keyframes-Animation (translateX 0 -> -50%, Text im Partial dupliziert für nahtlosen Loop), pausiert bei :hover, respektiert prefers-reduced-motion (Animation aus, normaler horizontaler Scroll-Container, Duplikat ausgeblendet).
 - Changelog: 1.17.14 - Neue CSS-Klassen .liga-ticker/.liga-ticker-text für den neuen Ticker-Hinweis (siehe src/Liga/RenderViewsTrait.php 1.22.0) - hervorgehobene Box mit Akzentfarben-Balken links, analog zur bestehenden .spielfrei-note, aber bewusst auffälliger gestaltet.
 - Changelog: 1.17.13 - Bugfix: .gt-footnote strong (traf sowohl die Fußnoten-Überschrift als auch die Zeilen-Nummer-Markierung) auf .gt-footnote > strong (nur direktes Kind, trifft nur noch die Überschrift) umgestellt, plus explizite .gt-footnote-line .gt-footnote-nr{display:inline}-Regel für die Nummer-Markierung - diese erschien zuvor fälschlich in eigener Zeile statt inline vor dem Erklärungstext.
@@ -1723,6 +1728,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.2.16 - Gleiche Entfernung wie template/default/layout.tpl.php 1.17.16.
 - Changelog: 1.2.15 - Gleicher CSS-Marquee-Umbau wie template/default/layout.tpl.php 1.17.15, mit den für dieses Template üblichen Farbvariablen (--ink/--bg-alt).
 - Changelog: 1.2.14 - Gleiche neue CSS-Klassen wie template/default/layout.tpl.php 1.17.14, mit den für dieses Template üblichen Farbvariablen (--ink/--bg-alt statt --text/--bg).
 - Changelog: 1.2.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
@@ -1870,10 +1876,12 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/partials/ticker_block.tpl.php
 
+- Changelog: ENTFERNT - diese Datei wurde gelöscht, der Ticker ist auf Wunsch als eigenständiges Addon "ticker" ausgegliedert (siehe CHANGELOG-Einträge zu src/Liga/RenderViewsTrait.php 1.24.0 und frontend/data_liga.php 3.5.0). Die Markup-Struktur lebt jetzt (leicht angepasst, als PHP-String statt Platzhalter-Template) in addon/ticker/TickerRenderer.php.
 - Changelog: 2.0.0 - Komplett umgebaut für echtes CSS-Marquee-Scrollen (auf Wunsch) statt eines statischen Texts: neue Viewport/Track-Struktur, Text zweimal hintereinander für nahtlosen Loop (siehe Kommentar in der Datei sowie src/Liga/RenderViewsTrait.php 1.23.0 für den PHP-seitigen Hintergrund).
 - Changelog: 1.0.0 - Neues Partial (auf Wunsch, KRITISCHER Bugfix): rendert den Liga-Ticker-Hinweis oberhalb der Tab-Leiste, siehe RenderViewsTrait::renderTickerBlock() für den vollständigen Hintergrund (Admin-Speicherung existierte, Frontend-Anzeige fehlte komplett).
 
 ## template/matchday/partials/ticker_block.tpl.php
 
+- Changelog: ENTFERNT - gleicher Hintergrund wie template/default/partials/ticker_block.tpl.php.
 - Changelog: 2.0.0 - Gleicher Umbau wie template/default/partials/ticker_block.tpl.php 2.0.0.
 - Changelog: 1.0.0 - Gleiches neues Partial wie template/default/partials/ticker_block.tpl.php 1.0.0.

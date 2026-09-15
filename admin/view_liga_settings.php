@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.14.0
+ * Fileversion: 1.15.0
  *
  * PHP version 8.2
  *
@@ -485,6 +485,7 @@ if ($tab === 'grundwerte') { ?>
             </tr>
 <?php } ?>
 <?php } ?>
+<?php if (function_exists('addonManager') && addonManager()->isEnabled('ticker')) { ?>
             <tr>
               <td colspan="2" style="padding:10px 12px 4px;font-size:.82rem;font-weight:700;color:var(--text);
                                      background:var(--surface2);border-radius:var(--radius)"><?= h(t('ls_heading_ticker')) ?></td>
@@ -515,6 +516,7 @@ if ($tab === 'grundwerte') { ?>
                 <div style="font-size:.76rem;color:var(--muted);margin-top:4px"><?= h(t('ls_hint_tickerart_text_only')) ?></div>
               </td>
             </tr>
+<?php } ?>
             <tr>
               <td colspan="2" style="padding:10px 12px 4px;font-size:.82rem;font-weight:700;color:var(--text);
                                      background:var(--surface2);border-radius:var(--radius)"><?= h(t('ls_heading_verlinkungen')) ?></td>
