@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.13.0
+ * Fileversion: 1.14.0
  *
  * PHP version 8.2
  *
@@ -20,7 +20,7 @@ if ($action === 'save_ergebnisse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $stNr = (int)($_POST['spieltag_nr'] ?? 0);
     try {
         $db     = getDB();
-        $stmtE  = $db->prepare('UPDATE '.tbl('liga_partien').' SET h_tore=?, g_tore=?, zeit=?, status=?, bericht_url=?, gt_entscheidung=? WHERE id=?');
+        $stmtE  = $db->prepare('UPDATE '.tbl('liga_partien').' SET h_tore=?, g_tore=?, zeit=?, status=?, bericht_url=?, gt_entscheidung=?, gt_grund=? WHERE id=?');
         foreach ($_POST as $key => $val) {
             if (preg_match('/^h_(\d+)$/', $key, $m)) {
                 $pid     = (int)$m[1];
@@ -36,10 +36,23 @@ if ($action === 'save_ergebnisse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Grüne-Tisch-Entscheidung (Sportgericht, auf Wunsch nach
                 // DFB-Rechts- und Verfahrensordnung, siehe
                 // StandingsTrait::gtCreditedScore()): 0 = keine, 1 = Heimteam
-                // siegt, 2 = Gastteam siegt.
+                // siegt, 2 = Gastteam siegt, 3 = beide Mannschaften verlieren.
+                // BUGFIX (gefunden beim Ergänzen von gt_grund): die
+                // Obergrenze hier stammte noch von vor der Einführung von
+                // Option 3 ("beide verlieren") und hätte diese bislang
+                // IMMER still auf 0 zurückgesetzt, nie tatsächlich
+                // gespeichert - siehe CHANGELOG.md.
                 $gt = (int)($_POST['gt_'.$pid] ?? 0);
-                if ($gt < 0 || $gt > 2) { $gt = 0; }
-                $stmtE->execute([$hv, $gv, $zeitDb, $status, $berichtDb, $gt, $pid]);
+                if ($gt < 0 || $gt > 3) { $gt = 0; }
+                // Freier Zusatztext zur Grüne-Tisch-Entscheidung (auf
+                // Wunsch), nur inhaltlich relevant wenn $gt > 0, aber
+                // bewusst unabhängig davon gespeichert wie eingegeben (falls
+                // ein zuvor gesetzter Grund stehen bleiben soll, wenn die
+                // Entscheidung kurzzeitig auf "–" zurückgesetzt und wieder
+                // gesetzt wird).
+                $gtGrund = trim($_POST['gt_grund_'.$pid] ?? '');
+                $gtGrundDb = $gtGrund !== '' ? $gtGrund : null;
+                $stmtE->execute([$hv, $gv, $zeitDb, $status, $berichtDb, $gt, $gtGrundDb, $pid]);
             }
         }
         // "Letztes Speicherdatum" der Liga aktualisieren (siehe liga.datum) –
@@ -219,7 +232,7 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `extra_data` JSON NULL DEFAULT NULL AFTER `g_tore`');
         }
         $stmtP = $db->prepare(
-            'UPDATE '.tbl('liga_partien').' SET heim_id=?, gast_id=?, h_tore=?, g_tore=?, zeit=?, extra_data=?, status=?, bericht_url=?, gt_entscheidung=? WHERE id=?'
+            'UPDATE '.tbl('liga_partien').' SET heim_id=?, gast_id=?, h_tore=?, g_tore=?, zeit=?, extra_data=?, status=?, bericht_url=?, gt_entscheidung=?, gt_grund=? WHERE id=?'
         );
         foreach ($_POST as $key => $val) {
             if (preg_match('/^heim_(\d+)$/', $key, $m)) {
@@ -265,10 +278,23 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($status < 0 || $status > 2) { $status = 0; }
                 $bericht = trim($_POST['bericht_'.$pid] ?? '');
                 $berichtDb = $bericht !== '' ? $bericht : null;
+                // BUGFIX (gefunden beim Ergänzen von gt_grund, auf Wunsch):
+                // die Obergrenze hier stammte noch von vor der Einführung
+                // von Option 3 ("beide Mannschaften verlieren", siehe
+                // StandingsTrait.php) und hätte diese bislang IMMER still
+                // auf 0 zurückgesetzt, nie tatsächlich gespeichert - dies
+                // ist die tatsächlich vom Formular aufgerufene Stelle (siehe
+                // Kommentar oben), der Bug betraf also die neue Option
+                // wirklich, nicht nur den toten save_ergebnisse-Zweig.
                 $gt = (int)($_POST['gt_'.$pid] ?? 0);
-                if ($gt < 0 || $gt > 2) { $gt = 0; }
+                if ($gt < 0 || $gt > 3) { $gt = 0; }
+                // Freier Zusatztext zur Grüne-Tisch-Entscheidung (auf
+                // Wunsch) - siehe view_spieltag.php für das Formularfeld,
+                // das nur bei ausgewählter Entscheidung eingeblendet wird.
+                $gtGrund = trim($_POST['gt_grund_'.$pid] ?? '');
+                $gtGrundDb = $gtGrund !== '' ? $gtGrund : null;
 
-                $stmtP->execute([$hid, $gid, $hTore, $gTore, $zeitDb, $extraData, $status, $berichtDb, $gt, $pid]);
+                $stmtP->execute([$hid, $gid, $hTore, $gTore, $zeitDb, $extraData, $status, $berichtDb, $gt, $gtGrundDb, $pid]);
             }
         }
         flash(t('hl_flash_spieltag_saved', ['n' => $stNr]));

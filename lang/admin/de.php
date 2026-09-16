@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.42.0
+ * Fileversion: 1.45.0
  *
  * PHP version 8.2
  *
@@ -307,6 +307,7 @@ return [
     'sp_status_nv'                   => 'n.V. (nach Verlängerung)',
     'sp_placeholder_venue'           => '📍 Spielort',
     'sp_placeholder_report_link'     => '🔗 Link zum Spielbericht (optional)',
+    'sp_placeholder_gt_grund'        => '📝 Zusätzliche Informationen zur Sportgericht-Entscheidung (optional)',
     'sp_label_saetze'                => 'Sätze',
     'sp_btn_satz_add'                => 'Weiteren Satz hinzufügen',
     'sp_btn_add_pair'                => '＋ Paarung hinzufügen',
@@ -330,6 +331,7 @@ return [
     'sp_gt_dash'                     => '–',
     'sp_gt_heim'                     => 'Heimteam siegt',
     'sp_gt_gast'                     => 'Gastteam siegt',
+    'sp_gt_beide'                    => 'Beide Mannschaften verlieren',
     'sp_btn_save_all'                => '💾 Alles speichern',
     'sp_next_matchday'               => 'Weiter: Spieltag {n} →',
     'sp_heading_all_rounds'          => 'Alle Runden',
@@ -580,6 +582,7 @@ return [
     'ls_annullieren_aktiv' => 'Annulliert',
     'ls_gt_label_gespielt' => 'Grüne-Tisch-Wertung: Spiel fand statt',
     'ls_gt_label_nichtantritt' => 'Grüne-Tisch-Wertung: Nichtantritt',
+    'ls_gt_label_beide_verlieren' => 'Grüne-Tisch-Wertung: Beide verlieren (Gegentore)',
     'ls_gt_hinweis' => 'Standard-Torzahl für die siegende Mannschaft bei einer Grüne-Tisch-Entscheidung (Sportgericht). Die genaue Wertung ist zwischen den 21 DFB-Landesverbänden nicht einheitlich geregelt (häufig 2:0, teils 5:0) - hier pro Liga frei einstellbar. Wirkt sich nur aus, wenn das reale Ergebnis (falls vorhanden) nicht ohnehin höher für die siegende Mannschaft war.',
     'ls_tab_spieltage'     => 'Spieltags- und Spiel-Anzahl',
 
@@ -621,6 +624,13 @@ return [
     'ls_tickerart_text'       => 'Freier Text',
     'ls_tickerart_ergebnisse' => 'Ergebnisticker (letzte Ergebnisse laufen durch)',
     'ls_hint_tickerart_text_only' => 'Dieser Text wird nur bei Ticker-Art "Freier Text" angezeigt.',
+    'ls_tickerart_ergebnisse_favorit' => 'Ergebnisticker (nur Lieblingsmannschaft)',
+    'ls_label_tickernotizen'  => 'Spielnotizen anzeigen?',
+    'ls_hint_tickernotizen'   => 'Nur wirksam bei Ticker-Art "Ergebnisticker" - zeigt eine hinterlegte Spielnotiz hinter dem Ergebnis an.',
+    'ls_label_tickerbreite'   => 'Breite (Buchstaben)',
+    'ls_hint_tickerbreite'    => '0 = volle Breite (Standard). Bei einem Wert &gt; 0 wird der sichtbare Ausschnitt des Tickers auf diese Zeichenanzahl begrenzt.',
+    'ls_label_tickergeschwindigkeit' => 'Geschwindigkeit (Zeichen/Minute)',
+    'ls_hint_tickergeschwindigkeit' => 'Lesegeschwindigkeit des Laufbands - bleibt bei jeder Textlänge gleich (ein langer Text läuft also proportional länger durch, statt schneller zu scrollen).',
     'ls_placeholder_tickertext' => 'Freitext, der oberhalb der Liga angezeigt wird…',
     'ls_heading_verlinkungen' => 'Verlinkungen',
     'ls_cb_team_homepage'     => 'Mannschafts-Homepages verlinken',

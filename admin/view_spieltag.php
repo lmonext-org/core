@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -576,6 +576,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
                 $status  = (int)($p['status'] ?? 0);
                 $gt      = (int)($p['gt_entscheidung'] ?? 0);
                 $bericht = $p['bericht_url'] ?? '';
+                $gtGrund = $p['gt_grund'] ?? '';
                 $existingSets = [];
                 if (!empty($p['extra_data'])) {
                     $decoded = json_decode((string)$p['extra_data'], true);
@@ -630,11 +631,13 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
 <?php } ?>
               <td>
                 <select name="gt_<?= (int)$p['id'] ?>" title="<?= h(t('sp_gt_tip')) ?>"
+                        class="gt-select" data-partie="<?= (int)$p['id'] ?>"
                         style="width:100%;background:var(--bg);border:1px solid <?= $gt > 0 ? 'var(--red,#ef4444)' : 'var(--border)' ?>;color:<?= $gt > 0 ? 'var(--red,#ef4444)' : 'var(--muted)' ?>;
                                border-radius:var(--radius);padding:4px 6px;font-size:.78rem">
                   <option value="0"<?= $gt === 0 ? ' selected' : '' ?>><?= h(t('sp_gt_dash')) ?></option>
                   <option value="1"<?= $gt === 1 ? ' selected' : '' ?>><?= h(t('sp_gt_heim')) ?></option>
                   <option value="2"<?= $gt === 2 ? ' selected' : '' ?>><?= h(t('sp_gt_gast')) ?></option>
+                  <option value="3"<?= $gt === 3 ? ' selected' : '' ?>><?= h(t('sp_gt_beide')) ?></option>
                 </select>
               </td>
               <td>
@@ -645,6 +648,14 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
               <td colspan="<?= $tableColCount ?>" style="padding:2px 8px 8px">
                 <input type="url" name="bericht_<?= (int)$p['id'] ?>" value="<?= h($bericht) ?>"
                        placeholder="<?= h(t('sp_placeholder_report_link')) ?>"
+                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
+                              border-radius:var(--radius);padding:4px 8px;font-size:.78rem">
+              </td>
+            </tr>
+            <tr class="gt-grund-row" data-gt-grund-for="<?= (int)$p['id'] ?>" style="<?= $gt > 0 ? '' : 'display:none' ?>">
+              <td colspan="<?= $tableColCount ?>" style="padding:2px 8px 8px">
+                <input type="text" name="gt_grund_<?= (int)$p['id'] ?>" value="<?= h($gtGrund) ?>"
+                       placeholder="<?= h(t('sp_placeholder_gt_grund')) ?>"
                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
                               border-radius:var(--radius);padding:4px 8px;font-size:.78rem">
               </td>
@@ -680,6 +691,16 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
             } ?>
           </tbody>
         </table>
+        <script>
+document.querySelectorAll('.gt-select').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+        var pid = sel.getAttribute('data-partie');
+        var row = document.querySelector('.gt-grund-row[data-gt-grund-for="' + pid + '"]');
+        if (!row) { return; }
+        row.style.display = sel.value === '0' ? 'none' : '';
+    });
+});
+        </script>
 <?php if (!empty($resultFormFields)) { ?>
         <script>
 document.querySelectorAll('.btn-satz-add').forEach(function (btn) {

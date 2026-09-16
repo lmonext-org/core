@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.26.0
+ * Fileversion: 1.27.0
  *
  * PHP version 8.2
  *
@@ -1165,6 +1165,17 @@ function ensureSpielstatusColumns() : void
         // gutgeschrieben bekommt.
         if (!in_array('gt_entscheidung', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0');
+        }
+        // "gt_grund" (auf Wunsch): freier Zusatztext zur Grüne-Tisch-
+        // Entscheidung (z.B. "gravierender Regelverstoß beider Teams",
+        // "kein sportärztlicher Nachweis erbracht") - wird im Ergebniseditor
+        // nur eingeblendet, wenn eine Entscheidung ausgewählt ist (siehe
+        // view_spieltag.php), und zusätzlich zum bestehenden Fußnotentext in
+        // renderGtFootnotes() angezeigt (siehe RenderViewsTrait.php). Bewusst
+        // TEXT statt VARCHAR, da keine sinnvolle Obergrenze für einen
+        // Begründungstext existiert.
+        if (!in_array('gt_grund', $cols, true)) {
+            $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_grund` TEXT NULL');
         }
     } catch (Throwable) {}
 }

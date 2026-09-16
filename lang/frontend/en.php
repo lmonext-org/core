@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.56.0
+ * Fileversion: 1.58.0
  *
  * PHP version 8.2
  *
@@ -150,6 +150,9 @@ return [
     'liga_gt_footnote_heading'   => 'Sports court decision',
     'liga_gt_footnote_line'      => 'The match {heim} vs {gast} ended {real} and was credited by the sports court as {gewertet} for {sieger}.',
     'liga_gt_footnote_line_no_real' => '{nicht_angetreten} did not show up. The match is credited as {gewertet} for {sieger}.',
+    'liga_gt_footnote_line_beide'   => 'The match {heim} vs {gast} ended {real} and was credited by the sports court as a loss for both teams ({gewertet} for each team).',
+    'liga_gt_footnote_line_beide_no_real' => 'The match {heim} vs {gast} was credited by the sports court as a loss for both teams ({gewertet} for each team).',
+    'liga_gt_footnote_grund'        => 'Reason: {grund}',
     'liga_stats_line'            => 'Average home: {heim}   Average away: {gast}   Goals: {tore}   Goals/match: {proSpiel}',
     'liga_stats_heading'         => 'Stats – {label}:',
 

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.56.0
+ * Fileversion: 1.58.0
  *
  * PHP version 8.2
  *
@@ -152,6 +152,9 @@ return [
     'liga_gt_footnote_heading'   => 'Grüne-Tisch-Entscheidung',
     'liga_gt_footnote_line'      => 'Das Spiel {heim} gegen {gast} endete {real} und wurde vom Sportgericht mit {gewertet} für {sieger} gewertet.',
     'liga_gt_footnote_line_no_real' => '{nicht_angetreten} ist nicht angetreten. Das Spiel wird mit {gewertet} für {sieger} gewertet.',
+    'liga_gt_footnote_line_beide'   => 'Das Spiel {heim} gegen {gast} endete {real} und wurde vom Sportgericht für beide Mannschaften als verloren gewertet ({gewertet} für jedes Team).',
+    'liga_gt_footnote_line_beide_no_real' => 'Das Spiel {heim} gegen {gast} wurde vom Sportgericht für beide Mannschaften als verloren gewertet ({gewertet} für jedes Team).',
+    'liga_gt_footnote_grund'        => 'Grund: {grund}',
     'liga_stats_line'            => 'Schnitt Heim: {heim}   Schnitt Gast: {gast}   Tore: {tore}   Tore/Spiel: {proSpiel}',
     'liga_stats_heading'         => 'Statistik {label}:',
 

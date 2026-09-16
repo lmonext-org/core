@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.41.0
+ * Fileversion: 1.44.0
  *
  * PHP version 8.2
  *
@@ -306,6 +306,7 @@ return [
     'sp_status_nv'                   => 'After extra time',
     'sp_placeholder_venue'           => '📍 Venue',
     'sp_placeholder_report_link'     => '🔗 Match report link (optional)',
+    'sp_placeholder_gt_grund'        => '📝 Additional information about the sports court decision (optional)',
     'sp_label_saetze'                => 'Sets',
     'sp_btn_satz_add'                => 'Add another set',
     'sp_btn_add_pair'                => '＋ Add pairing',
@@ -329,6 +330,7 @@ return [
     'sp_gt_dash'                     => '–',
     'sp_gt_heim'                     => 'Home team wins',
     'sp_gt_gast'                     => 'Away team wins',
+    'sp_gt_beide'                    => 'Both teams lose',
     'sp_btn_save_all'                => '💾 Save all',
     'sp_next_matchday'               => 'Next: matchday {n} →',
     'sp_heading_all_rounds'          => 'All rounds',
@@ -579,6 +581,7 @@ return [
     'ls_annullieren_aktiv' => 'Voided',
     'ls_gt_label_gespielt' => 'Sports court score: match took place',
     'ls_gt_label_nichtantritt' => 'Sports court score: no-show',
+    'ls_gt_label_beide_verlieren' => 'Sports court score: both lose (goals against)',
     'ls_gt_hinweis' => 'Default number of goals for the winning team in a sports court decision. The exact scoring is not uniformly regulated across the 21 German regional football associations (often 2:0, sometimes 5:0) - freely adjustable per league here. Only takes effect if the real result (if any) was not already higher for the winning team.',
     'ls_tab_spieltage'     => 'Matchday & match count',
 
@@ -620,6 +623,13 @@ return [
     'ls_tickerart_text'       => 'Free text',
     'ls_tickerart_ergebnisse' => 'Results ticker (recent results scroll through)',
     'ls_hint_tickerart_text_only' => 'This text is only shown when ticker type is "Free text".',
+    'ls_tickerart_ergebnisse_favorit' => 'Results ticker (favorite team only)',
+    'ls_label_tickernotizen'  => 'Show match notes?',
+    'ls_hint_tickernotizen'   => 'Only effective with ticker type "Results ticker" - shows a saved match note after the result.',
+    'ls_label_tickerbreite'   => 'Width (characters)',
+    'ls_hint_tickerbreite'    => '0 = full width (default). A value &gt; 0 limits the visible viewport of the ticker to this many characters.',
+    'ls_label_tickergeschwindigkeit' => 'Speed (characters/minute)',
+    'ls_hint_tickergeschwindigkeit' => 'Reading speed of the marquee - stays constant regardless of text length (a long text runs proportionally longer instead of scrolling faster).',
     'ls_placeholder_tickertext' => 'Free text shown above the league…',
     'ls_heading_verlinkungen' => 'Links',
     'ls_cb_team_homepage'     => 'Link team homepages',

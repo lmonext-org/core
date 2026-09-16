@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/StandingsTrait.php
- * Fileversion: 1.11.0
+ * Fileversion: 1.12.1
  *
  * PHP version 8.2
  *
@@ -128,11 +128,32 @@ trait StandingsTrait
      *
      * @param int      $entscheidung 1 = Heimteam siegt (Gastteam schuldig),
      *                                2 = Gastteam siegt (Heimteam schuldig)
+     * @param int      $entscheidung 1 = Heimteam siegt (Gastteam schuldig),
+     *                                2 = Gastteam siegt (Heimteam schuldig),
+     *                                3 = beide Mannschaften verlieren (auf
+     *                                Wunsch - Praxisbeispiel DFB: kollektiver
+     *                                Spielabbruch, gemeinsames Verlassen des
+     *                                Spielfelds, nicht spielberechtigte
+     *                                Akteure auf beiden Seiten, beidseitiger
+     *                                Nichtantritt - siehe computeStandings(),
+     *                                wo beide Teams UNABHÄNGIG voneinander
+     *                                als Verlierer mit je 0 geschossenen/
+     *                                GtToreBeideVerlieren kassierten Toren
+     *                                gezählt werden, nicht über ein
+     *                                symmetrisches h_tore/g_tore-Paar wie bei
+     *                                1/2)
      * @param int|null $hTore        real eingetragenes Heim-Ergebnis (falls vorhanden)
      * @param int|null $gTore        real eingetragenes Gast-Ergebnis (falls vorhanden)
      * @param int      $toreGespielt      Standardtore für die siegende Mannschaft, wenn das Spiel stattfand (Liga-Einstellung, Default 2)
      * @param int      $toreNichtantritt  Standardtore für die siegende Mannschaft bei Nichtantritt (Liga-Einstellung, Default 3)
      * @return array{h_tore:int,g_tore:int} angerechnetes (gewertetes) Ergebnis
+     *                                       zur ANZEIGE als ein einzelnes Paar
+     *                                       - bei entscheidung=3 bewusst
+     *                                       "0:0" (es gibt kein sinnvolles
+     *                                       einzelnes Paar für zwei
+     *                                       unabhängige 0:X-Niederlagen, die
+     *                                       eigentliche Tordifferenz-Wertung
+     *                                       läuft über computeStandings())
      */
     public static function gtCreditedScore(int $entscheidung, ?int $hTore, ?int $gTore, int $toreGespielt = 2, int $toreNichtantritt = 2) : array
     {
@@ -151,9 +172,9 @@ trait StandingsTrait
             $unschuldigTore = ($realWarSiegFuerUnschuldig && $gTore > $standardTore) ? $gTore : $standardTore;
             return ['h_tore' => 0, 'g_tore' => $unschuldigTore];
         }
-        // Keine Entscheidung (0 oder unbekannter Wert) - Aufrufer sollte dies
-        // eigentlich nicht mit einem anderen Wert als 1/2 aufrufen, defensiver
-        // Fallback auf "0:0" statt eines Fehlers.
+        // entscheidung=3 (beide verlieren) UND jeder andere/unbekannte Wert:
+        // "0:0" zur Anzeige - bei 3 bewusst (siehe Docblock oben), bei einem
+        // wirklich unbekannten Wert weiterhin als defensiver Fallback.
         return ['h_tore' => 0, 'g_tore' => 0];
     }
 
@@ -235,6 +256,46 @@ trait StandingsTrait
                 $rows[$gId] = ['id' => $gId, 'name' => $p['gast_name'] ?? '', 'kurz' => '', 'sp' => 0, 's' => 0, 'u' => 0, 'n' => 0, 'tore_h' => 0, 'tore_g' => 0, 'pkt' => 0, 'minuspunkte' => 0, 'strafpunkte' => 0, 'straftore' => 0, 'torekorrektur' => 0, 'minuspunktekorrektur' => 0, 'strafgrund' => '', 'w30' => 0, 'w31' => 0, 'w32' => 0, 'l23' => 0, 'l13' => 0, 'l03' => 0, 'balls_h' => 0, 'balls_g' => 0];
             }
     
+            if ($gtEntscheidung === 3) {
+                // Beide Mannschaften verlieren (auf Wunsch - Praxisbeispiel
+                // DFB: kollektiver Spielabbruch, gemeinsames Verlassen des
+                // Spielfelds, nicht spielberechtigte Akteure auf beiden
+                // Seiten, beidseitiger Nichtantritt - siehe
+                // gtCreditedScore()-Docblock). Beide Teams zählen UNABHÄNGIG
+                // voneinander als Niederlage mit je 0 geschossenen/
+                // GtToreBeideVerlieren kassierten Toren - das lässt sich
+                // NICHT über das normale, symmetrische h_tore/g_tore-Paar
+                // abbilden (dort würde das eine Team zwangsläufig genau die
+                // Tore "gewinnen", die das andere "verliert"), deshalb hier
+                // ein eigener, vollständiger Verarbeitungspfad für diese
+                // Partie statt der Logik weiter unten. minuspunkte
+                // konsistent mit der normalen Niederlage-Semantik (dort
+                // immer $curW, unabhängig vom tatsächlichen Gegner-Resultat).
+                $strafTore = (int)($ligaOptions['GtToreBeideVerlieren'] ?? 2);
+                [$curW3, , $curL3] = match ((int)($p['status'] ?? 0)) {
+                    1       => [$ptWPS, $ptDPS, $ptLPS],
+                    2       => [$ptWET, $ptDET, $ptLET],
+                    default => [$ptW, $ptD, $ptL],
+                };
+                $trackHome = $mode !== 'away';
+                $trackAway = $mode !== 'home';
+                if ($trackHome) {
+                    $rows[$hId]['sp']++;
+                    $rows[$hId]['n']++;
+                    $rows[$hId]['tore_g'] += $strafTore;
+                    $rows[$hId]['pkt'] += $curL3;
+                    $rows[$hId]['minuspunkte'] += $curW3;
+                }
+                if ($trackAway) {
+                    $rows[$gId]['sp']++;
+                    $rows[$gId]['n']++;
+                    $rows[$gId]['tore_g'] += $strafTore;
+                    $rows[$gId]['pkt'] += $curL3;
+                    $rows[$gId]['minuspunkte'] += $curW3;
+                }
+                continue;
+            }
+
             if ($gtEntscheidung === 1 || $gtEntscheidung === 2) {
                 $credited = self::gtCreditedScore(
                     $gtEntscheidung,
@@ -274,13 +335,42 @@ trait StandingsTrait
                 2       => [$ptWET, $ptDET, $ptLET],
                 default => [$ptW, $ptD, $ptL],
             };
-    
+
+            // KRITISCHER Bugfix (gemeldet, Praxisbeispiel: DDR-Fußball-
+            // Oberliga 1962/63, wo Magdeburg zweimal per Grüner-Tisch-
+            // Entscheidung mit 0:0 UND einem Sieg für den Gegner gewertet
+            // wurde, weil kein sportärztlicher Nachweis erbracht wurde -
+            // historisch korrekt nachstellbar, indem GtToreGespielt/
+            // GtToreNichtantritt auf 0 gesetzt werden): weiter unten wird
+            // Sieg/Unentschieden/Niederlage bisher AUSSCHLIESSLICH aus dem
+            // Vergleich von $ht/$gt (den "gewerteten" Toren aus
+            // gtCreditedScore()) abgeleitet. Werden die Vorgabe-Tore auf 0
+            // gesetzt, liefert gtCreditedScore() für BEIDE Teams 0 zurück -
+            // rechnerisch nicht mehr von einem echten Unentschieden zu
+            // unterscheiden, obwohl gt_entscheidung einen klaren Sieger
+            // festlegt. Der Sieger einer Grünen-Tisch-Entscheidung steht
+            // aber per Definition fest, unabhängig vom (ggf. bewusst auf
+            // 0:0 gesetzten) Ergebnis - deshalb hier direkt aus
+            // $gtEntscheidung ermittelt, mit Vorrang vor jedem Toreverlgeich
+            // weiter unten (auch bei Volleyball, siehe dort).
+            $gtHeimGewinnt = match ($gtEntscheidung) {
+                1       => true,
+                2       => false,
+                default => null, // keine GT-Entscheidung -> normaler Torevergleich
+            };
+
             // Volleyball: satzabhängige Punkte (3:0/3:1 = 3, 3:2 = 2/1) +
             // Detail-Statistik (w30/w31/w32/l23/l13/l03, Ballpunkte aus
             // extra_data) statt der normalen Sieg/Unentschieden/Niederlage-
-            // Punktetabelle (Beitrag: Torsten Hofmann).
+            // Punktetabelle (Beitrag: Torsten Hofmann). Bei einer Grünen-
+            // Tisch-Entscheidung gibt es kein echtes Satzergebnis, das
+            // computeMatchPoints() sinnvoll auswerten könnte - der Sieger
+            // bekommt hier bewusst die vollen "3:0"-Punkte, der Verlierer 0
+            // (siehe $gtHeimGewinnt oben).
             if ($isVolleyball) {
-                $vbPts = (new VolleyballProfile())->computeMatchPoints($ht, $gt);
+                $vbPts = $gtHeimGewinnt !== null
+                    ? ['home_pts' => $gtHeimGewinnt ? 3 : 0, 'guest_pts' => $gtHeimGewinnt ? 0 : 3]
+                    : (new VolleyballProfile())->computeMatchPoints($ht, $gt);
                 $ballsH = 0; $ballsG = 0;
                 $extraData = $p['extra_data'] ?? null;
                 if ($extraData !== null) {
@@ -295,7 +385,14 @@ trait StandingsTrait
                         }
                     }
                 }
-                if ($ht > $gt) {
+                // Bei einer Grünen-Tisch-Entscheidung entscheidet
+                // $gtHeimGewinnt (siehe oben), sonst wie bisher der
+                // Torevergleich. $catH/$catG (für w30/w31/w32/l03/l13/l23)
+                // bleiben unverändert aus $ht/$gt - bei einer GT-Entscheidung
+                // mit auf 0 gesetzten Vorgabe-Toren trifft dann bewusst keine
+                // der "3:0"/"3:1"/"3:2"-Kategorien zu (es gab ja kein echtes
+                // Satzergebnis), die Zähler bleiben in dem Fall einfach bei 0.
+                if ($gtHeimGewinnt ?? ($ht > $gt)) {
                     $catH = "{$ht}:{$gt}"; // "3:0", "3:1" oder "3:2"
                     if ($trackHome) {
                         $rows[$hId]['s']++;
@@ -342,7 +439,11 @@ trait StandingsTrait
                         elseif ($catH === '2:3') { $rows[$hId]['l23']++; }
                     }
                 }
-            } elseif ($ht > $gt) {
+            } elseif ($gtHeimGewinnt ?? ($ht > $gt)) {
+                // Bei einer Grünen-Tisch-Entscheidung entscheidet
+                // $gtHeimGewinnt (siehe Kommentar weiter oben), unabhängig
+                // vom Torevergleich - sonst (kein gt_entscheidung) wie bisher
+                // rein aus $ht/$gt.
                 if ($trackHome) {
                     $rows[$hId]['s']++;
                     $rows[$hId]['pkt'] += $curW;
@@ -353,7 +454,7 @@ trait StandingsTrait
                     $rows[$gId]['pkt'] += $curL;
                     $rows[$gId]['minuspunkte'] += $curW;
                 }
-            } elseif ($ht < $gt) {
+            } elseif ($gtHeimGewinnt === false || ($gtHeimGewinnt === null && $ht < $gt)) {
                 if ($trackAway) {
                     $rows[$gId]['s']++;
                     $rows[$gId]['pkt'] += $curW;
@@ -365,6 +466,9 @@ trait StandingsTrait
                     $rows[$hId]['minuspunkte'] += $curW;
                 }
             } else {
+                // Unentschieden kann hier nur noch bei einer ECHTEN
+                // Punktgleichheit OHNE Grüne-Tisch-Entscheidung ankommen -
+                // $gtHeimGewinnt ist in diesem Zweig immer null.
                 if ($trackHome) {
                     $rows[$hId]['u']++;
                     $rows[$hId]['pkt'] += $curD;
@@ -817,16 +921,31 @@ trait StandingsTrait
         $arColor    = ($opts['ARColor']  ?? '') !== '' ? $opts['ARColor']  : '#f97316';
         $abColor    = ($opts['ABColor']  ?? '') !== '' ? $opts['ABColor']  : '#ef4444';
     
+        // BUGFIX (gemeldet: "Champions-League-Qualifikanten" auf 1 gesetzt,
+        // aber Tabellenzweiter bekam keine Markierung, obwohl Meister und
+        // Absteiger korrekt markiert wurden): die CL/CK/UC-Zählung ging
+        // bisher IMMER ab Platz 1 (index=0) los, unabhängig davon, ob
+        // $champEnabled Platz 1 schon separat als Meister markiert. Bei
+        // CL=0 deckte "index < CL+CK" also den Bereich [0, CK) ab - das ist
+        // exakt Platz 1, der aber durch den früheren "index===0"-Zweig
+        // bereits per return abgefangen wird und diesen Zweig nie erreicht.
+        // Platz 2 (der eigentlich gemeinte "erste freie Platz nach dem
+        // Meister") wurde dadurch nie erreicht. $champOffset verschiebt die
+        // CL/CK/UC-Zählung um genau 1 Platz, wenn $champEnabled aktiv ist -
+        // die Meister-Markierung "verbraucht" dann Platz 1, und CL/CK/UC
+        // zählen ab Platz 2 weiter.
+        $champOffset = $champEnabled ? 1 : 0;
+
         if ($champEnabled && $index === 0) {
             return $champColor;
         }
-        if ($index < $cl) {
+        if ($index < $champOffset + $cl) {
             return $clColor;
         }
-        if ($index < $cl + $ck) {
+        if ($index < $champOffset + $cl + $ck) {
             return $ckColor;
         }
-        if ($index < $cl + $ck + $uc) {
+        if ($index < $champOffset + $cl + $ck + $uc) {
             return $ucColor;
         }
     

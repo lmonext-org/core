@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/SpieltagRepositoryTrait.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -146,11 +146,24 @@ trait SpieltagRepositoryTrait
             }
         }
         $gtSelect = $hasGtColumn ? ', p.gt_entscheidung' : '';
+
+        // "gt_grund" (auf Wunsch: freier Zusatztext zur Grüne-Tisch-
+        // Entscheidung) - dieselbe defensive Prüfung wie oben.
+        static $hasGtGrundColumn = null;
+        if ($hasGtGrundColumn === null) {
+            try {
+                getDB()->query('SELECT gt_grund FROM ' . tbl('liga_partien') . ' LIMIT 0');
+                $hasGtGrundColumn = true;
+            } catch (\Throwable) {
+                $hasGtGrundColumn = false;
+            }
+        }
+        $gtGrundSelect = $hasGtGrundColumn ? ', p.gt_grund' : '';
     
         try {
             $s = getDB()->prepare(
                 'SELECT p.id, p.heim_id, p.gast_id, p.heim_label, p.gast_label,
-                        p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $extraDataSelect . $nichtGewertetSelect . $gtSelect . ',
+                        p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $extraDataSelect . $nichtGewertetSelect . $gtSelect . $gtGrundSelect . ',
                         th.name AS heim_name, tg.name AS gast_name,
                         th.kurz AS heim_kurz, tg.kurz AS gast_kurz
                    FROM ' . tbl('liga_partien') . ' p
@@ -178,6 +191,12 @@ trait SpieltagRepositoryTrait
             if (!$hasGtColumn) {
                 foreach ($rows as &$row) {
                     $row['gt_entscheidung'] = 0;
+                }
+                unset($row);
+            }
+            if (!$hasGtGrundColumn) {
+                foreach ($rows as &$row) {
+                    $row['gt_grund'] = null;
                 }
                 unset($row);
             }

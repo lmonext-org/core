@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.19.0
+ * Fileversion: 3.20.0
  *
  * PHP version 8.2
  *
@@ -266,10 +266,18 @@ switch ($currentView) {
         // aufrufen sollen (unnötige Mehrfachabfrage pro Zeile).
         $gtToreGespielt     = (int)($opts['GtToreGespielt'] ?? 2);
         $gtToreNichtantritt = (int)($opts['GtToreNichtantritt'] ?? 2);
+        // _gt_tore_beide_verlieren (auf Wunsch: "beide Mannschaften
+        // verlieren"-Grüne-Tisch-Entscheidung, Praxisbeispiel DFB -
+        // Kollektiver Spielabbruch/gemeinsames Verlassen des Spielfelds/
+        // nicht spielberechtigte Akteure beiderseits/beidseitiger
+        // Nichtantritt, meist 0:2 für beide Teams) - selbes
+        // Injektions-Muster wie die beiden Felder oben.
+        $gtToreBeideVerlieren = (int)($opts['GtToreBeideVerlieren'] ?? 2);
         foreach ($partien as &$_p) {
             $_p['_liga_id'] = $ligaId;
             $_p['_gt_tore_gespielt'] = $gtToreGespielt;
             $_p['_gt_tore_nichtantritt'] = $gtToreNichtantritt;
+            $_p['_gt_tore_beide_verlieren'] = $gtToreBeideVerlieren;
         }
         unset($_p);
         // Reine Leer-Begegnungen (kein Team, kein Label auf beiden Seiten – z.B.

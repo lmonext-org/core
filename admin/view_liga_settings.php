@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.15.0
+ * Fileversion: 1.17.0
  *
  * PHP version 8.2
  *
@@ -502,7 +502,31 @@ if ($tab === 'grundwerte') { ?>
                 <select name="tickerart" style="<?= $selSt ?>">
                   <option value="text"<?= $o('tickerart', 'text') === 'text' ? ' selected' : '' ?>><?= h(t('ls_tickerart_text')) ?></option>
                   <option value="ergebnisse"<?= $o('tickerart', 'text') === 'ergebnisse' ? ' selected' : '' ?>><?= h(t('ls_tickerart_ergebnisse')) ?></option>
+                  <option value="ergebnisse_favorit"<?= $o('tickerart', 'text') === 'ergebnisse_favorit' ? ' selected' : '' ?>><?= h(t('ls_tickerart_ergebnisse_favorit')) ?></option>
                 </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_label_tickernotizen')) ?></td>
+              <td style="padding:5px 10px">
+                <label><input type="checkbox" name="tickernotizen" value="1"<?= $oc('tickernotizen')?' checked':'' ?>> <?= h(t('common_yes')) ?></label>
+                <div style="font-size:.76rem;color:var(--muted);margin-top:4px"><?= h(t('ls_hint_tickernotizen')) ?></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_label_tickerbreite')) ?></td>
+              <td style="padding:5px 10px">
+                <input type="number" name="tickerbreite" min="0" inputmode="numeric"
+                       value="<?= h($o('tickerbreite', '0')) ?>" style="width:90px;<?= $selSt ?>">
+                <div style="font-size:.76rem;color:var(--muted);margin-top:4px"><?= h(t('ls_hint_tickerbreite')) ?></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_label_tickergeschwindigkeit')) ?></td>
+              <td style="padding:5px 10px">
+                <input type="number" name="tickergeschwindigkeit" min="10" inputmode="numeric"
+                       value="<?= h($o('tickergeschwindigkeit', '900')) ?>" style="width:90px;<?= $selSt ?>">
+                <div style="font-size:.76rem;color:var(--muted);margin-top:4px"><?= h(t('ls_hint_tickergeschwindigkeit')) ?></div>
               </td>
             </tr>
             <tr>
@@ -706,6 +730,12 @@ if ($tab === 'grundwerte') { ?>
               <label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px"><?= h(t('ls_gt_label_nichtantritt')) ?></label>
               <input type="number" name="gt_tore_nichtantritt" min="0" inputmode="numeric"
                      value="<?= h($o('GtToreNichtantritt', '2')) ?>"
+                     style="width:70px;text-align:center;<?= $selSt ?>">
+            </div>
+            <div>
+              <label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px"><?= h(t('ls_gt_label_beide_verlieren')) ?></label>
+              <input type="number" name="gt_tore_beide_verlieren" min="0" inputmode="numeric"
+                     value="<?= h($o('GtToreBeideVerlieren', '2')) ?>"
                      style="width:70px;text-align:center;<?= $selSt ?>">
             </div>
             <p style="font-size:.76rem;color:var(--muted);max-width:420px;margin:0"><?= h(t('ls_gt_hinweis')) ?></p>

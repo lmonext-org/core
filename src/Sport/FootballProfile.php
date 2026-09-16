@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/FootballProfile.php
- * Fileversion: 1.4.0
+ * Fileversion: 1.5.0
  *
  * PHP version 8.2
  *
@@ -65,7 +65,7 @@ final class FootballProfile implements SportProfile
         // Entscheidung greift - sie bezieht sich auf das reale, nicht das
         // gewertete Spiel und wäre neben dem gewerteten Ergebnis irreführend.
         $gtEntscheidung = (int)($match['gt_entscheidung'] ?? 0);
-        $istGtGewertet = $gtEntscheidung === 1 || $gtEntscheidung === 2;
+        $istGtGewertet = $gtEntscheidung === 1 || $gtEntscheidung === 2 || $gtEntscheidung === 3;
         if ($istGtGewertet) {
             $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
                 $gtEntscheidung, (int)$h, (int)$g,

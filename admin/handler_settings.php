@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.11.0
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -93,8 +93,11 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 // JEDEM Speichern dieses Tabs unbemerkt zurückgesetzt.
                 if (function_exists('addonManager') && addonManager()->isEnabled('ticker')) {
                     $save('ticker',     isset($_POST['ticker'])     ? '1' : '0');
-                    $save('tickerart',  in_array($_POST['tickerart'] ?? '', ['text', 'ergebnisse'], true) ? $_POST['tickerart'] : 'text');
+                    $save('tickerart',  in_array($_POST['tickerart'] ?? '', ['text', 'ergebnisse', 'ergebnisse_favorit'], true) ? $_POST['tickerart'] : 'text');
                     $save('tickertext', trim($_POST['tickertext']   ?? ''));
+                    $save('tickernotizen', isset($_POST['tickernotizen']) ? '1' : '0');
+                    $save('tickerbreite', (string)max(0, (int)($_POST['tickerbreite'] ?? 0)));
+                    $save('tickergeschwindigkeit', (string)max(10, (int)($_POST['tickergeschwindigkeit'] ?? 900)));
                 }
                 $save('urlT',       isset($_POST['urlT'])       ? '1' : '0');
                 $save('urlB',       isset($_POST['urlB'])       ? '1' : '0');
@@ -160,8 +163,11 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Addon aufgerufen wird (z.B. alter Bookmark).
                 if (function_exists('addonManager') && addonManager()->isEnabled('ticker')) {
                     $save('ticker',     $_POST['ticker'] === '1' ? '1' : '0');
-                    $save('tickerart',  in_array($_POST['tickerart'] ?? '', ['text', 'ergebnisse'], true) ? $_POST['tickerart'] : 'text');
+                    $save('tickerart',  in_array($_POST['tickerart'] ?? '', ['text', 'ergebnisse', 'ergebnisse_favorit'], true) ? $_POST['tickerart'] : 'text');
                     $save('tickertext', trim($_POST['tickertext'] ?? ''));
+                    $save('tickernotizen', isset($_POST['tickernotizen']) && $_POST['tickernotizen'] === '1' ? '1' : '0');
+                    $save('tickerbreite', (string)max(0, (int)($_POST['tickerbreite'] ?? 0)));
+                    $save('tickergeschwindigkeit', (string)max(10, (int)($_POST['tickergeschwindigkeit'] ?? 900)));
                 }
                 break;
 
@@ -183,6 +189,7 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 // dieser beiden Werte.
                 $save('GtToreGespielt', (string)max(0, (int)($_POST['gt_tore_gespielt'] ?? 2)));
                 $save('GtToreNichtantritt', (string)max(0, (int)($_POST['gt_tore_nichtantritt'] ?? 2)));
+                $save('GtToreBeideVerlieren', (string)max(0, (int)($_POST['gt_tore_beide_verlieren'] ?? 2)));
 
                 // Eigener Zweig, NICHT über den liga_options-$save()-Helper -
                 // Strafpunkte/Straftore/Tore-Korrektur leben pro Liga+Team in

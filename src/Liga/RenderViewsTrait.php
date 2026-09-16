@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.24.0
+ * Fileversion: 1.26.0
  *
  * PHP version 8.2
  *
@@ -158,35 +158,68 @@ trait RenderViewsTrait
         $lines = '';
         foreach ($partien as $p) {
             $gtEntscheidung = (int)($p['gt_entscheidung'] ?? 0);
-            if ($gtEntscheidung !== 1 && $gtEntscheidung !== 2) {
+            if ($gtEntscheidung !== 1 && $gtEntscheidung !== 2 && $gtEntscheidung !== 3) {
                 continue;
             }
             $heim = h(self::partieTeamName($p, 'heim'));
             $gast = h(self::partieTeamName($p, 'gast'));
-            $sieger = $gtEntscheidung === 1 ? $heim : $gast;
             $hTore = $p['h_tore'] !== null ? (int)$p['h_tore'] : null;
             $gTore = $p['g_tore'] !== null ? (int)$p['g_tore'] : null;
-            $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
-                $gtEntscheidung, $hTore, $gTore,
-                (int)($p['_gt_tore_gespielt'] ?? 2),
-                (int)($p['_gt_tore_nichtantritt'] ?? 2)
-            );
-            $gewertet = h($credited['h_tore'] . ':' . $credited['g_tore']);
-            if ($hTore !== null && $gTore !== null) {
-                $text = tf('liga_gt_footnote_line', [
-                    'heim' => $heim, 'gast' => $gast,
-                    'real' => h($hTore . ':' . $gTore),
-                    'gewertet' => $gewertet, 'sieger' => $sieger,
-                ]);
+            if ($gtEntscheidung === 3) {
+                // Beide Mannschaften verlieren (auf Wunsch) - eigener
+                // Textbaustein statt "sieger", da es hier keinen Sieger
+                // gibt. Zeigt je Team die tatsächlich angerechnete
+                // Niederlage-Tordifferenz (GtToreBeideVerlieren, per Liga
+                // einstellbar), nicht das pauschale "0:0" aus
+                // gtCreditedScore() (das ist nur die Anzeige-Vereinfachung
+                // für die einzelne Ergebnis-Spalte).
+                $strafTore = (int)($p['_gt_tore_beide_verlieren'] ?? 2);
+                $gewertetBeide = h('0:' . $strafTore);
+                if ($hTore !== null && $gTore !== null) {
+                    $text = tf('liga_gt_footnote_line_beide', [
+                        'heim' => $heim, 'gast' => $gast,
+                        'real' => h($hTore . ':' . $gTore),
+                        'gewertet' => $gewertetBeide,
+                    ]);
+                } else {
+                    $text = tf('liga_gt_footnote_line_beide_no_real', [
+                        'heim' => $heim, 'gast' => $gast,
+                        'gewertet' => $gewertetBeide,
+                    ]);
+                }
             } else {
-                // Nicht angetretenes Team = das "schuldige" Team der
-                // Entscheidung (auf Wunsch): Heimteam siegt -> Gastteam ist
-                // nicht angetreten, und umgekehrt.
-                $nichtAngetreten = $gtEntscheidung === 1 ? $gast : $heim;
-                $text = tf('liga_gt_footnote_line_no_real', [
-                    'nicht_angetreten' => $nichtAngetreten,
-                    'gewertet' => $gewertet, 'sieger' => $sieger,
-                ]);
+                $sieger = $gtEntscheidung === 1 ? $heim : $gast;
+                $credited = \LMOnext\Liga\LigaService::gtCreditedScore(
+                    $gtEntscheidung, $hTore, $gTore,
+                    (int)($p['_gt_tore_gespielt'] ?? 2),
+                    (int)($p['_gt_tore_nichtantritt'] ?? 2)
+                );
+                $gewertet = h($credited['h_tore'] . ':' . $credited['g_tore']);
+                if ($hTore !== null && $gTore !== null) {
+                    $text = tf('liga_gt_footnote_line', [
+                        'heim' => $heim, 'gast' => $gast,
+                        'real' => h($hTore . ':' . $gTore),
+                        'gewertet' => $gewertet, 'sieger' => $sieger,
+                    ]);
+                } else {
+                    // Nicht angetretenes Team = das "schuldige" Team der
+                    // Entscheidung (auf Wunsch): Heimteam siegt -> Gastteam ist
+                    // nicht angetreten, und umgekehrt.
+                    $nichtAngetreten = $gtEntscheidung === 1 ? $gast : $heim;
+                    $text = tf('liga_gt_footnote_line_no_real', [
+                        'nicht_angetreten' => $nichtAngetreten,
+                        'gewertet' => $gewertet, 'sieger' => $sieger,
+                    ]);
+                }
+            }
+            // Freier Zusatztext zur Entscheidung (auf Wunsch, gt_grund) -
+            // gemeinsam für beide Zweige oben, damit er nicht doppelt
+            // gepflegt werden muss. Wird als eigener, optisch abgesetzter
+            // Satz angehängt statt in den Haupttext eingewoben, da er ein
+            // frei formulierter Text ohne festgelegte Grammatik ist.
+            $grund = trim((string)($p['gt_grund'] ?? ''));
+            if ($grund !== '') {
+                $text .= ' ' . tf('liga_gt_footnote_grund', ['grund' => h($grund)]);
             }
             $lines .= '<p class="gt-footnote-line">'
                 . (isset($p['_gt_footnote_nr']) ? '<strong class="gt-footnote-nr">' . self::gtFootnoteMarker((int)$p['_gt_footnote_nr']) . '</strong> ' : '')
