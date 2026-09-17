@@ -1,6 +1,6 @@
 {
     "name": "addon-manager",
-    "version": "1.7.0",
+    "version": "1.8.1",
     "type": "admin",
     "description": {
         "de": "Core-Addon: Verwaltung aller installierten Addons (Aktivieren/Deaktivieren, Status, Version).",

@@ -23,6 +23,7 @@ return [
     'addons_tab_both'         => 'Admin + Frontend',
     'addons_tab_standalone'   => 'Standalone',
     'addons_tab_settings'   => 'Settings',
+    'addons_tab_catalog'    => 'Discover',
 
     // ── Table ────────────────────────────────────────────────────────────────
     'addons_col_addon'         => 'Addon',
@@ -66,6 +67,9 @@ return [
     'addons_url_install_desc'  => 'Install an add-on directly from a public GitHub repository, without first manually downloading and re-uploading the ZIP. Uses the latest published GitHub release - the download goes through the same security checks as a ZIP upload.',
     'addons_url_install_label' => 'GitHub repository URL',
     'addons_url_install_btn'   => 'Install',
+    'addons_catalog_desc'      => 'All official LMOnext add-ons at a glance. Installs directly from the respective GitHub repository (latest published release) - with the same security checks as a manual ZIP upload. Already installed add-ons are marked accordingly; managing them (enable/updates) still happens on the other tabs.',
+    'addons_catalog_btn_install' => 'Install',
+    'addons_catalog_unofficial_hint' => 'Looking for an add-on that isn\'t official? Under "⚙ Settings" you can install any add-on via a ZIP file or directly from any GitHub repository URL - official or unofficial.',
     'addons_demo_mode_blocked' => 'This action is disabled on this demo instance. Enabling/disabling already installed add-ons still works normally.',
     'addons_demo_mode_notice'  => 'On this demo instance, installing/updating add-on code is disabled. Enabling/disabling already installed add-ons is still possible.',
     'addons_purge_btn'           => '🗑️ Delete data',
@@ -79,7 +83,7 @@ return [
 
     // ── Empty state ─────────────────────────────────────────────────────────────
     'addons_empty'             => 'No addons found.',
-    'addons_empty_hint'        => 'Place addons in the addon/ directory (with addon.json manifest).',
+    'addons_empty_hint'        => 'Check the "🧭 Discover" tab for all official add-ons available for one-click installation, or install your own via "⚙ Settings" (ZIP upload or GitHub URL).',
 
     // ── Meta info ───────────────────────────────────────────────────────────────
     'addons_min_core'          => 'Minimum core version',

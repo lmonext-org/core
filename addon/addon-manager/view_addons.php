@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_addons.php
- * Fileversion: 2.3.0
+ * Fileversion: 2.5.0
  *
  * PHP version 8.2
  *
@@ -57,9 +57,17 @@ $typeBadges = [
     'standalone' => ['label' => 'Standalone', 'color' => 'var(--muted)'],
 ];
 
+// ── Offizieller Addon-Katalog (Entdecken-Tab, siehe catalog.php) ───────────
+require_once __DIR__ . '/catalog.php';
+$officialCatalog = getOfficialAddonCatalog();
+
 // ── Tab-Umschaltung ──────────────────────────────────────────────────────────
-$tab = $_GET['tab'] ?? 'all';
-$tab = in_array($tab, ['all', 'admin', 'frontend', 'both', 'standalone', 'settings'], true) ? $tab : 'all';
+// Auf einer frischen Installation (außer dem stets vorhandenen Core-Addon
+// "addon-manager" selbst ist noch nichts installiert) ohne ausdrücklich
+// gewählten Tab direkt den Katalog zeigen, statt der leeren "Alle"-Liste -
+// auf Wunsch, siehe CHANGELOG.
+$tab = $_GET['tab'] ?? ($totalAddons <= 1 ? 'catalog' : 'all');
+$tab = in_array($tab, ['all', 'admin', 'frontend', 'both', 'standalone', 'settings', 'catalog'], true) ? $tab : 'all';
 
 $displayAddons = ($tab === 'all' || $tab === 'settings') ? $allAddons : ($byType[$tab] ?? []);
 
@@ -99,6 +107,8 @@ usort($displayAddons, function ($a, $b) {
         'frontend'  => ['label' => t('addons_tab_frontend'),  'count' => count($byType['frontend'])],
         'both'      => ['label' => t('addons_tab_both'),      'count' => count($byType['both'])],
         'standalone'=> ['label' => t('addons_tab_standalone'),'count' => count($byType['standalone'])],
+        'catalog'   => ['label' => '🧭 ' . t('addons_tab_catalog'),
+                         'count' => count(array_filter(array_keys($officialCatalog), fn($slug) => !isset($allAddons[$slug])))],
         'settings'  => ['label' => '⚙ ' . t('addons_tab_settings'), 'count' => null],
     ];
     foreach ($tabs as $tabKey => $tabInfo) {
@@ -109,14 +119,68 @@ usort($displayAddons, function ($a, $b) {
                 color:<?= $active ? 'var(--accent)' : 'var(--muted)' ?>;text-decoration:none;font-size:.85rem;font-weight:<?= $active ? '600' : '400' ?>;
                 margin-bottom:-1px">
         <?= h($tabInfo['label']) ?>
-        <?php if ($tabInfo['count'] !== null): ?>
+        <?php if ($tabInfo['count'] !== null) { ?>
           <span style="background:var(--surface2);border-radius:10px;padding:1px 8px;font-size:.72rem;color:var(--muted)"><?= $tabInfo['count'] ?></span>
-        <?php endif; ?>
+        <?php } ?>
       </a>
     <?php } ?>
   </div>
 
-<?php if ($tab === 'settings'): ?>
+<?php if ($tab === 'catalog') { ?>
+  <!-- ════════════════════════════════════════════════════════════════════════
+       TAB: Entdecken (offizieller Addon-Katalog)
+       ════════════════════════════════════════════════════════════════════════ -->
+  <p style="margin:0 0 20px;font-size:.85rem;color:var(--muted);max-width:680px">
+    <?= h(t('addons_catalog_desc')) ?>
+  </p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+<?php foreach ($officialCatalog as $slug => $c) {
+        $already = $allAddons[$slug] ?? null; ?>
+    <div class="card" style="margin:0;padding:18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:1.6rem;line-height:1"><?= $c['icon'] ?></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600"><?= h($c['name']) ?></div>
+          <div style="font-size:.72rem;color:var(--muted)"><?= h($c['author']) ?></div>
+        </div>
+        <span style="background:<?= $typeBadges[$c['type']]['color'] ?? 'var(--muted)' ?>22;
+                     color:<?= $typeBadges[$c['type']]['color'] ?? 'var(--muted)' ?>;
+                     border-radius:10px;padding:2px 9px;font-size:.68rem;white-space:nowrap">
+          <?= h($typeBadges[$c['type']]['label'] ?? ucfirst($c['type'])) ?>
+        </span>
+      </div>
+      <p style="margin:0;font-size:.8rem;color:var(--muted);line-height:1.5;flex:1"><?= h($c['short_desc']) ?></p>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a href="<?= h($c['homepage']) ?>" target="_blank" rel="noopener"
+           style="font-size:.72rem;color:var(--accent);text-decoration:none">↗ GitHub</a>
+<?php if ($already !== null) { ?>
+        <span style="margin-left:auto;font-size:.78rem;color:var(--green);font-weight:600">
+          ✓ <?= h($already['enabled'] ? t('addons_status_active') : t('addons_status_inactive')) ?>
+        </span>
+<?php } elseif (defined('DEMO_MODE') && DEMO_MODE === true) { ?>
+        <span style="margin-left:auto;font-size:.72rem;color:var(--muted)">🔒 <?= h(t('addons_demo_mode_notice')) ?></span>
+<?php } else { ?>
+        <form method="post" action="?action=addons&tab=catalog" style="margin-left:auto">
+          <?= csrfField() ?>
+          <input type="hidden" name="addon_action" value="install_from_url">
+          <input type="hidden" name="repo_url" value="<?= h($c['homepage']) ?>">
+          <button type="submit" class="btn btn-primary" style="padding:6px 14px;font-size:.8rem">
+            ⬇ <?= h(t('addons_catalog_btn_install')) ?>
+          </button>
+        </form>
+<?php } ?>
+      </div>
+    </div>
+<?php } ?>
+  </div>
+
+  <div style="margin-top:20px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius);
+              font-size:.78rem;color:var(--muted)">
+    💡 <?= t('addons_catalog_unofficial_hint') ?>
+  </div>
+
+<?php } elseif ($tab === 'settings') { ?>
   <!-- ════════════════════════════════════════════════════════════════════════
        TAB: Einstellungen (Token + Diagnostics)
        ════════════════════════════════════════════════════════════════════════ -->
@@ -159,25 +223,25 @@ usort($displayAddons, function ($a, $b) {
         <button type="submit" class="btn btn-primary" style="padding:10px 20px">
           💾 <?= h(t('addons_token_btn_save')) ?>
         </button>
-        <?php if ($tokenSet): ?>
+        <?php if ($tokenSet) { ?>
           <button type="submit" formmethod="post" name="addon_action" value="delete_token"
                   class="btn btn-muted"
                   style="padding:10px 16px"
                   onclick="return confirm('<?= h(t('addons_token_confirm_delete')) ?>')">
             🗑 <?= h(t('addons_token_btn_delete')) ?>
           </button>
-        <?php endif; ?>
+        <?php } ?>
       </form>
 
       <div style="margin-top:14px;padding:10px 14px;border-radius:var(--radius);font-size:.78rem;
                   background:<?= $tokenSet ? 'var(--green)' : 'var(--surface2)' ?>22;
                   color:<?= $tokenSet ? 'var(--green)' : 'var(--muted)' ?>;
                   border:1px solid <?= $tokenSet ? 'var(--green)' : 'var(--border)' ?>44">
-        <?php if ($tokenSet): ?>
+        <?php if ($tokenSet) { ?>
           ✓ Token aktiv — API-Limit: 5.000 Requests/Std.
-        <?php else: ?>
+        <?php } else { ?>
           ⚠ Kein Token gesetzt — API-Limit: 60 Requests/Std.
-        <?php endif; ?>
+        <?php } ?>
       </div>
 
       <details style="margin-top:14px">
@@ -279,61 +343,61 @@ usort($displayAddons, function ($a, $b) {
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px 14px;color:var(--muted);width:260px">allow_url_fopen</td>
             <td style="padding:10px 14px">
-              <?php if ($allowFopen): ?>
+              <?php if ($allowFopen) { ?>
                 <span style="color:var(--green);font-weight:600">✓ On</span>
-              <?php else: ?>
+              <?php } else { ?>
                 <span style="color:var(--red);font-weight:600">✗ Off</span>
-              <?php endif; ?>
+              <?php } ?>
               <span style="color:var(--muted);margin-left:8px;font-size:.75rem">file_get_contents für HTTP-Calls</span>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px 14px;color:var(--muted)">cURL-Erweiterung</td>
             <td style="padding:10px 14px">
-              <?php if ($curlAvail): ?>
+              <?php if ($curlAvail) { ?>
                 <span style="color:var(--green);font-weight:600">✓ Verfügbar</span>
-              <?php else: ?>
+              <?php } else { ?>
                 <span style="color:var(--red);font-weight:600">✗ Fehlt</span>
-              <?php endif; ?>
+              <?php } ?>
               <span style="color:var(--muted);margin-left:8px;font-size:.75rem">Fallback für HTTP-Calls</span>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px 14px;color:var(--muted)">ZipArchive</td>
             <td style="padding:10px 14px">
-              <?php if ($zipAvail): ?>
+              <?php if ($zipAvail) { ?>
                 <span style="color:var(--green);font-weight:600">✓ Verfügbar</span>
-              <?php else: ?>
+              <?php } else { ?>
                 <span style="color:var(--red);font-weight:600">✗ Fehlt</span>
-              <?php endif; ?>
+              <?php } ?>
               <span style="color:var(--muted);margin-left:8px;font-size:.75rem">für Auto-Update-Installation</span>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px 14px;color:var(--muted)">GitHub Token</td>
             <td style="padding:10px 14px">
-              <?php if ($tokenSet): ?>
+              <?php if ($tokenSet) { ?>
                 <span style="color:var(--green);font-weight:600">✓ Gesetzt</span>
                 <span style="color:var(--muted);margin-left:8px;font-size:.75rem">5.000 Req/Std</span>
-              <?php else: ?>
+              <?php } else { ?>
                 <span style="color:var(--yellow);font-weight:600">⚠ Nicht gesetzt</span>
                 <span style="color:var(--muted);margin-left:8px;font-size:.75rem">60 Req/Std</span>
-              <?php endif; ?>
+              <?php } ?>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px 14px;color:var(--muted)">Update-Cache</td>
             <td style="padding:10px 14px">
-              <?php if ($lastCheck !== null): ?>
+              <?php if ($lastCheck !== null) { ?>
                 <span style="color:var(--text)">
                   <?= h(date('d.m.Y H:i', (int)$lastCheck)) ?>
                 </span>
                 <span style="color:var(--muted);margin-left:8px;font-size:.75rem">
                   (<?= $cacheAge !== null ? round($cacheAge / 60) . ' Min her' : '' ?>, TTL 60 Min)
                 </span>
-              <?php else: ?>
+              <?php } else { ?>
                 <span style="color:var(--muted)">Kein Cache vorhanden</span>
-              <?php endif; ?>
+              <?php } ?>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
@@ -370,7 +434,7 @@ usort($displayAddons, function ($a, $b) {
     </div>
 
     <!-- ── Per-Addon Update-Status aus Cache ─────────────────────────── -->
-    <?php if (!empty($cacheResults)): ?>
+    <?php if (!empty($cacheResults)) { ?>
     <div class="card" style="margin:0;padding:24px">
       <h4 style="margin:0 0 12px;font-size:.95rem">📋 Update-Check-Ergebnisse</h4>
       <table style="width:100%;border-collapse:collapse;font-size:.78rem">
@@ -385,39 +449,39 @@ usort($displayAddons, function ($a, $b) {
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($cacheResults as $cName => $cInfo): ?>
+          <?php foreach ($cacheResults as $cName => $cInfo) { ?>
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:8px 12px;font-weight:600"><?= h($cName) ?></td>
               <td style="padding:8px 12px;font-family:monospace;color:var(--muted)">v<?= h($cInfo['current'] ?? '?') ?></td>
               <td style="padding:8px 12px;font-family:monospace">
-                <?php if (!empty($cInfo['latest'])): ?>
+                <?php if (!empty($cInfo['latest'])) { ?>
                   <span style="color:var(--green)">v<?= h($cInfo['latest']) ?></span>
-                <?php else: ?>
+                <?php } else { ?>
                   <span style="color:var(--muted)">—</span>
-                <?php endif; ?>
+                <?php } ?>
               </td>
               <td style="padding:8px 12px">
                 <?php
                 $err = $cInfo['error'] ?? '';
-                if ($err === '' && !empty($cInfo['latest'])):
-                  if (!empty($cInfo['update_available'])): ?>
+                if ($err === '' && !empty($cInfo['latest'])) {
+                  if (!empty($cInfo['update_available'])) { ?>
                     <span style="color:var(--green);font-weight:600">↑ Update verfügbar</span>
-                  <?php else: ?>
+                  <?php } else { ?>
                     <span style="color:var(--muted)">aktuell</span>
-                  <?php endif; ?>
-                <?php elseif ($err === 'no_github'): ?>
+                  <?php } ?>
+                <?php } elseif ($err === 'no_github') { ?>
                   <span style="color:var(--muted)">kein GitHub-Repo</span>
-                <?php elseif ($err === 'no_release'): ?>
+                <?php } elseif ($err === 'no_release') { ?>
                   <span style="color:var(--muted)">kein Release</span>
-                <?php elseif ($err === 'rate_limited'): ?>
+                <?php } elseif ($err === 'rate_limited') { ?>
                   <span style="color:var(--red);font-weight:600">⚠ Rate-Limit!</span>
-                <?php elseif ($err === 'fetch_failed'): ?>
+                <?php } elseif ($err === 'fetch_failed') { ?>
                   <span style="color:var(--red)">Fetch-Fehler (HTTP <?= h($cInfo['http_code'] ?? '?') ?>)</span>
-                <?php elseif ($err === 'no_http_client'): ?>
+                <?php } elseif ($err === 'no_http_client') { ?>
                   <span style="color:var(--red)">kein HTTP-Client</span>
-                <?php else: ?>
+                <?php } else { ?>
                   <span style="color:var(--red)"><?= h($err) ?></span>
-                <?php endif; ?>
+                <?php } ?>
               </td>
               <td style="padding:8px 12px;font-family:monospace;font-size:.72rem;color:var(--muted)">
                 <?= h($cInfo['method'] ?? '') ?>
@@ -426,23 +490,23 @@ usort($displayAddons, function ($a, $b) {
                 <?= h($cInfo['http_code'] ?? '') ?>
               </td>
             </tr>
-          <?php endforeach; ?>
+          <?php } ?>
         </tbody>
       </table>
     </div>
-    <?php else: ?>
+    <?php } else { ?>
     <div class="card" style="margin:0;padding:24px;text-align:center;color:var(--muted)">
       <p style="font-size:.85rem">Noch kein Update-Check ausgeführt. Klicke oben auf "Updates prüfen".</p>
     </div>
-    <?php endif; ?>
+    <?php } ?>
 
-<?php else: ?>
+<?php } else { ?>
   <!-- ════════════════════════════════════════════════════════════════════════
        TAB: Addon-Liste (all/admin/frontend/both/standalone)
        ════════════════════════════════════════════════════════════════════════ -->
 
   <!-- ── Update-Banner ─────────────────────────────────────────────────── -->
-  <?php if ($updatesAvailable > 0): ?>
+  <?php if ($updatesAvailable > 0) { ?>
     <div class="card" style="margin:0 0 16px;padding:14px 18px;border-color:var(--yellow);
                               display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;align-items:center;gap:10px">
@@ -459,7 +523,7 @@ usort($displayAddons, function ($a, $b) {
         </button>
       </form>
     </div>
-  <?php else: ?>
+  <?php } else { ?>
     <div style="margin-bottom:16px;text-align:right">
       <form method="post" action="?action=addons" style="display:inline">
         <?= csrfField() ?>
@@ -469,15 +533,15 @@ usort($displayAddons, function ($a, $b) {
         </button>
       </form>
     </div>
-  <?php endif; ?>
+  <?php } ?>
 
   <!-- ── Addon-Liste ────────────────────────────────────────────────────── -->
-  <?php if (empty($displayAddons)): ?>
+  <?php if (empty($displayAddons)) { ?>
     <div class="card" style="text-align:center;padding:48px;color:var(--muted)">
       <p style="font-size:1.1rem"><?= h(t('addons_empty')) ?></p>
       <p style="font-size:.85rem;margin-top:8px"><?= h(t('addons_empty_hint')) ?></p>
     </div>
-  <?php else: ?>
+  <?php } else { ?>
 
     <table style="width:100%;border-collapse:collapse">
       <thead>
@@ -491,7 +555,7 @@ usort($displayAddons, function ($a, $b) {
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($displayAddons as $addon): ?>
+        <?php foreach ($displayAddons as $addon) { ?>
           <?php
           $m      = $addon['manifest'];
           $name   = $m['name'] ?? 'unknown';
@@ -528,19 +592,19 @@ usort($displayAddons, function ($a, $b) {
                 <div>
                   <div style="font-weight:600;font-size:.95rem">
                     <?= h($name) ?>
-                    <?php if ($home): ?>
+                    <?php if ($home) { ?>
                       <a href="<?= h($home) ?>" target="_blank" rel="noopener"
                          style="color:var(--muted);font-size:.75rem;text-decoration:none;margin-left:4px">↗</a>
-                    <?php endif; ?>
+                    <?php } ?>
                   </div>
                   <div style="font-size:.75rem;color:var(--muted);margin-top:2px">
                     <?= h($author) ?>
-                    <?php if ($minCore): ?>
+                    <?php if ($minCore) { ?>
                       · <span title="<?= h(t('addons_min_core')) ?>">core ≥ <?= h($minCore) ?></span>
-                    <?php endif; ?>
-                    <?php if (!empty($tables)): ?>
+                    <?php } ?>
+                    <?php if (!empty($tables)) { ?>
                       · <span title="<?= h(t('addons_db_tables')) ?>: <?= h(implode(', ', $tables)) ?>"><?= count($tables) ?> <?= h(t('addons_tables_short')) ?></span>
-                    <?php endif; ?>
+                    <?php } ?>
                   </div>
                 </div>
               </div>
@@ -560,7 +624,7 @@ usort($displayAddons, function ($a, $b) {
               v<?= h($ver) ?>
               <?php
               $uInfo = $updateInfo[$name] ?? null;
-              if ($uInfo && ($uInfo['update_available'] ?? false)):
+              if ($uInfo && ($uInfo['update_available'] ?? false)) {
                   $latest = h($uInfo['latest']);
               ?>
                 <div style="display:inline-block;margin-left:6px">
@@ -585,9 +649,9 @@ usort($displayAddons, function ($a, $b) {
 <?php } ?>
                 </div>
               <?php
-              elseif ($uInfo && ($uInfo['error'] ?? '') === 'no_github'):
+              } elseif ($uInfo && ($uInfo['error'] ?? '') === 'no_github') {
                   // Keine Homepage → kein Badge
-              elseif ($uInfo && ($uInfo['error'] ?? '') !== ''):
+              } elseif ($uInfo && ($uInfo['error'] ?? '') !== '') {
                   $errCode = $uInfo['error'] ?? '';
                   $errLabels = [
                       'fetch_failed'    => 'GitHub nicht erreichbar',
@@ -603,40 +667,40 @@ usort($displayAddons, function ($a, $b) {
                       title="<?= h($errLabel) ?>">
                   ⚠
                 </span>
-              <?php endif; ?>
+              <?php } ?>
             </td>
 
             <!-- Beschreibung -->
             <td style="padding:14px;font-size:.85rem;color:var(--text);max-width:280px">
               <?= h($desc) ?>
-              <?php if (!empty($deps)): ?>
+              <?php if (!empty($deps)) { ?>
                 <div style="margin-top:4px;font-size:.72rem;color:var(--muted)">
                   <?= h(t('addons_depends_on')) ?>: <?= h(implode(', ', $deps)) ?>
-                  <?php if (!empty($depMissing)): ?>
+                  <?php if (!empty($depMissing)) { ?>
                     <span style="color:var(--red)">⚠ <?= h(implode(', ', $depMissing)) ?></span>
-                  <?php endif; ?>
+                  <?php } ?>
                 </div>
-              <?php endif; ?>
+              <?php } ?>
             </td>
 
             <!-- Status -->
             <td style="padding:14px;text-align:center">
-              <?php if ($enabled): ?>
+              <?php if ($enabled) { ?>
                 <span style="display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--green);font-weight:600">
                   <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>
                   <?= h(t('addons_status_active')) ?>
                 </span>
-              <?php else: ?>
+              <?php } else { ?>
                 <span style="display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted)">
                   <span style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block"></span>
                   <?= h(t('addons_status_inactive')) ?>
                 </span>
-              <?php endif; ?>
+              <?php } ?>
             </td>
 
             <!-- Actions -->
             <td style="padding:14px;text-align:right">
-              <?php if ($enabled): ?>
+              <?php if ($enabled) { ?>
                 <form method="post" action="?action=addons" style="display:inline">
                   <?= csrfField() ?>
                   <input type="hidden" name="addon_action" value="disable">
@@ -647,7 +711,7 @@ usort($displayAddons, function ($a, $b) {
                     ⏻ <?= h(t('addons_btn_disable')) ?>
                   </button>
                 </form>
-              <?php else: ?>
+              <?php } else { ?>
                 <form method="post" action="?action=addons" style="display:inline">
                   <?= csrfField() ?>
                   <input type="hidden" name="addon_action" value="enable">
@@ -659,7 +723,7 @@ usort($displayAddons, function ($a, $b) {
                 </form>
 <?php
     $ownTables = $addonManager->getDbTables($name);
-    if (!empty($ownTables)):
+    if (!empty($ownTables)) {
 ?>
                 <form method="post" action="?action=addons" style="display:inline;margin-left:6px">
                   <?= csrfField() ?>
@@ -672,11 +736,11 @@ usort($displayAddons, function ($a, $b) {
                     <?= h(t('addons_purge_btn')) ?>
                   </button>
                 </form>
-<?php endif; ?>
-              <?php endif; ?>
+<?php } ?>
+              <?php } ?>
             </td>
           </tr>
-        <?php endforeach; ?>
+        <?php } ?>
       </tbody>
     </table>
 
@@ -686,9 +750,9 @@ usort($displayAddons, function ($a, $b) {
       <?= h(t('addons_info_text')) ?>
     </div>
 
-  <?php endif; ?>
+  <?php } ?>
 
-<?php endif; /* tab === 'settings' */ ?>
+<?php } /* tab === 'settings' */ ?>
 
   <!-- ── Version-Marker (nur sichtbar in Seitenquelle) ─────────────────── -->
   <!-- VIEW_ADDONS_V2.0.0 — diese Datei ist addon/addon-manager/view_addons.php -->

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: install.php
- * Fileversion: 2.7.1
+ * Fileversion: 2.9.0
  *
  * PHP version 8.2
  *
@@ -28,21 +28,35 @@ session_start();
 require_once __DIR__ . '/lang/i18n.php';
 getCurrentLanguage(); // ermittelt/persistiert Sprache; kann bei ?lang=xx redirecten
 
+// ── CSRF-Schutz fürs Installationsformular ─────────────────────────────────
+// Wird pro Session einmal erzeugt und in Schritt 2 als verstecktes Feld
+// mitgeschickt (siehe HTML-Formular weiter unten) und beim POST geprüft
+// (siehe Request-Verarbeitung). Verhindert, dass eine fremde Seite den
+// Nutzer während der Installation dazu bringt, unbemerkt ein manipuliertes
+// Installationsformular abzuschicken (Cross-Site Request Forgery).
+if (empty($_SESSION['install_csrf'])) {
+    $_SESSION['install_csrf'] = bin2hex(random_bytes(32));
+}
+define('INSTALL_CSRF_TOKEN', $_SESSION['install_csrf']);
+
 define('INSTALL_TITLE',   t('install_title'));
 define('ADMIN_FILE',      __DIR__ . '/admin.php');
 define('CONFIG_FILE',     __DIR__ . '/config.php');
 define('MIN_PHP',         '8.2.0');
-define('INSTALL_VERSION', '1.2.0');
+define('INSTALL_VERSION', '1.4.0');
 
 // ── Composer/.env-Variante (optional, siehe tryComposerSetup() weiter unten) ──
-// Wird nur genutzt, wenn composer.phar mitgeliefert wurde UND der Server
-// externe Prozesse starten darf. Schlägt irgendein Schritt fehl, arbeitet der
-// Installer transparent mit der klassischen config.php weiter - für den
-// Nutzer macht das keinen Unterschied, außer dass composer.phar danach
-// gefahrlos gelöscht werden kann.
+// Wird nur genutzt, wenn ein systemweit installiertes composer-Kommando
+// gefunden wird UND der Server externe Prozesse starten darf (proc_open()).
+// Schlägt irgendein Schritt fehl - kein Composer gefunden, proc_open()
+// deaktiviert, Netzwerkproblem beim Abruf der Abhängigkeiten - fällt der
+// Installer transparent auf die klassische config.php zurück; für den Nutzer
+// macht das Ergebnis keinen Unterschied. Anders als in früheren Versionen
+// gibt es dafür KEINEN Rückfall mehr auf eine mitgelieferte bin/composer.phar
+// (auf Wunsch entfernt, siehe CHANGELOG) - der bin/-Ordner existiert im Core
+// nicht mehr.
 define('ENV_FILE',         __DIR__ . '/.env');
 define('COMPOSER_JSON',    __DIR__ . '/composer.json');
-define('COMPOSER_PHAR',    __DIR__ . '/bin/composer.phar');
 define('COMPOSER_AUTOLOAD', __DIR__ . '/vendor/autoload.php');
 
 // ── Hilfsfunktionen ───────────────────────────────────────────────────────────
@@ -159,6 +173,12 @@ function checkEnvironment(): array {
     // Schritt 2 darauf aufmerksam.
     $checks[] = ['label'=>t('install_check_https'), 'ok'=>installIsHttps(), 'required'=>false,
                  'info'=>installIsHttps()?t('install_https_ok'):t('install_https_missing')];
+    // Rein informativ (required=false, blockiert nie): zeigt an, ob die
+    // optionale Composer/.env-Variante (siehe tryComposerSetup()) versucht
+    // wird oder ob direkt die klassische config.php geschrieben wird - beide
+    // Wege führen zu einer vollständig funktionsfähigen Installation.
+    $cs = composerStatus();
+    $checks[] = ['label'=>t('install_check_composer'), 'ok'=>$cs['ok'], 'required'=>false, 'info'=>$cs['info']];
     return $checks;
 }
 function allChecksPassed(array $checks): bool {
@@ -176,11 +196,44 @@ function setupDatabase(array $cfg): array {
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
+
+        // ── Mindestversion prüfen (JSON-Spaltentyp, siehe liga_partien.extra_data) ──
+        $verCheck = checkServerVersionSupportsJson($pdo);
+        if (!$verCheck['ok']) {
+            $errors[] = t('install_db_error_version_too_old', [
+                'raw' => $verCheck['raw'],
+                'min' => $verCheck['min'],
+                'db'  => $verCheck['is_mariadb'] ? 'MariaDB' : 'MySQL',
+            ]);
+            return $errors;
+        }
+
         $db = preg_replace('/[^a-zA-Z0-9_]/', '', $cfg['db_name']);
         $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$db}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
         $pdo->exec("USE `{$db}`");
 
         $p = $cfg['db_prefix'];
+
+        // ── Rechte-Vorabprüfung ────────────────────────────────────────────────
+        // Legt eine harmlose Wegwerf-Tabelle an, ändert sie per ALTER und löscht
+        // sie wieder, BEVOR die eigentlichen ~16 Tabellen angefasst werden. Der
+        // DB-Benutzer kann zwar meist bereits verbinden (sonst wäre "new PDO(...)"
+        // oben schon gescheitert), hat aber nicht zwingend auch CREATE/ALTER/DROP-
+        // Rechte auf dieser konkreten Datenbank (z.B. bei einem eingeschränkten
+        // Hosting-Account). Ohne diesen Test würde der Fehler erst mitten im
+        // Anlegen der echten Tabellen auftreten - mit einer für Laien schwer
+        // einzuordnenden "SQLSTATE[42000]: ... command denied"-Meldung zu einer
+        // zufälligen Tabelle. Mit dem Test bekommt der Nutzer stattdessen sofort
+        // eine klare, gezielte Fehlermeldung.
+        $privTestTable = "`{$p}install_privtest`";
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS {$privTestTable} (`id` INT) ENGINE=InnoDB");
+            $pdo->exec("ALTER TABLE {$privTestTable} ADD COLUMN `t` INT NULL");
+            $pdo->exec("DROP TABLE {$privTestTable}");
+        } catch (Throwable $e) {
+            $errors[] = t('install_db_error_privileges', ['msg' => $e->getMessage()]);
+            return $errors;
+        }
 
         $tables = [
 
@@ -188,7 +241,7 @@ function setupDatabase(array $cfg): array {
                 `id`          INT AUTO_INCREMENT PRIMARY KEY,
                 `parent_id`   INT          NULL DEFAULT NULL,
                 `name`        VARCHAR(120) NOT NULL DEFAULT '',
-                `beschreibung`VARCHAR(255) NOT NULL DEFAULT '',
+                `beschreibung` VARCHAR(255) NOT NULL DEFAULT '',
                 `sort`        SMALLINT     NOT NULL DEFAULT 0,
                 KEY `parent_id` (`parent_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
@@ -208,6 +261,7 @@ function setupDatabase(array $cfg): array {
                 `name`   VARCHAR(255) NOT NULL DEFAULT '',
                 `kurz`   VARCHAR(30)  NOT NULL DEFAULT '',
                 `mittel` VARCHAR(80)  NOT NULL DEFAULT '',
+                `url`    VARCHAR(500) NULL     DEFAULT NULL,
                 UNIQUE KEY `uniq_team_name` (`name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
@@ -269,6 +323,9 @@ function setupDatabase(array $cfg): array {
 
             // heim_id/gast_id NULL = KO-Platzhalter (Name in heim_label/gast_label)
             // spiel_nr: Liga='1','2',...  KO='Paarung_Spiel' z.B. '1_1','1_2'
+            // status: 0=normal, 1=i.E. (Elfmeterschießen), 2=n.V. (Verlängerung)
+            // nicht_gewertet/gt_entscheidung/gt_grund: siehe ensureSpielstatusColumns()
+            // in admin/bootstrap.php für die vollständige fachliche Begründung
             "CREATE TABLE IF NOT EXISTS `{$p}liga_partien` (
                 `id`          INT AUTO_INCREMENT PRIMARY KEY,
                 `spieltag_id` INT          NOT NULL,
@@ -284,16 +341,20 @@ function setupDatabase(array $cfg): array {
                 `status`      TINYINT      NOT NULL DEFAULT 0,
                 `bericht_url` VARCHAR(500) NULL DEFAULT NULL,
                 `spiel_nr`    VARCHAR(20)  NOT NULL DEFAULT '1',
+                `nicht_gewertet`  TINYINT(1) NOT NULL DEFAULT 0,
+                `gt_entscheidung` TINYINT    NOT NULL DEFAULT 0,
+                `gt_grund`        TEXT       NULL,
                 KEY `spieltag_id` (`spieltag_id`),
                 KEY `heim_id` (`heim_id`),
                 KEY `gast_id` (`gast_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
             "CREATE TABLE IF NOT EXISTS `{$p}admin_users` (
-                `id`       INT AUTO_INCREMENT PRIMARY KEY,
-                `username` VARCHAR(80)  NOT NULL,
-                `password` VARCHAR(255) NOT NULL,
-                `email`    VARCHAR(255) NULL DEFAULT NULL,
+                `id`         INT AUTO_INCREMENT PRIMARY KEY,
+                `username`   VARCHAR(80)  NOT NULL,
+                `password`   VARCHAR(255) NOT NULL,
+                `email`      VARCHAR(255) NULL DEFAULT NULL,
+                `last_login` DATETIME     NULL DEFAULT NULL,
                 UNIQUE KEY `username` (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
@@ -348,6 +409,48 @@ function setupDatabase(array $cfg): array {
             "CREATE TABLE IF NOT EXISTS `{$p}admin_settings` (
                 `key`   VARCHAR(64)   NOT NULL PRIMARY KEY,
                 `value` VARCHAR(255)  NOT NULL DEFAULT ''
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // Team-Verknüpfungen (Umbenennung/Fusion/Abspaltung) - siehe
+            // ensureTeamLinksSchema() in admin/bootstrap.php für die vollständige
+            // fachliche Begründung. Wird u.a. vom Teamvergleich (H2H) genutzt.
+            "CREATE TABLE IF NOT EXISTS `{$p}team_links` (
+                `id`            INT AUTO_INCREMENT PRIMARY KEY,
+                `team_a_id`     INT NOT NULL,
+                `team_b_id`     INT NOT NULL,
+                `type`          ENUM('umbenennung','fusion','abspaltung','sonstige') NOT NULL DEFAULT 'umbenennung',
+                `note`          VARCHAR(255) NULL DEFAULT NULL,
+                `newer_team_id` INT NULL DEFAULT NULL,
+                `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                KEY `team_a_id` (`team_a_id`),
+                KEY `team_b_id` (`team_b_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // Addon-Manager-Kernregistrierung (welche Addons sind installiert/
+            // aktiviert) - siehe AddonManager::ensureRegistryTable() in
+            // src/Addon/AddonManager.php. Der Addon-Manager selbst zählt zu den
+            // Kernfunktionen (immer aktiv, siehe getEnabledAddons()-Fallback dort),
+            // seine beiden Tabellen gehören daher von Anfang an hierher statt nur
+            // über die Laufzeit-Migration entstehen zu können.
+            "CREATE TABLE IF NOT EXISTS `{$p}addon_registry` (
+                `id`           INT AUTO_INCREMENT PRIMARY KEY,
+                `name`         VARCHAR(64) NOT NULL,
+                `version`      VARCHAR(32) NOT NULL DEFAULT '',
+                `enabled`      TINYINT(1)  NOT NULL DEFAULT 0,
+                `installed_at` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at`   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `settings`     TEXT        NULL,
+                UNIQUE KEY `uniq_name` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+            // Addon-Manager-eigene Core-Einstellungen (z.B. GitHub-Token) - siehe
+            // AddonManager::ensureRegistryTable()/getSetting()/setSetting().
+            "CREATE TABLE IF NOT EXISTS `{$p}addon_settings` (
+                `id`         INT AUTO_INCREMENT PRIMARY KEY,
+                `key`        VARCHAR(64) NOT NULL,
+                `value`      TEXT        NULL,
+                `updated_at` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY `uniq_key` (`key`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ];
 
@@ -423,6 +526,39 @@ function setupDatabase(array $cfg): array {
         if (!in_array('email', $userCols, true)) {
             $pdo->exec("ALTER TABLE `{$p}admin_users` ADD COLUMN `email` VARCHAR(255) NULL DEFAULT NULL");
         }
+        if (!in_array('last_login', $userCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}admin_users` ADD COLUMN `last_login` DATETIME NULL DEFAULT NULL");
+        }
+
+        // ── Grüner-Tisch/Nichtwertung (siehe ensureSpielstatusColumns() in
+        // admin/bootstrap.php für die vollständige fachliche Begründung) - war
+        // bisher NUR über die Laufzeit-Migration abgedeckt, nicht hier ────────
+        if (!in_array('nicht_gewertet', $partienCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}liga_partien` ADD COLUMN `nicht_gewertet` TINYINT(1) NOT NULL DEFAULT 0");
+        }
+        if (!in_array('gt_entscheidung', $partienCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}liga_partien` ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0");
+        }
+        if (!in_array('gt_grund', $partienCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}liga_partien` ADD COLUMN `gt_grund` TEXT NULL");
+        }
+
+        // ── Team-Website/-Link (siehe ensureTeamUrlSchema() in admin/bootstrap.php)
+        // - war bisher NUR über die Laufzeit-Migration abgedeckt, nicht hier ──
+        $teamsGlobalCols = $pdo->query("SHOW COLUMNS FROM `{$p}teams_global`")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('url', $teamsGlobalCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}teams_global` ADD COLUMN `url` VARCHAR(500) NULL DEFAULT NULL");
+        }
+
+        // ── team_links-Migration (siehe ensureTeamLinksSchema() in
+        // admin/bootstrap.php) - die CREATE-TABLE-Anweisung oben deckt neue
+        // Installationen bereits vollständig ab; für Bestandsinstallationen,
+        // bei denen die Tabelle schon vor Einführung von newer_team_id
+        // angelegt wurde, hier zusätzlich die Spalten-Migration ─────────────
+        $teamLinksCols = $pdo->query("SHOW COLUMNS FROM `{$p}team_links`")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('newer_team_id', $teamLinksCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}team_links` ADD COLUMN `newer_team_id` INT NULL DEFAULT NULL");
+        }
 
         // ── Admin-Benutzer anlegen / Passwort (und E-Mail, falls angegeben) aktualisieren ─
         $hash = password_hash($cfg['admin_pass'], PASSWORD_BCRYPT);
@@ -431,10 +567,124 @@ function setupDatabase(array $cfg): array {
              ON DUPLICATE KEY UPDATE `password`=VALUES(`password`), `email`=VALUES(`email`)"
         )->execute([$cfg['admin_user'], $hash, $cfg['admin_email'] !== '' ? $cfg['admin_email'] : null]);
 
+        // ── Abschließende Konsistenzprüfung ────────────────────────────────────
+        // Liest jede oben angelegte Tabelle noch einmal aus der DB zurück und
+        // vergleicht ihre tatsächlichen Spalten mit den in $tables definierten
+        // (per Regex aus den CREATE-TABLE-Strings selbst extrahiert, damit hier
+        // KEINE zweite, separat zu pflegende Spaltenliste entsteht, die
+        // wiederum auseinanderlaufen könnte). Fängt z.B. eine DB ab, die zwar
+        // "CREATE TABLE" ohne Fehler zulässt, aber bestimmte Spaltentypen
+        // (JSON, ENUM) stillschweigend anders behandelt, oder einen
+        // DB-Benutzer, dem für EINZELNE ALTER-Anweisungen die Berechtigung
+        // fehlt (CREATE erlaubt, ALTER verboten wäre sonst erst beim ersten
+        // echten Seitenaufruf aufgefallen).
+        $consistencyErrors = verifyDatabaseConsistency($pdo, $tables);
+        // Zusätzlich: wurde der Administrator-Account wirklich angelegt?
+        $adminCheck = $pdo->prepare("SELECT COUNT(*) FROM `{$p}admin_users` WHERE `username`=?");
+        $adminCheck->execute([$cfg['admin_user']]);
+        if ((int)$adminCheck->fetchColumn() !== 1) {
+            $consistencyErrors[] = t('install_consistency_admin_missing');
+        }
+        if (!empty($consistencyErrors)) {
+            $errors = array_merge($errors, $consistencyErrors);
+        }
+
     } catch (Throwable $e) {
         $errors[] = translateDbError($e);
     }
     return $errors;
+}
+
+/**
+ * Extrahiert den (bereits mit Tabellen-Präfix versehenen) Tabellennamen aus
+ * einem "CREATE TABLE IF NOT EXISTS `...`"-String.
+ */
+function extractTableNameFromSql(string $createSql) : ?string
+{
+    return preg_match('/CREATE TABLE IF NOT EXISTS `([a-zA-Z0-9_]+)`/', $createSql, $m) ? $m[1] : null;
+}
+
+/**
+ * Extrahiert alle in einem CREATE-TABLE-String tatsächlich definierten
+ * Spaltennamen (keine KEY/UNIQUE KEY/PRIMARY KEY-Zeilen, die beginnen in
+ * diesem Projekt nie mit einem rückwärtsgetickten Bezeichner am Zeilenanfang).
+ *
+ * @return array<int,string>
+ */
+function extractExpectedColumns(string $createSql) : array
+{
+    if (!preg_match('/\((.*)\)\s*ENGINE=/s', $createSql, $m)) {
+        return [];
+    }
+    return preg_match_all('/^\s*`([a-zA-Z0-9_]+)`\s*[A-Z]/mi', $m[1], $mm) ? $mm[1] : [];
+}
+
+/**
+ * Abschließende Konsistenzprüfung nach dem Schreiben des Schemas (siehe
+ * Aufruf in setupDatabase()): liest für jede erwartete Tabelle per
+ * "SHOW COLUMNS" die tatsächlich vorhandenen Spalten aus der Datenbank und
+ * vergleicht sie mit den aus $tables extrahierten Erwartungen. Liefert eine
+ * Liste verständlicher Fehlermeldungen (leer = alles konsistent).
+ *
+ * @param array<int,string> $tables die CREATE-TABLE-Strings aus setupDatabase()
+ * @return array<int,string>
+ */
+function verifyDatabaseConsistency(PDO $pdo, array $tables) : array
+{
+    $errors = [];
+    foreach ($tables as $sql) {
+        $tableName = extractTableNameFromSql($sql);
+        if ($tableName === null) {
+            continue;
+        }
+        try {
+            $existingCols = $pdo->query("SHOW COLUMNS FROM `{$tableName}`")->fetchAll(PDO::FETCH_COLUMN);
+        } catch (Throwable) {
+            $errors[] = t('install_consistency_table_missing', ['table' => $tableName]);
+            continue;
+        }
+        $missing = array_diff(extractExpectedColumns($sql), $existingCols);
+        if (!empty($missing)) {
+            $errors[] = t('install_consistency_columns_missing', [
+                'table'   => $tableName,
+                'columns' => implode(', ', $missing),
+            ]);
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Prüft, ob die verbundene MySQL/MariaDB-Version den JSON-Spaltentyp
+ * unterstützt (wird für liga_partien.extra_data gebraucht, siehe
+ * Sport-Profile-Erweiterung) - MySQL ab 5.7.8, MariaDB ab 10.2.7 (dort ist
+ * JSON technisch ein Alias für LONGTEXT + CHECK-Constraint, aber ab dieser
+ * Version verfügbar). Server melden sich oft mit einem "5.5.5-"-Compat-
+ * Präfix vor der eigentlichen MariaDB-Version (z.B. "5.5.5-10.6.12-MariaDB")
+ * - wird hier erkannt und entfernt. Bei unbekanntem/nicht parsbarem
+ * Versionsformat wird NICHT blockiert (ok=true) - lieber eine Installation
+ * zulassen, die im Zweifel funktioniert, als eine exotische, aber gültige
+ * Server-Kennung fälschlich ablehnen.
+ *
+ * @return array{ok:bool,raw:string,is_mariadb:bool,min:string,version:?string}
+ */
+function checkServerVersionSupportsJson(PDO $pdo) : array
+{
+    $raw = (string)$pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
+    $isMariaDb = stripos($raw, 'MariaDB') !== false;
+    $ver = preg_replace('/^5\.5\.5-/', '', $raw);
+    if (!preg_match('/^(\d+\.\d+\.\d+)/', $ver, $m)) {
+        return ['ok' => true, 'raw' => $raw, 'is_mariadb' => $isMariaDb, 'min' => $isMariaDb ? '10.2.7' : '5.7.8', 'version' => null];
+    }
+    $versionNumber = $m[1];
+    $min = $isMariaDb ? '10.2.7' : '5.7.8';
+    return [
+        'ok'         => version_compare($versionNumber, $min, '>='),
+        'raw'        => $raw,
+        'is_mariadb' => $isMariaDb,
+        'min'        => $min,
+        'version'    => $versionNumber,
+    ];
 }
 
 /**
@@ -500,58 +750,10 @@ function composerFilesReady() : bool
 }
 
 /**
- * Sucht das PHP-CLI-Binary. PHP_BINARY kann unter PHP-FPM auf php-fpm zeigen;
- * Composer benötigt jedoch das CLI-Binary.
- */
-function findPhpCli() : ?string
-{
-    $candidates = [];
-
-    if (defined('PHP_BINDIR')) {
-        $candidates[] = rtrim(PHP_BINDIR, '/\\') . DIRECTORY_SEPARATOR . 'php';
-    }
-    if (defined('PHP_BINARY')) {
-        $binary = PHP_BINARY;
-        if (basename($binary) === 'php') {
-            $candidates[] = $binary;
-        }
-        $dir = dirname($binary);
-        $candidates[] = $dir . DIRECTORY_SEPARATOR . 'php';
-        $candidates[] = dirname($dir) . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'php';
-    }
-    foreach (['/opt/homebrew/bin/php', '/usr/local/bin/php', '/usr/bin/php'] as $candidate) {
-        $candidates[] = $candidate;
-    }
-    if (function_exists('shell_exec')) {
-        $fromPath = trim((string)@shell_exec('command -v php 2>/dev/null'));
-        if ($fromPath !== '') {
-            $candidates[] = $fromPath;
-        }
-    }
-
-    $seen = [];
-    foreach ($candidates as $candidate) {
-        if ($candidate === '' || isset($seen[$candidate]) || !is_file($candidate) || !is_executable($candidate)) {
-            continue;
-        }
-        $seen[$candidate] = true;
-        $cmd = escapeshellarg($candidate) . ' -r ' . escapeshellarg('echo PHP_SAPI;');
-        $out = @shell_exec($cmd . ' 2>/dev/null');
-        if (trim((string)$out) === 'cli') {
-            return $candidate;
-        }
-    }
-    return null;
-}
-
-/**
  * Sucht ein bereits systemweit installiertes composer-Kommando (z.B.
- * /usr/bin/composer oder /usr/local/bin/composer). Wird bevorzugt gegenüber
- * der mitgelieferten bin/composer.phar verwendet, falls vorhanden - viele
- * Hoster pflegen ihr systemweites Composer aktueller, als es eine mit
- * LMOnext ausgelieferte .phar-Datei je sein könnte. Liefert null, wenn
- * nichts Brauchbares gefunden wird (dann greift der Rückfall auf
- * bin/composer.phar in installComposerDependencies()).
+ * /usr/bin/composer oder /usr/local/bin/composer). Liefert null, wenn nichts
+ * Brauchbares gefunden wird (dann fällt installComposerDependencies() direkt
+ * auf die klassische config.php zurück, siehe dortiger Kommentar).
  */
 function findSystemComposer() : ?string
 {
@@ -572,31 +774,26 @@ function findSystemComposer() : ?string
 }
 
 /**
- * Liefert eine kurze, für den Installer verständliche Composer-Statusmeldung
- * (nur informativ, z.B. für eine spätere Anzeige - die eigentliche
- * Entscheidung trifft installComposerDependencies()/tryComposerSetup()).
+ * Liefert eine kurze, für den Installer verständliche Composer-Statusmeldung.
+ * Rein informativ (blockiert die Installation NIE, siehe checkEnvironment(),
+ * wo dies als optionaler Check angezeigt wird) - die eigentliche Entscheidung
+ * trifft installComposerDependencies()/tryComposerSetup().
  */
 function composerStatus() : array
 {
     if (!composerFilesReady()) {
-        return ['ok' => false, 'info' => 'composer.json fehlt'];
+        return ['ok' => false, 'info' => t('install_composer_no_json')];
     }
     if (is_file(COMPOSER_AUTOLOAD)) {
-        return ['ok' => true, 'info' => 'vendor/autoload.php bereits vorhanden'];
+        return ['ok' => true, 'info' => t('install_composer_vendor_present')];
     }
     if (!function_exists('proc_open')) {
-        return ['ok' => false, 'info' => 'proc_open() ist auf diesem Server deaktiviert'];
+        return ['ok' => false, 'info' => t('install_composer_no_procopen')];
     }
     if (findSystemComposer() !== null) {
-        return ['ok' => true, 'info' => 'systemweites composer-Kommando gefunden'];
+        return ['ok' => true, 'info' => t('install_composer_system_found')];
     }
-    if (findPhpCli() === null) {
-        return ['ok' => false, 'info' => 'PHP-CLI nicht gefunden (PHP-FPM allein reicht nicht)'];
-    }
-    if (is_file(COMPOSER_PHAR) && is_readable(COMPOSER_PHAR)) {
-        return ['ok' => true, 'info' => 'bin/composer.phar + PHP-CLI vorhanden'];
-    }
-    return ['ok' => false, 'info' => 'Weder ein systemweites composer-Kommando noch bin/composer.phar + PHP-CLI verfügbar'];
+    return ['ok' => false, 'info' => t('install_composer_fallback')];
 }
 
 /**
@@ -608,9 +805,9 @@ function composerStatus() : array
  * Startet einen Composer-Befehl (fertig zusammengesetzter, bereits
  * escapter Shell-Befehl) und wartet bis zu 180 Sekunden auf dessen Ende.
  * Liefert ein leeres Array bei Erfolg (vendor/autoload.php muss danach
- * existieren), sonst eine Liste von Fehlermeldungen. Wird sowohl für ein
- * evtl. systemweit installiertes composer-Kommando als auch für die
- * mitgelieferte bin/composer.phar verwendet (siehe installComposerDependencies()).
+ * existieren), sonst eine Liste von Fehlermeldungen. Wird für das
+ * systemweit installierte composer-Kommando verwendet (siehe
+ * installComposerDependencies()).
  */
 function runComposerCommand(string $cmd) : array
 {
@@ -654,13 +851,12 @@ function runComposerCommand(string $cmd) : array
 }
 
 /**
- * Installiert die Composer-Abhängigkeiten. Versucht zuerst ein evtl. bereits
- * systemweit installiertes composer-Kommando (meist besser gepflegt/aktueller
- * als eine mitgelieferte .phar-Datei), fällt bei Fehlschlag oder wenn keins
- * gefunden wird auf die mitgelieferte bin/composer.phar zurück (über
- * PHP-CLI gestartet). Liefert ein leeres Array bei Erfolg, sonst eine Liste
- * aller aufgetretenen Fehlermeldungen (aus beiden Versuchen, falls beide
- * fehlschlugen).
+ * Installiert die Composer-Abhängigkeiten über ein evtl. bereits systemweit
+ * installiertes composer-Kommando. Liefert ein leeres Array bei Erfolg, sonst
+ * eine Liste aufgetretener Fehlermeldungen. Kein Rückfall mehr auf eine
+ * mitgelieferte bin/composer.phar (auf Wunsch entfernt) - schlägt dieser
+ * Versuch fehl, greift stattdessen direkt die klassische config.php-Variante
+ * (siehe tryComposerSetup()/writeConfig() im Hauptablauf weiter unten).
  */
 function installComposerDependencies() : array
 {
@@ -674,37 +870,18 @@ function installComposerDependencies() : array
         return ['proc_open() ist auf diesem Server deaktiviert.'];
     }
 
-    $flags = '--no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress';
-    $errors = [];
-
-    // 1. Bevorzugt: systemweit installiertes composer-Kommando
     $systemComposer = findSystemComposer();
-    if ($systemComposer !== null) {
-        $cmd = escapeshellarg($systemComposer) . ' install ' . $flags;
-        $result = runComposerCommand($cmd);
-        if (empty($result)) {
-            return [];
-        }
-        foreach ($result as $msg) {
-            $errors[] = 'Systemweites composer-Kommando: ' . $msg;
-        }
+    if ($systemComposer === null) {
+        return ['Kein systemweites composer-Kommando gefunden.'];
     }
 
-    // 2. Rückfall: mitgelieferte bin/composer.phar über PHP-CLI
-    $phpCli = findPhpCli();
-    if ($phpCli === null) {
-        $errors[] = 'PHP-CLI nicht gefunden (für bin/composer.phar nötig).';
-        return $errors;
-    }
-    if (!is_file(COMPOSER_PHAR) || !is_readable(COMPOSER_PHAR)) {
-        $errors[] = 'bin/composer.phar nicht gefunden oder nicht lesbar.';
-        return $errors;
-    }
-    $cmd = escapeshellarg($phpCli) . ' ' . escapeshellarg(COMPOSER_PHAR) . ' install ' . $flags;
+    $flags = '--no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress';
+    $cmd    = escapeshellarg($systemComposer) . ' install ' . $flags;
     $result = runComposerCommand($cmd);
     if (!empty($result)) {
+        $errors = [];
         foreach ($result as $msg) {
-            $errors[] = 'bin/composer.phar: ' . $msg;
+            $errors[] = 'Systemweites composer-Kommando: ' . $msg;
         }
         error_log('LMOnext Installer Composer: ' . implode(' ', $errors));
         return $errors;
@@ -835,7 +1012,15 @@ define('APP_VERSION',   '{$ver}');
 // define('DEMO_MODE', true);
 PHP;
 
-    return file_put_contents(CONFIG_FILE, $content) !== false;
+    $written = file_put_contents(CONFIG_FILE, $content) !== false;
+    if ($written) {
+        // Enthält DB-Zugangsdaten - analog zu writeEnvFile() (0640) restriktiver
+        // setzen als der Standard-Datei-Modus. Nicht kritisch, falls der Server
+        // chmod() nicht erlaubt (z.B. manche Windows-/Shared-Hosting-Setups) -
+        // blockiert die Installation deshalb bewusst nicht.
+        @chmod(CONFIG_FILE, 0640);
+    }
+    return $written;
 }
 
 // ── Selbst löschen + Weiterleiten ─────────────────────────────────────────────
@@ -848,9 +1033,93 @@ function selfDestructAndRedirect(): never {
     exit;
 }
 
+/**
+ * Zeigt eine minimale Warnseite, wenn config.php bereits existiert, und
+ * beendet die Ausführung. Kein Formular, kein Bypass-Parameter - siehe
+ * renderAlreadyInstalledPage() für die Begründung.
+ */
+function renderAlreadyInstalledPage() : never
+{
+    http_response_code(403);
+    ?>
+<!DOCTYPE html>
+<html lang="<?= h(getCurrentLanguage()) ?>">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= h(t('install_title')) ?></title>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;
+     min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{max-width:520px;background:#1a1d27;border:1px solid #2e3247;border-radius:8px;padding:28px 32px}
+.box h1{font-size:1.15rem;color:#f59e0b;margin-bottom:12px}
+.box p{font-size:.9rem;line-height:1.6;color:#cbd5e1;margin-bottom:10px}
+code{background:#0f1117;padding:1px 5px;border-radius:4px;font-size:.85rem}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>⚠️ <?= h(t('install_already_installed_heading')) ?></h1>
+    <p><?= t('install_already_installed_text') ?></p>
+  </div>
+</body>
+</html>
+    <?php
+    exit;
+}
+
+// ── Schutz vor versehentlicher Neuinstallation ─────────────────────────────
+// Existiert config.php bereits (z.B. weil das automatische Selbst-Löschen in
+// selfDestructAndRedirect() fehlgeschlagen ist, oder install.php nachträglich
+// erneut hochgeladen wurde), NICHT einfach weitermachen: ein erneuter Lauf
+// würde sowohl die bestehenden DB-Zugangsdaten überschreiben als auch - über
+// das "ON DUPLICATE KEY UPDATE" beim Admin-Anlegen in setupDatabase() - den
+// Administrator-Account mit einem vom Aufrufer frei wählbaren neuen Passwort
+// versehen. Ohne diese Sperre wäre ein liegen gebliebenes install.php auf
+// einer LIVE-Installation eine vollständige Admin-Übernahme für jeden, der
+// die URL findet. Bewusst KEIN Bypass-Parameter (z.B. "?force=1") - wer
+// wirklich neu installieren will, muss config.php manuell löschen.
+if (is_file(CONFIG_FILE)) {
+    renderAlreadyInstalledPage();
+}
+
+/**
+ * Prüft, ob unter dem gewählten Host/DB-Name/Präfix bereits eine Installation
+ * mit Daten liegt (admin_users-Tabelle existiert und hat mindestens einen
+ * Eintrag). Rein informativ - eine erneute Installation über eine
+ * bestehende DB ist ein bewusst unterstütztes Feature (siehe Kommentar bei
+ * den INSERT-IGNORE-Startwerten in setupDatabase(), z.B. um das
+ * Admin-Passwort über den Installer zurückzusetzen, falls der Zugang
+ * verloren ging). Ohne ausdrückliche Bestätigung (Checkbox in Schritt 2,
+ * siehe Request-Verarbeitung weiter unten) wird aber NICHT stillschweigend
+ * fortgefahren, damit niemand aus Versehen eine falsche/fremde Datenbank
+ * überschreibt, nur weil Host/Name/Präfix zufällig übereinstimmen. Liefert
+ * false bei jedem Verbindungs-/Abfragefehler (dann existiert entweder noch
+ * nichts, oder der eigentliche Fehler wird ohnehin gleich von
+ * setupDatabase() mit einer verständlichen Meldung aufgefangen).
+ */
+function detectExistingInstallation(array $cfg) : bool
+{
+    try {
+        $dsn = sprintf('mysql:host=%s;port=%d;charset=utf8mb4',
+            $cfg['db_host'], (int)($cfg['db_port'] ?? 3306));
+        $pdo = new PDO($dsn, $cfg['db_user'], $cfg['db_pass'], [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ]);
+        $db = preg_replace('/[^a-zA-Z0-9_]/', '', $cfg['db_name']);
+        $pdo->exec("USE `{$db}`");
+        $p = $cfg['db_prefix'];
+        $count = $pdo->query("SELECT COUNT(*) FROM `{$p}admin_users`")->fetchColumn();
+        return (int)$count > 0;
+    } catch (Throwable) {
+        return false;
+    }
+}
+
 // ── Request-Verarbeitung ──────────────────────────────────────────────────────
 $step   = (int)($_GET['step'] ?? 1);
 $errors = [];
+$showConfirmExisting = false;
 $checks = checkEnvironment();
 $cfg = [
     'db_host'    => 'localhost',
@@ -880,6 +1149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 2) {
     ];
     // Ungültige/manipulierte Zeitzonen-Werte auf den sicheren Standard zurücksetzen
     try { new DateTimeZone($cfg['timezone']); } catch (Throwable) { $cfg['timezone'] = 'Europe/Berlin'; }
+    if (!hash_equals(INSTALL_CSRF_TOKEN, $_POST['csrf'] ?? '')) {
+        $errors[] = t('err_csrf_invalid');
+    }
     if ($cfg['db_name']   === '')          $errors[] = t('err_dbname_required');
     if ($cfg['db_user']   === '')          $errors[] = t('err_dbuser_required');
     if ($cfg['admin_user']=== '')          $errors[] = t('err_adminuser_required');
@@ -889,6 +1161,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 2) {
     if (strlen($cfg['admin_pass']) < 8)    $errors[] = t('err_adminpass_minlen');
     if ($cfg['admin_pass'] !== $cfg['admin_pass2']) $errors[] = t('err_adminpass_mismatch');
     if (!allChecksPassed($checks))         $errors[] = t('err_requirements_not_met');
+
+    if (empty($errors) && detectExistingInstallation($cfg) && ($_POST['confirm_existing'] ?? '') !== '1') {
+        $errors[] = t('install_existing_data_warning');
+        $showConfirmExisting = true;
+    }
 
     if (empty($errors)) {
         $dbErrors = setupDatabase($cfg);
@@ -1042,6 +1319,7 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:.8rem}
     $v = fn(string $k, string $d='') => h($cfg[$k] ?? $d); ?>
 
   <form method="post" action="<?= h(selfUrl('step=2')) ?>">
+    <input type="hidden" name="csrf" value="<?= h(INSTALL_CSRF_TOKEN) ?>">
     <div class="card">
       <h2><?= h(t('install_db_heading')) ?></h2>
       <div class="form-row">
@@ -1124,6 +1402,17 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:.8rem}
         <p class="form-hint"><?= h(t('install_hint_sitetitle')) ?></p>
       </div>
     </div>
+
+    <?php if (!empty($showConfirmExisting)) { ?>
+    <div class="warn-box">
+      <span class="icon">🗄️</span>
+      <span><?= t('install_existing_data_notice') ?></span>
+    </div>
+    <div class="form-group" style="flex-direction:row;align-items:center;gap:8px">
+      <input type="checkbox" name="confirm_existing" value="1" id="confirm_existing" style="width:auto">
+      <label for="confirm_existing" style="font-size:.85rem;color:var(--text)"><?= h(t('install_existing_data_checkbox')) ?></label>
+    </div>
+    <?php } ?>
 
     <div class="warn-box">
       <span class="icon">⚠️</span>

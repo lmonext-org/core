@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.46.0
+ * Fileversion: 1.48.0
  *
  * PHP version 8.2
  *
@@ -125,6 +125,7 @@ return [
     'install_adminphp_found'         => 'gefunden',
     'install_adminphp_missing'       => 'NICHT gefunden – admin.php ins gleiche Verzeichnis legen',
     'install_check_https'            => 'Verbindung über HTTPS',
+    'install_check_composer'         => 'Composer (optional)',
     'install_https_ok'               => 'aktiv',
     'install_https_missing'          => 'Kein SSL erkannt – siehe Warnhinweis unten',
     'install_db_error_unreachable'    => 'Der Datenbankserver ist unter Host/Port nicht erreichbar. Prüfe, ob MariaDB/MySQL läuft und ob Host und Port korrekt sind (bei den meisten Webhostern ist der Host NICHT "localhost", sondern ein spezieller Servername – siehe Hosting-Zugangsdaten).',
@@ -132,6 +133,20 @@ return [
     'install_db_error_no_db_permission' => 'Die Datenbank existiert nicht und konnte auch nicht automatisch angelegt werden. Bei den meisten Webhostern muss die Datenbank vorher im Hosting-Kontrollpanel manuell angelegt werden – der Datenbank-Benutzer darf dort meist keine neuen Datenbanken erstellen.',
     'install_db_error_unknown_host'   => 'Der angegebene Datenbank-Host wurde nicht gefunden. Bitte den Hostnamen in den Hosting-Zugangsdaten prüfen.',
     'install_db_error_generic'        => 'Datenbankfehler: {msg}',
+    'install_db_error_privileges'     => 'Der Datenbank-Benutzer hat nicht ausreichend Rechte, um Tabellen anzulegen/zu ändern/zu löschen (CREATE/ALTER/DROP). Prüfe die Benutzerrechte für diese Datenbank im Hosting-Kontrollpanel. ({msg})',
+    'install_db_error_version_too_old' => 'Die {db}-Version dieses Servers ({raw}) ist zu alt - mindestens {min} erforderlich (für den JSON-Spaltentyp, den LMOnext für Sport-Profile mit Sätzen/Vierteln nutzt). Bitte beim Hoster ein Update anfragen oder eine neuere Datenbank verwenden.',
+    'install_consistency_table_missing'   => 'Tabelle "{table}" fehlt nach der Installation - vermutlich fehlende Berechtigung. Bitte Datenbank-Benutzerrechte prüfen und erneut installieren.',
+    'install_consistency_columns_missing' => 'Tabelle "{table}": fehlende Spalten nach der Installation: {columns}. Bitte Datenbank-Benutzerrechte (ALTER) prüfen und erneut installieren.',
+    'install_consistency_admin_missing'   => 'Der Administrator-Account konnte nicht angelegt/gefunden werden. Bitte erneut versuchen.',
+
+    'install_composer_no_json'        => 'composer.json fehlt – klassische config.php wird verwendet',
+    'install_composer_vendor_present' => 'vendor/autoload.php bereits vorhanden',
+    'install_composer_no_procopen'    => 'proc_open() ist auf diesem Server deaktiviert – klassische config.php wird verwendet',
+    'install_composer_system_found'   => 'Systemweites composer-Kommando gefunden – wird bevorzugt verwendet',
+    'install_composer_fallback'       => 'Kein systemweites Composer gefunden – klassische config.php wird verwendet',
+
+    'install_already_installed_heading' => 'LMOnext ist bereits installiert',
+    'install_already_installed_text'    => 'Es wurde bereits eine <code>config.php</code> gefunden. Um Missbrauch zu verhindern (ein erneuter Installationslauf würde Datenbank-Zugangsdaten überschreiben und den Administrator-Account neu setzen), wird der Installer hier gestoppt. Falls du bewusst neu installieren möchtest: lösche <code>config.php</code> zuerst manuell per FTP/Dateimanager, dann diese Seite neu laden.',
 
     'install_requirements_heading' => 'Systemvoraussetzungen',
     'install_fix_issues'           => 'Bitte behebe die markierten Probleme vor der Installation.',
@@ -165,10 +180,14 @@ return [
     'install_hint_sitetitle'   => 'Wird im Browser-Tab und in der Sidebar angezeigt.',
 
     'install_final_warning' => 'Nach Klick auf „Jetzt installieren" wird <code>config.php</code> geschrieben und <strong>install.php unwiderruflich gelöscht</strong>.',
+    'install_existing_data_warning'  => 'Unter diesem Host/Datenbanknamen/Präfix wurden bereits Daten einer bestehenden Installation gefunden. Bitte die Bestätigung unten ankreuzen, falls das beabsichtigt ist (z.B. um den Admin-Zugang zurückzusetzen), und erneut auf „Jetzt installieren" klicken.',
+    'install_existing_data_notice'   => 'Unter diesem Host/Datenbanknamen/Tabellen-Präfix existiert bereits mindestens ein Administrator-Konto. Ein Fortfahren aktualisiert dessen Passwort/E-Mail (falls der Benutzername übereinstimmt) bzw. legt einen zusätzlichen Administrator an, lässt vorhandene Ligen/Teams/Spielpläne aber unangetastet.',
+    'install_existing_data_checkbox' => 'Ja, ich möchte trotzdem fortfahren (z.B. um den Admin-Zugang zurückzusetzen).',
     'install_back'          => '← Zurück',
     'install_submit'        => '🚀 Jetzt installieren',
     'install_footer'        => 'LMOnext Installer v{ver} · PHP {phpver}',
 
+    'err_csrf_invalid'          => 'Sicherheitsprüfung fehlgeschlagen (ungültiges oder abgelaufenes Formular) - bitte die Seite neu laden und erneut versuchen.',
     'err_dbname_required'       => 'Datenbankname ist erforderlich.',
     'err_dbuser_required'       => 'Datenbankbenutzer ist erforderlich.',
     'err_adminuser_required'    => 'Admin-Benutzername ist erforderlich.',

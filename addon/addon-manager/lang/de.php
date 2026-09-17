@@ -23,6 +23,7 @@ return [
     'addons_tab_both'         => 'Admin + Frontend',
     'addons_tab_standalone'   => 'Standalone',
     'addons_tab_settings'   => 'Einstellungen',
+    'addons_tab_catalog'    => 'Entdecken',
 
     // ── Tabelle ────────────────────────────────────────────────────────────────
     'addons_col_addon'         => 'Addon',
@@ -66,6 +67,9 @@ return [
     'addons_url_install_desc'  => 'Direktinstallation eines Addons aus einem öffentlichen GitHub-Repository, ohne die ZIP-Datei erst manuell herunterzuladen und wieder hochzuladen. Es wird das neueste veröffentlichte GitHub-Release verwendet - genau wie beim ZIP-Upload durchläuft der Download dieselben Sicherheitsprüfungen.',
     'addons_url_install_label' => 'GitHub-Repository-URL',
     'addons_url_install_btn'   => 'Installieren',
+    'addons_catalog_desc'      => 'Alle offiziellen LMOnext-Addons auf einen Blick. Installation direkt vom jeweiligen GitHub-Repository (neuestes veröffentlichtes Release) - mit denselben Sicherheitsprüfungen wie beim manuellen ZIP-Upload. Bereits installierte Addons sind entsprechend markiert; ihre Verwaltung (Aktivieren/Updates) läuft weiterhin über die anderen Tabs.',
+    'addons_catalog_btn_install' => 'Installieren',
+    'addons_catalog_unofficial_hint' => 'Kein offizielles Addon dabei, das du suchst? Unter „⚙ Einstellungen" lässt sich jedes Addon auch per ZIP-Datei oder direkt über eine beliebige GitHub-Repository-URL installieren - offiziell oder inoffiziell.',
     'addons_demo_mode_blocked' => 'Diese Aktion ist auf dieser Demo-Instanz deaktiviert. Aktivieren/Deaktivieren bereits installierter Addons funktioniert weiterhin normal.',
     'addons_demo_mode_notice'  => 'Auf dieser Demo-Instanz ist die Installation/Aktualisierung von Addon-Code deaktiviert. Aktivieren/Deaktivieren bereits installierter Addons ist weiterhin möglich.',
     'addons_purge_btn'           => '🗑️ Daten löschen',
@@ -79,7 +83,7 @@ return [
 
     // ── Leer-Status ─────────────────────────────────────────────────────────────
     'addons_empty'             => 'Keine Addons gefunden.',
-    'addons_empty_hint'        => 'Lege Addons im Verzeichnis addon/ ab (mit addon.json Manifest).',
+    'addons_empty_hint'        => 'Im Tab „🧭 Entdecken" findest du alle offiziellen Addons zur Direktinstallation, oder installiere ein eigenes über „⚙ Einstellungen" (ZIP-Upload oder GitHub-URL).',
 
     // ── Meta-Info ───────────────────────────────────────────────────────────────
     'addons_min_core'          => 'Minimale Core-Version',

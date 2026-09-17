@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.45.0
+ * Fileversion: 1.47.0
  *
  * PHP version 8.2
  *
@@ -124,6 +124,7 @@ return [
     'install_adminphp_found'         => 'found',
     'install_adminphp_missing'       => 'NOT found – place admin.php in the same directory',
     'install_check_https'            => 'Connection over HTTPS',
+    'install_check_composer'         => 'Composer (optional)',
     'install_https_ok'               => 'active',
     'install_https_missing'          => 'No SSL detected – see warning below',
     'install_db_error_unreachable'    => 'Could not reach the database server at that host/port. Check whether MariaDB/MySQL is running and whether the host and port are correct (with most web hosts, the host is NOT "localhost" but a specific server name – check your hosting credentials).',
@@ -131,6 +132,20 @@ return [
     'install_db_error_no_db_permission' => 'The database does not exist and could not be created automatically. With most web hosts, the database must first be created manually in the hosting control panel – the database user usually cannot create new databases.',
     'install_db_error_unknown_host'   => 'The specified database host could not be found. Please check the hostname in your hosting credentials.',
     'install_db_error_generic'        => 'Database error: {msg}',
+    'install_db_error_privileges'     => 'The database user does not have sufficient rights to create/alter/drop tables (CREATE/ALTER/DROP). Please check the user rights for this database in your hosting control panel. ({msg})',
+    'install_db_error_version_too_old' => 'This server\'s {db} version ({raw}) is too old - at least {min} is required (for the JSON column type LMOnext uses for sport profiles with sets/quarters). Please ask your host for an update or use a newer database.',
+    'install_consistency_table_missing'   => 'Table "{table}" is missing after installation - likely a missing permission. Please check database user rights and reinstall.',
+    'install_consistency_columns_missing' => 'Table "{table}": missing columns after installation: {columns}. Please check database user rights (ALTER) and reinstall.',
+    'install_consistency_admin_missing'   => 'The administrator account could not be created/found. Please try again.',
+
+    'install_composer_no_json'        => 'composer.json is missing – falling back to the classic config.php',
+    'install_composer_vendor_present' => 'vendor/autoload.php already present',
+    'install_composer_no_procopen'    => 'proc_open() is disabled on this server – falling back to the classic config.php',
+    'install_composer_system_found'   => 'System-wide composer command found – will be used preferentially',
+    'install_composer_fallback'       => 'No system-wide Composer found – falling back to the classic config.php',
+
+    'install_already_installed_heading' => 'LMOnext is already installed',
+    'install_already_installed_text'    => 'A <code>config.php</code> was already found. To prevent abuse (running the installer again would overwrite the database credentials and reset the administrator account), the installer stops here. If you really want to reinstall: manually delete <code>config.php</code> via FTP/file manager first, then reload this page.',
 
     'install_requirements_heading' => 'System requirements',
     'install_fix_issues'           => 'Please fix the marked issues before installing.',
@@ -164,10 +179,14 @@ return [
     'install_hint_sitetitle'   => 'Shown in the browser tab and in the sidebar.',
 
     'install_final_warning' => 'Clicking "Install now" will write <code>config.php</code> and <strong>permanently delete install.php</strong>.',
+    'install_existing_data_warning'  => 'Data from an existing installation was found under this host/database name/prefix. Please check the confirmation below if that is intended (e.g. to reset admin access), then click "Install now" again.',
+    'install_existing_data_notice'   => 'At least one administrator account already exists under this host/database name/table prefix. Continuing will update its password/email (if the username matches) or add an extra administrator, but leaves existing leagues/teams/schedules untouched.',
+    'install_existing_data_checkbox' => 'Yes, I want to continue anyway (e.g. to reset admin access).',
     'install_back'          => '← Back',
     'install_submit'        => '🚀 Install now',
     'install_footer'        => 'LMOnext Installer v{ver} · PHP {phpver}',
 
+    'err_csrf_invalid'          => 'Security check failed (invalid or expired form) - please reload the page and try again.',
     'err_dbname_required'       => 'Database name is required.',
     'err_dbuser_required'       => 'Database user is required.',
     'err_adminuser_required'    => 'Admin username is required.',
