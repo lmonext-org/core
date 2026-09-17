@@ -53,8 +53,7 @@ define('INSTALL_VERSION', '1.4.0');
 // Installer transparent auf die klassische config.php zurück; für den Nutzer
 // macht das Ergebnis keinen Unterschied. Anders als in früheren Versionen
 // gibt es dafür KEINEN Rückfall mehr auf eine mitgelieferte bin/composer.phar
-// (auf Wunsch entfernt, siehe CHANGELOG) - der bin/-Ordner existiert im Core
-// nicht mehr.
+// der bin/-Ordner existiert im Core nicht mehr.
 define('ENV_FILE',         __DIR__ . '/.env');
 define('COMPOSER_JSON',    __DIR__ . '/composer.json');
 define('COMPOSER_AUTOLOAD', __DIR__ . '/vendor/autoload.php');
