@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.14.0
+ * Fileversion: 1.15.0
  *
  * PHP version 8.2
  *
@@ -49,7 +49,19 @@ if (isLoggedIn()) {
                 $auditLog = $sLog->fetchAll();
             }
         }
+        // "Liga öffnen"-Einstieg: springt direkt zum aktuellen Spieltag
+        // (zuletzt angesehen, sonst erster mit fehlenden Ergebnissen, sonst
+        // letzter Spieltag), statt immer erst die Spieltage-Übersicht zu
+        // zeigen. Die Übersicht selbst ist jetzt unter "liga_spieltage"
+        // erreichbar (neuer Link im Navigationsblock).
         if ($action === 'liga_detail' && isset($_GET['id'])) {
+            $lid = (int)$_GET['id'];
+            $nr  = resolveLigaEntrySpieltagNr($db, $lid);
+            redirect($nr !== null
+                ? '?action=spieltag&liga_id='.$lid.'&nr='.$nr
+                : '?action=liga_spieltage&id='.$lid);
+        }
+        if ($action === 'liga_spieltage' && isset($_GET['id'])) {
             $lid = (int)$_GET['id'];
             $s = $db->prepare('SELECT * FROM '.tbl('liga').' WHERE id=?');
             $s->execute([$lid]); $ligaDetail['liga'] = $s->fetch();
@@ -97,6 +109,8 @@ if (isLoggedIn()) {
             $sST = $db->prepare('SELECT * FROM '.tbl('liga_spieltage').' WHERE liga_id=? AND nummer=?');
             $sST->execute([$lid, $stNr]); $spieltagData['spieltag'] = $sST->fetch();
             if ($spieltagData['spieltag']) {
+                // Für die "beim nächsten Öffnen der Liga direkt hierher"-Logik merken
+                rememberLigaLastSpieltag($db, $lid, $stNr);
                 $sP = $db->prepare(
                     'SELECT p.*,
                             h.name AS heim_name, h.kurz AS heim_kurz,
@@ -139,6 +153,8 @@ if (isLoggedIn()) {
             $sKlFin->execute([$lid]); $spieltagData['kl_fin'] = ($sKlFin->fetchColumn() ?: '0') === '1';
             $sTot = $db->prepare('SELECT COUNT(*) FROM '.tbl('liga_spieltage').' WHERE liga_id=?');
             $sTot->execute([$lid]); $spieltagData['total_rounds'] = (int)$sTot->fetchColumn();
+            $sRounds = $db->prepare('SELECT option_value FROM '.tbl('liga_options').' WHERE liga_id=? AND option_key="Rounds"');
+            $sRounds->execute([$lid]); $spieltagData['expected_rounds'] = (int)($sRounds->fetchColumn() ?: 0);
             // Alle Teams der Liga für Paarungs-Dropdowns
             $sT = $db->prepare('SELECT g.id,g.name FROM '.tbl('teams_global').' g JOIN '.tbl('liga_teams').' lt ON lt.team_id=g.id WHERE lt.liga_id=? ORDER BY g.name');
             $sT->execute([$lid]); $spieltagData['teams'] = $sT->fetchAll();
@@ -609,6 +625,7 @@ $pageTitle = match($action) {
     'dashboard'    => t('title_dashboard'),
     'create_liga'  => t('title_create_liga', ['step' => $wizStepInt]),
     'liga_detail'  => t('title_liga_detail'),
+    'liga_spieltage'=> t('title_liga_detail'),
     'spieltag'     => t('title_spieltag'),
     'tabelle'      => t('title_tabelle'),
     'import'       => t('title_import'),

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.27.0
+ * Fileversion: 1.28.0
  *
  * PHP version 8.2
  *
@@ -1313,5 +1313,81 @@ function koModusLabel(int $val) : string
         7 => t('ko_mode_7'),
         default => (string)$val,
     };
+}
+
+/**
+ * Ermittelt den Spieltag/die Runde, die beim Öffnen einer Liga
+ * ("?action=liga_detail&id=…") direkt angezeigt werden soll, statt immer
+ * erst über die Spieltage-Übersicht zu gehen:
+ *   1. der zuletzt angesehene Spieltag dieser Liga (liga_options
+ *      "LastSpieltagNr", siehe rememberLigaLastSpieltag()), sofern er noch
+ *      existiert
+ *   2. sonst der erste Spieltag mit fehlenden Ergebnissen (aufsteigend
+ *      nach Nummer)
+ *   3. sonst (alles gespielt, oder noch keine Partien angelegt) der
+ *      letzte Spieltag
+ * Gibt null zurück, wenn die Liga noch gar keine Spieltage hat.
+ */
+function resolveLigaEntrySpieltagNr(PDO $db, int $lid) : ?int
+{
+    $s = $db->prepare(
+        'SELECT s.nummer,
+                COUNT(p.id) AS partie_count,
+                SUM(CASE WHEN p.h_tore IS NOT NULL THEN 1 ELSE 0 END) AS gespielt
+           FROM ' . tbl('liga_spieltage') . ' s
+           LEFT JOIN ' . tbl('liga_partien') . ' p ON p.spieltag_id = s.id
+          WHERE s.liga_id = ?
+          GROUP BY s.id, s.nummer
+          ORDER BY s.nummer'
+    );
+    $s->execute([$lid]);
+    $rows = $s->fetchAll();
+    if (!$rows) {
+        return null;
+    }
+    $nummern = array_map(static fn($r) => (int)$r['nummer'], $rows);
+
+    // 1) zuletzt angesehener Spieltag, sofern noch vorhanden
+    $sLast = $db->prepare(
+        'SELECT option_value FROM ' . tbl('liga_options') . '
+          WHERE liga_id = ? AND option_key = "LastSpieltagNr"'
+    );
+    $sLast->execute([$lid]);
+    $last = $sLast->fetchColumn();
+    if ($last !== false && in_array((int)$last, $nummern, true)) {
+        return (int)$last;
+    }
+
+    // 2) erster Spieltag mit fehlenden Ergebnissen
+    foreach ($rows as $r) {
+        $tc = (int)$r['partie_count'];
+        $g  = (int)$r['gespielt'];
+        if ($tc > 0 && $g < $tc) {
+            return (int)$r['nummer'];
+        }
+    }
+
+    // 3) alles gespielt (oder keine Partien vorhanden) → letzter Spieltag
+    return end($nummern);
+}
+
+/**
+ * Merkt sich den zuletzt in der Ergebniseingabe angesehenen Spieltag einer
+ * Liga (liga_options "LastSpieltagNr"), damit resolveLigaEntrySpieltagNr()
+ * beim nächsten Öffnen der Liga wieder dorthin zurückführt. Wird bei jedem
+ * erfolgreichen Aufruf von "?action=spieltag" aufgerufen.
+ */
+function rememberLigaLastSpieltag(PDO $db, int $lid, int $nr) : void
+{
+    try {
+        $stmt = $db->prepare(
+            'INSERT INTO ' . tbl('liga_options') . ' (liga_id, option_key, option_value)
+             VALUES (?, "LastSpieltagNr", ?) ON DUPLICATE KEY UPDATE option_value = VALUES(option_value)'
+        );
+        $stmt->execute([$lid, (string)$nr]);
+    } catch (Throwable) {
+        // Nicht kritisch - im schlimmsten Fall greift beim nächsten Öffnen
+        // einfach die "erster Spieltag mit fehlenden Ergebnissen"-Regel.
+    }
 }
 

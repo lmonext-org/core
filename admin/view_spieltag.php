@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.8.0
+ * Fileversion: 1.9.0
  *
  * PHP version 8.2
  *
@@ -38,10 +38,36 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                 $prev = $alle[$i - 1] ?? null;
                 $next = $alle[$i + 1] ?? null;
             }
-        } ?>
+        }
+
+        $navLid            = $lid;
+        $navLigaName       = $liga['name'];
+        $navLigaDatum      = $liga['datum'] ?? '';
+        $navLtype          = (int)($spieltagData['liga_type'] ?? 0);
+        $navExpectedRounds = (int)($spieltagData['expected_rounds'] ?? 0);
+        $navActualRounds   = (int)($spieltagData['total_rounds'] ?? 0);
+        require_once ADMIN_INC . '/view_liga_nav.php';
+        ?>
+
+      <!-- Schnellnavigation alle Spieltage/Runden -->
+      <div class="card">
+        <h2><?= ($spieltagData['liga_type'] ?? 0) === 1 ? h(t('sp_heading_all_rounds')) : h(t('sp_heading_all_matchdays')) ?></h2>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+<?php
+            foreach ($alle as $nr) {
+                $isCurrent = $nr === $stNr; ?>
+          <a href="?action=spieltag&liga_id=<?= $lid ?>&nr=<?= $nr ?>"
+             style="display:inline-block;padding:4px 10px;border-radius:var(--radius);font-size:.8rem;text-decoration:none;
+                    background:<?= $isCurrent ? 'var(--accent)' : 'var(--surface2)' ?>;
+                    color:<?= $isCurrent ? '#fff' : 'var(--muted)' ?>;
+                    border:1px solid var(--border)"><?= $nr ?></a>
+<?php
+            } ?>
+        </div>
+      </div>
+
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-        <a href="?action=liga_detail&id=<?= $lid ?>" class="back-link" style="margin-bottom:0">← <?= h($liga['name']) ?></a>
-        <div style="margin-left:auto;display:flex;gap:8px">
+        <div style="display:flex;gap:8px">
           <?php if ($prev !== null) { ?><a href="?action=spieltag&liga_id=<?= $lid ?>&nr=<?= $prev ?>" class="btn btn-muted btn-sm">← <?= $prev ?></a><?php } ?>
           <span style="padding:4px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:.85rem"><?= ($spieltagData['liga_type'] ?? 0) === 1 ? h(t('sp_label_round')) : h(t('sp_label_matchday')) ?> <?= $stNr ?></span>
           <?php if ($next !== null) { ?><a href="?action=spieltag&liga_id=<?= $lid ?>&nr=<?= $next ?>" class="btn btn-muted btn-sm"><?= $next ?> →</a><?php } ?>
@@ -728,22 +754,5 @@ document.querySelectorAll('.btn-satz-add').forEach(function (btn) {
         <?= csrfField() ?></form>
 <?php
         } ?>
-      </div>
-
-      <!-- Schnellnavigation alle Spieltage/Runden -->
-      <div class="card">
-        <h2><?= ($spieltagData['liga_type'] ?? 0) === 1 ? h(t('sp_heading_all_rounds')) : h(t('sp_heading_all_matchdays')) ?></h2>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-<?php
-            foreach ($alle as $nr) {
-                $isCurrent = $nr === $stNr; ?>
-          <a href="?action=spieltag&liga_id=<?= $lid ?>&nr=<?= $nr ?>"
-             style="display:inline-block;padding:4px 10px;border-radius:var(--radius);font-size:.8rem;text-decoration:none;
-                    background:<?= $isCurrent ? 'var(--accent)' : 'var(--surface2)' ?>;
-                    color:<?= $isCurrent ? '#fff' : 'var(--muted)' ?>;
-                    border:1px solid var(--border)"><?= $nr ?></a>
-<?php
-            } ?>
-        </div>
       </div>
 <?php } ?>

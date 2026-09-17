@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: admin.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -85,8 +85,8 @@ if ($addonView !== null) {
 } elseif ($action === 'create_liga') {
     require ADMIN_INC . '/view_wizard.php';
 
-} elseif ($action === 'liga_detail' && $ligaDetail) {
-    require ADMIN_INC . '/view_liga_detail.php';
+} elseif ($action === 'liga_spieltage' && $ligaDetail) {
+    require ADMIN_INC . '/view_liga_spieltage.php';
 
 } elseif ($action === 'spieltag' && $spieltagData) {
     require ADMIN_INC . '/view_spieltag.php';

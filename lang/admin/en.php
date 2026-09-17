@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.44.0
+ * Fileversion: 1.45.0
  *
  * PHP version 8.2
  *
@@ -526,8 +526,9 @@ return [
     'imp_no_files_uploaded'    => 'No files uploaded.',
     'exp_flash_liga_not_found' => 'League not found.',
 
-    // ── League details (view_liga_detail.php) ────────────────────────────────
+    // ── League details (view_liga_spieltage.php, view_liga_nav.php) ──────────
     'ld_back_link'          => '← Back to overview',
+    'ld_btn_overview'       => '📋 Matchday overview',
     'ld_id_created'         => 'ID {id} · Created: {datum}',
     'ld_btn_settings'       => '⚙️ Settings',
     'ld_btn_teams'          => '👥 Teams',
