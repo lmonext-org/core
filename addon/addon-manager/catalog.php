@@ -15,12 +15,9 @@
 
 // ── Offizieller Addon-Katalog (Core-Team) ──────────────────────────────────
 // Kuratierte, mit dem Core ausgelieferte Liste aller offiziellen LMOnext-
-// Addons (Quelle: dieselbe Addon-Datenbank, die auch die Projekt-Website
-// liga-manager-online.org nutzt, hier auf die für die Direktinstallation
-// nötigen Felder reduziert). Wird ausschließlich für den "Entdecken"-Tab der
-// Addon-Verwaltung genutzt (siehe view_addons.php), damit auf einer frischen
-// Installation ohne Addons sofort eine Direktinstallation per Klick möglich
-// ist - auf Wunsch, siehe CHANGELOG.
+// Addons. Wird ausschließlich für den "Entdecken"-Tab der Addon-Verwaltung
+// genutzt (siehe view_addons.php), damit auf einer frischen Installation
+// ohne Addons sofort eine Direktinstallation per Klick möglich ist.
 //
 // Rein statische Daten, kein Datenbankzugriff, kein Netzwerkaufruf beim
 // Anzeigen. Die eigentliche Installation läuft vollständig über den bereits

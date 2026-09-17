@@ -64,8 +64,7 @@ $officialCatalog = getOfficialAddonCatalog();
 // ── Tab-Umschaltung ──────────────────────────────────────────────────────────
 // Auf einer frischen Installation (außer dem stets vorhandenen Core-Addon
 // "addon-manager" selbst ist noch nichts installiert) ohne ausdrücklich
-// gewählten Tab direkt den Katalog zeigen, statt der leeren "Alle"-Liste -
-// auf Wunsch, siehe CHANGELOG.
+// gewählten Tab direkt den Katalog zeigen, statt der leeren "Alle"-Liste.
 $tab = $_GET['tab'] ?? ($totalAddons <= 1 ? 'catalog' : 'all');
 $tab = in_array($tab, ['all', 'admin', 'frontend', 'both', 'standalone', 'settings', 'catalog'], true) ? $tab : 'all';
 
