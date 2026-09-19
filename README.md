@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.liga-manager-online.org/forum_files/md/logo.svg" alt="LMOnext" width="260">
+  <img src="https://www.liga-manager-online.org/forum_files/logo.svg" alt="LMOnext" width="260">
 </p>
 
 <h1 align="center">LMOnext</h1>
