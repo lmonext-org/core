@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: html_start.php
- * Fileversion: 1.4.1
+ * Fileversion: 1.5.0
  *
  * PHP version 8.2
  *
@@ -58,6 +58,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10}
 .sidebar-logo{padding:20px 16px 12px;font-size:1.1rem;font-weight:700;letter-spacing:.5px;border-bottom:1px solid var(--border);color:var(--accent)}
 .sidebar-logo span{color:var(--text);font-weight:400}
+.sidebar-update-notice{display:block;margin:10px 12px 0;padding:8px 10px;border-radius:var(--radius);background:color-mix(in srgb,var(--warning,#b45309) 15%,transparent);border:1px solid var(--warning,#b45309);color:var(--warning,#b45309);font-size:.78rem;font-weight:600;text-decoration:none;text-align:center}
+.sidebar-update-notice:hover{background:color-mix(in srgb,var(--warning,#b45309) 25%,transparent)}
 .nav-list{list-style:none;padding:12px 8px;flex:1}
 .nav-list li a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);color:var(--muted);text-decoration:none;font-size:.9rem;transition:background .15s,color .15s}
 .nav-list li a:hover,.nav-list li a.active{background:var(--surface2);color:var(--text)}

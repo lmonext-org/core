@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: html_layout.php
- * Fileversion: 1.6.0
+ * Fileversion: 1.7.0
  *
  * PHP version 8.2
  *
@@ -17,6 +17,13 @@
 ?>
 <nav class="sidebar">
   <div class="sidebar-logo"><img src="assets/logo.svg" alt="LMOnext" style="height:34px;width:auto;display:block"></div>
+  <?php $coreUpdate = function_exists('checkCoreUpdateAvailable') ? checkCoreUpdateAvailable() : null; ?>
+  <?php if ($coreUpdate !== null) { ?>
+  <a href="<?= h($coreUpdate['download']) ?>" target="_blank" rel="noopener"
+     class="sidebar-update-notice" title="<?= h(t('nav_update_tooltip')) ?>">
+    🔔 <?= h(t('nav_update_available', ['version' => $coreUpdate['version']])) ?>
+  </a>
+  <?php } ?>
   <ul class="nav-list">
 <?php foreach ($nav as $key => $item) { ?>
     <li>
