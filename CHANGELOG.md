@@ -217,6 +217,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/bootstrap.php
 
+- Changelog: 1.29.0 - Neue Funktion checkCoreUpdateAvailable(): prüft täglich (Datei-Cache, TTL 24h) https://www.liga-manager-online.org/check_version.json und vergleicht dessen "stable.current" per version_compare() gegen die laufende Version (getAppVersion()) - liefert bei verfügbarem Update Version + Download-Link für den neuen Hinweis in der Admin-Sidebar (siehe html_layout.php 1.7.0), sonst null. Jeder Fehler (Server nicht erreichbar, ungültiges JSON, fehlende Felder) wird still als "kein Update" behandelt, damit ein Problem mit der externen Datei niemals eine Admin-Seite beeinträchtigt.
 - Changelog: 1.28.0 - Zwei neue Funktionen für den Liga-Direkteinstieg: resolveLigaEntrySpieltagNr() ermittelt beim Öffnen einer Liga den anzuzeigenden Spieltag (1. zuletzt angesehener Spieltag dieser Liga, sonst 2. erster Spieltag mit fehlenden Ergebnissen, sonst 3. letzter Spieltag) und rememberLigaLastSpieltag() merkt sich den zuletzt in der Ergebniseingabe angesehenen Spieltag je Liga (liga_options "LastSpieltagNr"). Keine Schema-Änderung nötig, liga_options ist bereits eine generische Key-Value-Tabelle.
 - Changelog: 1.27.0 - Neue Spalte gt_grund (TEXT NULL) für liga_partien (freier Zusatztext zur Grüne-Tisch-Entscheidung), defensive Migration nach demselben Muster wie gt_entscheidung.
 - Changelog: 1.26.0 - KRITISCHER Bugfix (gemeldet: Liga-Einstellungen komplett kaputt - Teams-Tab zeigte 0 Teams trotz vorhandener Teams, und JEDE Tab-Navigation (Grundwerte/Teams/Anzeige/...) verlor beim Klick die Liga-ID und landete auf der Übersichtsseite): neue Funktion adminMigrateFavSelTeamToStableId() als admin-eigenständige Kopie von TeamRepositoryTrait::migrateFavSelTeamToStableId() - der vorherige Aufruf dieser Klasse aus admin/data_loader.php scheiterte, da \LMOnext\Liga\LigaService (und seine komplette Trait-Kette) AUSSCHLIESSLICH von frontend/data_liga.php geladen wird, nicht von admin/bootstrap.php (bewusste, hier bereits dokumentierte Trennung von Admin-/Frontend-Bootstrap). Der Aufruf einer nicht geladenen Klasse warf einen Error("Class ... not found"), der vom äußeren catch(Throwable){} in admin/data_loader.php lautlos verschluckt wurde - dadurch wurden $ligaSettingsData['teams'] und ['lid'] nie gesetzt, für JEDE Liga, deren favTeam/selTeam-Migrations-Flag noch nicht gesetzt war (praktisch jede bestehende Liga). Mit einer simulierten Datenbank Ende-zu-Ende verifiziert: lid und Teams-Liste werden jetzt korrekt befüllt, Migration funktioniert weiterhin.
@@ -433,6 +434,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/html_layout.php
 
+- Changelog: 1.7.0 - Neuer Update-Hinweis über dem Navigationspunkt "⚽ Ligen" (siehe checkCoreUpdateAvailable() in admin/bootstrap.php 1.29.0): erscheint nur, wenn tatsächlich eine neuere Version als die laufende angekündigt ist, verlinkt als target="_blank" direkt auf die Download-URL aus check_version.json.
 - Changelog: 1.6.0 - Admin-Sidebar zeigt jetzt den vollständigen Copyright-/Spenden-Hinweis statt nur der schlichten Versionsnummer (Beitrag: Torsten Hofmann).
 - Changelog: 1.5.0 - Link zur Benutzeransicht (home.php) in der Topbar ergänzt, zwischen Benutzername und Logout-Button, öffnet in neuem Tab (target=_blank)
 - Changelog: 1.4.0 - Versionsnummer (aus composer.json) im Sidebar-Footer ergänzt
@@ -442,6 +444,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/html_start.php
 
+- Changelog: 1.5.0 - Neue CSS-Klasse .sidebar-update-notice für den neuen Update-Hinweis in der Sidebar (siehe html_layout.php 1.7.0) - Warnfarbe (var(--warning), dieselbe wie beim Addon-Update-Hinweis im Addon-Manager), mittig, klar vom normalen Navigationspunkt abgesetzt.
 - Changelog: 1.4.1 - Favicon-Dateien nach assets/favicon/ verschoben, Links angepasst
 - Changelog: 1.4.0 - Favicon-Verlinkung ergänzt (apple-touch-icon, android/ms-icons, manifest.json)
 - Changelog: 1.3.1 - Projektname auf "LMOnext" umgestellt (vorher "Online-Liga-Verwaltung Board" / "OLVBoard")
@@ -890,6 +893,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.49.0 - Neue Sprachschlüssel nav_update_available/nav_update_tooltip für den neuen Core-Update-Hinweis in der Sidebar (siehe html_layout.php 1.7.0).
 - Changelog: 1.48.0 - Neue Sprachschlüssel für install.php 2.9.0 (CSRF-Fehlermeldung, DB-Mindestversion, Bestandsinstallation-Hinweis+Checkbox).
 
 - Changelog: 1.47.0 - Neue Sprachschlüssel für install.php 2.8.0 (Rechte-Vorabprüfung, abschließende Konsistenzprüfung, sichtbarer Composer-Status-Check, "bereits installiert"-Schutzseite) - siehe dortiger Changelog für den vollständigen Hintergrund.
@@ -999,6 +1003,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.48.0 - New language keys nav_update_available/nav_update_tooltip for the new core update notice in the sidebar (see html_layout.php 1.7.0).
 - Changelog: 1.47.0 - New language keys for install.php 2.9.0 (CSRF error message, DB minimum version, existing-installation notice+checkbox).
 
 - Changelog: 1.46.0 - New language keys for install.php 2.8.0 (preflight privilege check, final consistency check, visible Composer status check, "already installed" guard page) - see that file's changelog for the full background.
