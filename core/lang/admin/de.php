@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.48.0
+ * Fileversion: 1.49.0
  *
  * PHP version 8.2
  *
@@ -22,6 +22,8 @@ return [
     'lang_switch_label' => 'Sprache',
 
     // ── Navigation (Sidebar) ─────────────────────────────────────────────────
+    'nav_update_available' => 'Update auf {version} verfügbar',
+    'nav_update_tooltip'   => 'Eine neuere LMOnext-Version ist verfügbar - zum Download',
     'nav_dashboard'   => 'Ligen',
     'nav_create_liga' => 'Liga erstellen',
     'nav_import'      => 'Import (.l98)',
