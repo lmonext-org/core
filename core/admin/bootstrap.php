@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.28.0
+ * Fileversion: 1.29.0
  *
  * PHP version 8.2
  *
@@ -269,6 +269,78 @@ function getAppVersion() : string
     } catch (Throwable) {
         return $version = '';
     }
+}
+
+/**
+ * Prüft, ob unter https://www.liga-manager-online.org/check_version.json
+ * eine neuere stabile Version angekündigt ist als die aktuell laufende
+ * (composer.json/getAppVersion()) - für den Update-Hinweis in der
+ * Admin-Sidebar (siehe html_layout.php). Ergebnis wird per Datei-Cache
+ * (sys_get_temp_dir(), TTL 24h - Core-Releases sind selten, eine tägliche
+ * Prüfung reicht völlig) zwischengespeichert, damit nicht bei jedem
+ * Admin-Seitenaufruf ein externer Request nötig ist.
+ *
+ * Liefert bei verfügbarem Update ['version' => '1.12.0', 'download' => 'https://...'],
+ * sonst null - sowohl wenn kein Update vorliegt als auch bei JEDEM Fehler
+ * (Server nicht erreichbar, ungültiges JSON, fehlende Felder). Ein
+ * Fehlschlag hier darf niemals eine Admin-Seite zum Absturz bringen oder
+ * spürbar verlangsamen (5s Timeout, defensiv mit try/catch umschlossen).
+ *
+ * @return array{version:string,download:string}|null
+ */
+function checkCoreUpdateAvailable() : ?array
+{
+    $cacheFile = sys_get_temp_dir() . '/lmonext_core_update_v1.json';
+    $ttl       = 86400; // 1 Tag
+
+    $raw = @file_get_contents($cacheFile);
+    if ($raw !== false) {
+        $cached = json_decode($raw, true);
+        if (is_array($cached) && isset($cached['checked_at']) && (time() - (int)$cached['checked_at']) < $ttl) {
+            // 'update' kann hier bewusst null sein (gecachtes "kein Update"/Fehler)
+            return $cached['update'] ?? null;
+        }
+    }
+
+    $update = null;
+    try {
+        $url  = 'https://www.liga-manager-online.org/check_version.json';
+        $body = false;
+        if (ini_get('allow_url_fopen')) {
+            $ctx  = stream_context_create(['http' => [
+                'method'        => 'GET',
+                'header'        => "User-Agent: LMOnext/" . getAppVersion() . "\r\n",
+                'timeout'       => 5,
+                'ignore_errors' => true,
+            ]]);
+            $body = @file_get_contents($url, false, $ctx);
+        } elseif (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_HTTPHEADER     => ['User-Agent: LMOnext/' . getAppVersion()],
+            ]);
+            $body = curl_exec($ch);
+            curl_close($ch);
+        }
+
+        if (is_string($body) && $body !== '') {
+            $data     = json_decode($body, true);
+            $remote   = (string)($data['stable']['current'] ?? '');
+            $download = (string)($data['stable']['download'] ?? '');
+            $local    = getAppVersion();
+            if ($remote !== '' && $download !== '' && $local !== '' && version_compare($remote, $local, '>')) {
+                $update = ['version' => $remote, 'download' => $download];
+            }
+        }
+    } catch (Throwable) {
+        $update = null; // stiller Fehlschlag, siehe Docblock
+    }
+
+    @file_put_contents($cacheFile, json_encode(['checked_at' => time(), 'update' => $update]));
+    return $update;
 }
 
 /**
@@ -1139,7 +1211,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('bericht_url', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `bericht_url` VARCHAR(500) NULL DEFAULT NULL');
         }
-        // "nicht_gewertet" (Vereins-Spielbetrieb-Einstellung mit
+        // "nicht_gewertet" (auf Wunsch: Vereins-Spielbetrieb-Einstellung mit
         // rückwirkender Annullierung ALLER Spiele, z.B. Lizenzentzug) - bewusst
         // eine EIGENE, von "status" (i.E./n.V.) UNABHÄNGIGE Spalte statt einen
         // dritten status-Wert einzuführen: ein Elfmeterschießen-Spiel, das
@@ -1152,7 +1224,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('nicht_gewertet', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `nicht_gewertet` TINYINT(1) NOT NULL DEFAULT 0');
         }
-        // "gt_entscheidung" (Grüne-Tisch-Entscheidung / Sportgericht-
+        // "gt_entscheidung" (auf Wunsch: Grüne-Tisch-Entscheidung / Sportgericht-
         // Wertung nach DFB-Rechts- und Verfahrensordnung) - 0 = keine
         // Entscheidung, 1 = Heimteam gewinnt am grünen Tisch, 2 = Gastteam
         // gewinnt am grünen Tisch. Wirkt in computeStandings() über
@@ -1166,7 +1238,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('gt_entscheidung', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0');
         }
-        // "gt_grund": freier Zusatztext zur Grüne-Tisch-
+        // "gt_grund" (auf Wunsch): freier Zusatztext zur Grüne-Tisch-
         // Entscheidung (z.B. "gravierender Regelverstoß beider Teams",
         // "kein sportärztlicher Nachweis erbracht") - wird im Ergebniseditor
         // nur eingeblendet, wenn eine Entscheidung ausgewählt ist (siehe
