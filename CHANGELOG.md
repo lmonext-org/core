@@ -1,5 +1,12 @@
 # Changelog LMOnext
 
+## README.md
+
+- Changelog: 1.1.2 - Torsten Hofmann im Mitwirkende-Abschnitt (Deutsch und Englisch) auf seinen GitHub-Account verlinkt (@webfalter).
+- Changelog: 1.1.1 - Absatz entfernt.
+- Changelog: 1.1.0 - GitHub-Badges (Release, Commits seit letztem Release, Downloads, Discussions, Issues, Changelog-Link, Donate) sowie ein Link zum Quellcode ergänzt, jetzt dass die Repository-Adresse bekannt ist: https://github.com/lmonext-org/core.
+- Changelog: 1.0.0 - Neu: zweisprachige README.md (Deutsch/Englisch) für das LMOnext-Projekt - Projektbeschreibung, Funktionsübersicht (Liga-Verwaltung, Tabellen/Statistiken, Mehrsprachigkeit, Administration/Sicherheit, Addon-System mit Übersicht der offiziellen Addons), Systemvoraussetzungen, Kurzanleitung zur Installation, Links zu Projektseite (liga-manager-online.org/web) und Forum, Lizenzhinweis (GPL-3.0-only) sowie Mitwirkende.
+
 ## Hinweis: Addons als separate Pakete (ab 1.9.0-beta+addons)
 
 Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe src/Addon/AddonManager.php 1.0.0) wurden die bis dahin fest im Core mitgelieferten Addons **ewige** (ewige-tabelle), **mini** (mini-tabelle), **player**, **relegation**, **tabellenrechner**, **tipp** und **viewer** (spieltag-viewer) aus dem LMOnext-Kernpaket entfernt. Sie werden jetzt als eigenständige, self-contained addon.json-Pakete separat verteilt und vom Administrator bei Bedarf über Administrator → Addons (Upload/GitHub-Update) installiert und aktiviert/deaktiviert - statt fest verdrahtet und immer mitzuinstallieren. Ihre bisherige Entwicklungshistorie bleibt unten unter den jeweiligen addon/{name}/-Abschnitten als Referenz erhalten; neue Änderungen an diesen Addons werden ab sofort im Changelog des jeweiligen Addon-Pakets geführt.
