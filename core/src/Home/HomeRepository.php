@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Home/HomeRepository.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.2.0
  *
  * PHP version 8.2
  *
@@ -28,7 +28,7 @@ final class HomeRepository
                    FROM ' . \tbl('liga') . ' l
                    LEFT JOIN ' . \tbl('liga_options') . ' lo ON lo.liga_id=l.id AND lo.option_key="Type"
                   WHERE l.archiv_folder_id IS NULL
-                  ORDER BY l.datum DESC'
+                  ORDER BY l.name ASC'
             )->fetchAll();
         } catch (\Throwable $e) {
             $this->errors[] = 'getActiveLigenList: ' . $e->getMessage();

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.27.1
+ * Fileversion: 1.28.0
  *
  * PHP version 8.2
  *
@@ -145,9 +145,9 @@ trait RenderViewsTrait
         ]);
     }
     /**
-     * Baut die Fußnoten-Box unterhalb der Ergebnistabelle eines Spieltags
-     *, die jede Grüne-Tisch-Entscheidung dieses Spieltags mit
-     * vollem Klartext erklärt - der Score in der Tabelle selbst zeigt nur
+     * Baut die Fußnoten-Box unterhalb der Ergebnistabelle eines Spieltags,
+     * die jede Grüne-Tisch-Entscheidung dieses Spieltags mit vollem
+     * Klartext erklärt - der Score in der Tabelle selbst zeigt nur
      * das gewertete Ergebnis + "(*)" (siehe formatScore()/FootballProfile::
      * formatResult()), diese Box liefert dazu das reale Ergebnis und die
      * Begründung. Liefert '', wenn kein Spiel dieses Spieltags eine
@@ -294,6 +294,7 @@ trait RenderViewsTrait
             'fieberkurve'   => tf('liga_tab_fieberkurve'),
             'ligastatistik' => tf('liga_tab_ligastatistik'),
             'spielerstatistik' => tf('liga_tab_spielerstatistik'),
+            'karte'         => tf('liga_tab_karte'),
             'info'          => tf('liga_tab_info'),
         ];
         $nrAwareTabs = ['ergebnisse', 'tabelle'];

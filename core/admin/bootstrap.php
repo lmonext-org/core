@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.29.0
+ * Fileversion: 1.30.1
  *
  * PHP version 8.2
  *
@@ -52,6 +52,17 @@ set_exception_handler(static function (Throwable $e) : void {
 // Fehlerbehandlung (log_errors etc., siehe config_loader.php) zusätzlich
 // weiterläuft, statt sie zu ersetzen.
 set_error_handler(static function (int $errno, string $errstr, string $errfile = '', int $errline = 0) : bool {
+    // Bugfix (harmlose, bewusst per @ unterdrückte Warnungen wie
+    // ein fehlender Cache-Datei-Erstzugriff landeten trotzdem im Fehler-
+    // Log): PHP setzt error_reporting() auf 0, wenn der Aufruf mit dem
+    // @-Operator vorangestellt wurde - dieser Handler ignorierte das bisher
+    // komplett und protokollierte JEDE Warnung im Projekt, unabhängig
+    // davon, ob sie an der Aufrufstelle absichtlich unterdrückt wurde.
+    // Betraf nicht nur diese eine Stelle, sondern jeden @-Aufruf im
+    // gesamten Core/allen Addons.
+    if (error_reporting() === 0) {
+        return false;
+    }
     if (function_exists('logPhpIssue')) {
         $level = match ($errno) {
             E_WARNING, E_USER_WARNING       => 'WARNING',
@@ -293,7 +304,7 @@ function checkCoreUpdateAvailable() : ?array
     $cacheFile = sys_get_temp_dir() . '/lmonext_core_update_v1.json';
     $ttl       = 86400; // 1 Tag
 
-    $raw = @file_get_contents($cacheFile);
+    $raw = is_file($cacheFile) ? @file_get_contents($cacheFile) : false;
     if ($raw !== false) {
         $cached = json_decode($raw, true);
         if (is_array($cached) && isset($cached['checked_at']) && (time() - (int)$cached['checked_at']) < $ttl) {
@@ -1238,7 +1249,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('gt_entscheidung', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0');
         }
-        // "gt_grund" (freier Zusatztext zur Grüne-Tisch-
+        // "gt_grund": freier Zusatztext zur Grüne-Tisch-
         // Entscheidung (z.B. "gravierender Regelverstoß beider Teams",
         // "kein sportärztlicher Nachweis erbracht") - wird im Ergebniseditor
         // nur eingeblendet, wenn eine Entscheidung ausgewählt ist (siehe

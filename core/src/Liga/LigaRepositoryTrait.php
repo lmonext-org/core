@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/LigaRepositoryTrait.php
- * Fileversion: 1.2.0
+ * Fileversion: 1.3.0
  *
  * PHP version 8.2
  *
@@ -135,6 +135,7 @@ trait LigaRepositoryTrait
             'fieberkurve'   => self::ligaFlagEnabled($opts, 'kurve1', true),
             'ligastatistik' => self::ligaFlagEnabled($opts, 'Ligastats', true),
             'spielerstatistik' => self::ligaFlagEnabled($opts, 'stats', false),
+            'karte'         => self::ligaFlagEnabled($opts, 'ShowKarte', false),
             'info'          => true,
         ];
     }

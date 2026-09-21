@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.60.0
+ * Fileversion: 1.61.0
  *
  * PHP version 8.2
  *
@@ -56,6 +56,7 @@ return [
     'liga_tab_fieberkurve'        => 'Position chart',
     'liga_tab_ligastatistik'      => 'League stats',
     'liga_tab_spielerstatistik'   => 'Player stats',
+    'liga_tab_karte'               => 'Map',
     'liga_fieberkurve_no_data'    => 'Results are needed before the position chart can be shown.',
     'liga_col_spieltag_short'     => 'MD',
     'liga_stat_home'              => 'Home',

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.49.0
+ * Fileversion: 1.50.0
  *
  * PHP version 8.2
  *
@@ -217,7 +217,7 @@ return [
     'dash_col_id'                  => 'ID',
     'dash_col_name'                => 'Name',
     'dash_col_typ'                 => 'Typ',
-    'dash_col_created'             => 'Erstellt',
+    'dash_col_created'             => 'Zuletzt gespeichert',
     'dash_col_actions'             => 'Aktionen',
     'dash_tooltip_select_all'      => 'Alle auswählen',
     'dash_type_ko'                 => 'KO-Turnier',
@@ -479,7 +479,7 @@ return [
     'arch_sort_label'           => 'Sortieren nach:',
     'arch_sort_id'              => 'ID',
     'arch_sort_name'            => 'Liganame',
-    'arch_sort_datum'           => 'Erstellt',
+    'arch_sort_datum'           => 'Zuletzt gespeichert',
     'arch_empty_line1'          => 'Noch keine Archivordner vorhanden.',
     'arch_empty_line2'          => 'Klicke auf <strong>📁 Neuer Ordner</strong> um einen Ordner anzulegen.',
     'arch_empty_line3'          => 'Ligen können danach über <strong>⚙️ Einstellungen → Archivieren</strong> in einen Ordner verschoben werden.',
@@ -640,6 +640,7 @@ return [
     'ls_cb_fieberkurven'      => 'Fieberkurven',
     'ls_label_spielerstatistik' => 'Spielerstatistik',
     'ls_cb_ligastatistik'     => 'Ligastatistik',
+    'ls_cb_karte'              => 'Karte anzeigen',
     'ls_heading_ticker'       => 'Ticker',
     'ls_label_ticker_show'    => 'Ticker anzeigen?',
     'ls_label_tickerart'      => 'Ticker-Art',

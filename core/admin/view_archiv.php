@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_archiv.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.7.1
  *
  * PHP version 8.2
  *
@@ -24,8 +24,8 @@ $ligenMitOffen = count(array_filter($archivOffen, fn($n) => $n > 0));
 // Sortier-Steuerleiste (statt einer festen Vorgabe): baut den
 // Link für eine Sortier-Spalte - bei erneutem Klick auf die bereits aktive
 // Spalte kehrt sich die Richtung um, sonst wird auf die neue Spalte mit
-// ihrer sinnvollen Standardrichtung gewechselt (Name/Erstellt: absteigend
-// als Default, ID: aufsteigend als Default).
+// ihrer sinnvollen Standardrichtung gewechselt (Name/Zuletzt gespeichert:
+// absteigend als Default, ID: aufsteigend als Default).
 function archivSortLink(string $key, string $label, string $activeSort, string $activeDir): string
 {
     $isActive = $key === $activeSort;
@@ -114,7 +114,7 @@ function archivRenderFolder(array $f, array $ligenByFolder, array $folderMap, in
                     font-size:.73rem;text-decoration:none;white-space:nowrap"
              title="<?= h(t('dash_tooltip_missing_results', ['n' => $offen])) ?>">⚠️ <?= h(t('dash_open_badge', ['n' => $offen])) ?></a>
           <?php } ?>
-          <span style="font-size:.75rem;color:var(--muted)"><?= h(substr($l['datum'],0,10)) ?></span>
+          <span style="font-size:.75rem;color:var(--muted)"><?= h($l['datum']) ?></span>
           <form method="post" action="?action=move_liga_archiv" style="display:inline">
             <input type="hidden" name="liga_id" value="<?= (int)$l['id'] ?>">
             <input type="hidden" name="redirect" value="?action=archiv">

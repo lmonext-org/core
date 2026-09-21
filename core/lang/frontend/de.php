@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.60.0
+ * Fileversion: 1.61.0
  *
  * PHP version 8.2
  *
@@ -58,6 +58,7 @@ return [
     'liga_tab_fieberkurve'        => 'Fieberkurven',
     'liga_tab_ligastatistik'      => 'Ligastatistik',
     'liga_tab_spielerstatistik'   => 'Spielerstatistik',
+    'liga_tab_karte'               => 'Karte',
     'liga_fieberkurve_no_data'    => 'Für die Fieberkurve werden erst Ergebnisse benötigt.',
     'liga_col_spieltag_short'     => 'ST',
     'liga_stat_home'              => 'Heim',

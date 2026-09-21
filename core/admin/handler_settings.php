@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.13.0
+ * Fileversion: 1.14.0
  *
  * PHP version 8.2
  *
@@ -84,10 +84,19 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     $save('stats', isset($_POST['stats']) ? '1' : '0');
                 }
                 $save('Ligastats',  isset($_POST['Ligastats'])  ? '1' : '0');
+                // "ShowKarte" (Übersichtskarte der Team-Standorte) nur
+                // speichern, wenn das team-notizen-Addon installiert ist -
+                // gleiche Absicherung wie bei "stats" oben: ohne aktives
+                // Addon ist die Checkbox in view_liga_settings.php
+                // ausgeblendet und würde hier sonst bei JEDEM Speichern
+                // dieses Tabs unbemerkt auf '0' zurückgesetzt.
+                if (function_exists('addonManager') && addonManager()->isEnabled('team-notizen')) {
+                    $save('ShowKarte', isset($_POST['ShowKarte']) ? '1' : '0');
+                }
                 $save('kurve1',     isset($_POST['kurve1'])     ? '1' : '0');
                 $save('kurve2',     isset($_POST['kurve2'])     ? '1' : '0');
                 // Ticker jetzt als eigenständiges Addon "ticker" ausgegliedert
-                // - dieselbe Absicherung wie oben bei "stats":
+                // dieselbe Absicherung wie oben bei "stats":
                 // ohne aktives Addon ist das Formularfeld in
                 // view_liga_settings.php ausgeblendet und würde sonst bei
                 // JEDEM Speichern dieses Tabs unbemerkt zurückgesetzt.
@@ -177,8 +186,8 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'strafen':
-                // Grüne-Tisch-Standardwertung, pro Liga einstellbar
-                // zu den 21 DFB-Landesverbänden:
+                // Grüne-Tisch-Standardwertung, pro Liga einstellbar,
+                // (nach Recherche zu den 21 DFB-Landesverbänden:
                 // die Wertung eines Nichtantritts/einer
                 // Grüne-Tisch-Entscheidung ist NICHT bundeseinheitlich
                 // geregelt - z.B. 2:0 bei den meisten west-/norddeutschen

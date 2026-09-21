@@ -217,6 +217,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/bootstrap.php
 
+- Changelog: 1.30.1 - Bugfix: checkCoreUpdateAvailable() prüft jetzt is_file() VOR dem Lesen der Cache-Datei, statt sich auf den @-Operator zu verlassen - die error_reporting()===0-Prüfung im Fehler-Handler (siehe 1.30.0) greift auf manchen Servern nicht zuverlässig (z.B. bei aktivem Xdebug-"Scream"-Modus, der die Wirkung von @ bewusst aufhebt), wodurch die erwartete "Cache-Datei existiert noch nicht"-Situation beim allerersten Aufruf trotzdem als Warnung im Log landete.
+- Changelog: 1.30.0 - Bugfix: der projektweite Fehler-Handler (set_error_handler()) protokollierte bislang JEDE Warnung/Notice/Deprecated-Meldung, unabhängig davon, ob sie an der Aufrufstelle bewusst mit dem @-Operator unterdrückt wurde - dadurch landeten harmlose, absichtlich stumm geschaltete Fälle (z.B. ein fehlender Cache-Datei-Erstzugriff, @unlink() einer bereits entfernten temporären Datei) trotzdem im Fehler/Warnungen-Log und erzeugten unnötiges Rauschen. Prüft jetzt zuerst error_reporting() === 0 (das PHP genau für @-unterdrückte Aufrufe setzt) und überspringt die Protokollierung in diesem Fall - betrifft rückwirkend jeden bereits vorhandenen @-Aufruf im gesamten Core und allen Addons, nicht nur einen einzelnen Aufrufer.
 - Changelog: 1.29.0 - Neue Funktion checkCoreUpdateAvailable(): prüft täglich (Datei-Cache, TTL 24h) https://www.liga-manager-online.org/check_version.json und vergleicht dessen "stable.current" per version_compare() gegen die laufende Version (getAppVersion()) - liefert bei verfügbarem Update Version + Download-Link für den neuen Hinweis in der Admin-Sidebar (siehe html_layout.php 1.7.0), sonst null. Jeder Fehler (Server nicht erreichbar, ungültiges JSON, fehlende Felder) wird still als "kein Update" behandelt, damit ein Problem mit der externen Datei niemals eine Admin-Seite beeinträchtigt.
 - Changelog: 1.28.0 - Zwei neue Funktionen für den Liga-Direkteinstieg: resolveLigaEntrySpieltagNr() ermittelt beim Öffnen einer Liga den anzuzeigenden Spieltag (1. zuletzt angesehener Spieltag dieser Liga, sonst 2. erster Spieltag mit fehlenden Ergebnissen, sonst 3. letzter Spieltag) und rememberLigaLastSpieltag() merkt sich den zuletzt in der Ergebniseingabe angesehenen Spieltag je Liga (liga_options "LastSpieltagNr"). Keine Schema-Änderung nötig, liga_options ist bereits eine generische Key-Value-Tabelle.
 - Changelog: 1.27.0 - Neue Spalte gt_grund (TEXT NULL) für liga_partien (freier Zusatztext zur Grüne-Tisch-Entscheidung), defensive Migration nach demselben Muster wie gt_entscheidung.
@@ -378,6 +380,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_settings.php
 
+- Changelog: 1.14.0 - Speichert die neue Einstellung ShowKarte (siehe admin/view_liga_settings.php 1.19.0), mit derselben Absicherung wie bei "stats"/"ticker": nur wenn das team-notizen-Addon installiert ist, sonst würde der Wert bei jedem Speichern dieses Tabs unbemerkt auf '0' zurückgesetzt.
 - Changelog: 1.13.0 - Speichert jetzt zusätzlich GtToreBeideVerlieren, siehe admin/view_liga_settings.php 1.17.0.
 - Changelog: 1.12.0 - Speichert jetzt zusätzlich tickernotizen/tickerbreite/tickergeschwindigkeit sowie den erweiterten tickerart-Wert "ergebnisse_favorit" (Favoriten-Ergebnisticker, Spielnotizen, konfigurierbare Breite/Geschwindigkeit - siehe addon/ticker/TickerRenderer.php 1.1.0 im ticker-Addon für den fachlichen Hintergrund), an beiden Speicherstellen, weiterhin mit isEnabled('ticker')-Absicherung.
 - Changelog: 1.11.0 - Ticker jetzt als eigenständiges Addon "ticker" ausgegliedert (Nutzer erinnerte daran, dass der Newsticker im alten LMO4 ebenfalls im addon/-Ordner lag, nicht im Core): beide Speicherstellen (Haupt-Tab und der eigenständige "ticker"-Speicher-Endpunkt) jetzt mit isEnabled('ticker') abgesichert, analog zum bereits bestehenden player-Addon-Muster - ohne aktives Addon wird nichts gespeichert, das Formularfeld ist ja auch ausgeblendet.
@@ -464,6 +467,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_archiv.php
 
+- Changelog: 1.7.1 - Zeigt jetzt das volle Datum+Uhrzeit der "Zuletzt gespeichert"-Spalte (vorher per substr() auf das reine Datum ohne Uhrzeit gekürzt) - die zugrundeliegende Spalte liga.datum enthält bereits seit handler_liga.php 1.6.2 eine echte Uhrzeit (aktualisiert bei jeder Ergebnis-Speicherung), sie wurde beim Anzeigen bisher nur abgeschnitten. Sortier-Link-Beschriftung entsprechend von "Erstellt" auf "Zuletzt gespeichert" korrigiert (siehe lang/admin/de.php 1.49.1 / en.php 1.48.1) - liga.datum ist keine Erstellzeit, sondern wird bei jeder Ergebnis-Speicherung überschrieben.
 - Changelog: 1.7.0 - Neue Sortier-Steuerleiste über der Archiv-Baumansicht (siehe admin/data_loader.php 1.14.0): drei klickbare Links (ID/Liganame/Erstellt), die bei erneutem Klick auf die bereits aktive Spalte die Richtung umkehren, sonst auf die neue Spalte mit sinnvollem Standard wechseln (Name/Erstellt: absteigend, ID: aufsteigend) - da die Ligen als gruppierte Liste pro Ordner gerendert werden (keine <table>), keine klassischen klickbaren Spaltenüberschriften, sondern eine globale, für alle Ordner gleichermaßen wirkende Steuerleiste.
 - Changelog: 1.6.1 - Sicherheitsfix: csrfField() in jedes POST-Formular eingefügt (CSRF-Schutz, siehe admin/bootstrap.php).
 - Changelog: 1.6.0 - Bugfix: der "Reaktivieren"-Link im Archiv war funktionslos - er war die bereits vorausgewählte erste Option in einem <select onchange="this.form.submit()">-Dropdown, wodurch Browser beim Anklicken kein change-Ereignis auslösten (der Wert ändert sich ja nicht). Reaktivieren ist jetzt ein eigenständiger Button, das Dropdown daneben dient nur noch zum gezielten Verschieben in einen anderen Ordner.
@@ -522,6 +526,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_liga_settings.php
 
+- Changelog: 1.19.0 - Neue Checkbox "Karte anzeigen" (Schlüssel ShowKarte) im Tab Anzeigen/Darstellung, direkt unter "Ligastatistik" - nur sichtbar, wenn das team-notizen-Addon aktiv ist (gleiches Muster wie die "Spielerstatistik"-Checkbox beim player-Addon). Standardmäßig deaktiviert (kein gesetzter Options-Wert = unchecked, wie bei allen anderen Checkboxen hier). Steuert künftig die Sichtbarkeit einer neuen Kartenansicht (Team-Standorte aus den Stadion-Geo-Daten des team-notizen-Addons) - die Ansicht selbst folgt in einem späteren Schritt, hier zunächst nur der Schalter dafür.
 - Changelog: 1.18.0 - Stilkorrektur (siehe addon/addon-manager/view_addons.php 2.5.0 für den vollständigen Hintergrund): die einzige Stelle in dieser Datei mit PHP-Kurzsyntax (if/else: ... endif;) auf geschweifte-Klammer-Syntax umgestellt. Keine Verhaltensänderung.
 
 - Changelog: 1.17.0 - Neues Eingabefeld "Grüne-Tisch-Wertung: Beide verlieren" im Strafen-Tab (GtToreBeideVerlieren, Default 2), neben den bestehenden Feldern für Gespielt/Nichtantritt - siehe src/Liga/StandingsTrait.php 1.12.0 für den fachlichen Hintergrund.
@@ -683,6 +688,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/bootstrap.php
 
+- Changelog: 1.15.0 - KRITISCHER Bugfix (gemeldet: neuer "Karte"-Reiter des team-notizen-Addons zeigte Marker und Bedienelemente korrekt, aber keine eigentlichen Kartenkacheln): die strikte Content-Security-Policy (default-src 'self') blockierte die Verbindung zu tiles.openfreemap.org stillschweigend im Browser - weder img-src noch das implizit auf default-src zurückfallende connect-src erlaubten diese externe Domain. connect-src und img-src erlauben jetzt zusätzlich https://tiles.openfreemap.org (Kartenkacheln/Sprites), worker-src erlaubt zusätzlich blob: (von MapLibre GL JS selbst für strikte CSP-Umgebungen dokumentiert vorausgesetzt, für den internen Tile-Verarbeitungs-Worker).
+- Changelog: 1.14.0 - Bugfix: der projektweite Fehler-Handler (set_error_handler()) protokollierte bislang JEDE Warnung/Notice/Deprecated-Meldung, unabhängig davon, ob sie an der Aufrufstelle bewusst mit dem @-Operator unterdrückt wurde - dadurch landeten harmlose, absichtlich stumm geschaltete Fälle (z.B. ein fehlender Cache-Datei-Erstzugriff, @unlink() einer bereits entfernten temporären Datei) trotzdem im Fehler/Warnungen-Log und erzeugten unnötiges Rauschen. Prüft jetzt zuerst error_reporting() === 0 (das PHP genau für @-unterdrückte Aufrufe setzt) und überspringt die Protokollierung in diesem Fall - betrifft rückwirkend jeden bereits vorhandenen @-Aufruf im gesamten Core und allen Addons, nicht nur einen einzelnen Aufrufer.
 - Changelog: 1.13.0 - Addon-Manager-Framework integriert (Beitrag Torsten Hofmann): AddonManager wird gebootet (bootFrontend() lädt frontend_handlers aller aktivierten Addons dynamisch, ersetzt die vorher festen require_once-Zeilen für addon/player/frontend_spielerstat.php und addon/tipp/tipp_lib.php).
 - Changelog: 1.12.0 - Wartungsmodus fürs Frontend übernommen (Beitrag: Torsten Hofmann): ist der neue Schalter "Wartungsmodus" (Administrator → Wartung, siehe view_wartung.php 1.3.0/handler_backup.php 1.5.0) aktiv, zeigen alle Besucherseiten (home.php, liga.php sowie sämtliche Embed-Addons, da diese ebenfalls diese Datei laden) statt ihres normalen Inhalts eine gestaltete Wartungsseite (HTTP 503 + Retry-After-Header). Der Adminbereich selbst ist davon unberührt, da admin/bootstrap.php separat lädt. Prüfung zentral direkt nach der Sprachauflösung, vor Template-Engine/Datenfunktionen - kein zusätzlicher DB-Zugriff nötig (nutzt die bereits vorhandene getAdminSetting()-Zwischenspeicherung).
 - Changelog: 1.11.0 - Zwei Sicherheits-Verbesserungen aus Torsten Hofmanns parallelem Update übernommen (siehe admin/bootstrap.php 1.23.0 für den dritten Punkt und SECURITY_COMPARISON.md für den vollständigen Vergleich): (1) gleiche verschärfte CSP + Referrer-Policy-Header wie im Adminbereich, frame-ancestors bleibt bewusst bei 'self' (unverändert - Haupt-Besucherseiten dürfen weiterhin same-origin eingebettet werden); (2) neuer Idle-Timeout (60 Minuten) speziell für Tippspiel-Logins (tipp_user_id) - bisher lief ein einmal angemeldeter Tipper unbegrenzt weiter, jetzt wird die Tipp-Anmeldung nach einer Stunde Inaktivität automatisch aufgehoben (betrifft nur den Tippspiel-Login, nicht die übrige Besuchersitzung).
@@ -893,6 +900,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.50.0 - Neuer Sprachschlüssel ls_cb_karte ("Karte anzeigen") für die neue ShowKarte-Einstellung.
+- Changelog: 1.49.1 - dash_col_created/arch_sort_datum von "Erstellt" auf "Zuletzt gespeichert" korrigiert - beide zeigen/sortieren liga.datum, das seit handler_liga.php 1.6.2 bei jeder Ergebnis-Speicherung aktualisiert wird, keine reine Erstellzeit mehr ist.
 - Changelog: 1.49.0 - Neue Sprachschlüssel nav_update_available/nav_update_tooltip für den neuen Core-Update-Hinweis in der Sidebar (siehe html_layout.php 1.7.0).
 - Changelog: 1.48.0 - Neue Sprachschlüssel für install.php 2.9.0 (CSRF-Fehlermeldung, DB-Mindestversion, Bestandsinstallation-Hinweis+Checkbox).
 
@@ -1003,6 +1012,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.49.0 - New language key ls_cb_karte ("Show map") for the new ShowKarte setting.
+- Changelog: 1.48.1 - dash_col_created/arch_sort_datum corrected from "Created" to "Last saved" - both display/sort liga.datum, which has been updated on every result save since handler_liga.php 1.6.2 and is no longer a pure creation timestamp.
 - Changelog: 1.48.0 - New language keys nav_update_available/nav_update_tooltip for the new core update notice in the sidebar (see html_layout.php 1.7.0).
 - Changelog: 1.47.0 - New language keys for install.php 2.9.0 (CSRF error message, DB minimum version, existing-installation notice+checkbox).
 
@@ -1112,6 +1123,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.61.0 - Neuer Sprachschlüssel liga_tab_karte ("Karte") für den neuen Reiter des team-notizen-Addons.
 - Changelog: 1.58.0 - Neuer Schlüssel liga_gt_footnote_grund für den angehängten Zusatztext in der Grüne-Tisch-Fußnote.
 - Changelog: 1.57.0 - Neue Schlüssel liga_gt_footnote_line_beide und liga_gt_footnote_line_beide_no_real für die Fußnoten-Erklärung der neuen "Beide Mannschaften verlieren"-Grüne-Tisch-Entscheidung.
 - Changelog: 1.56.0 - KRITISCHER Bugfix (gemeldet: PDF-Export des pdf-export-Addons zeigte im Footer buchstäblich "liga_pdf_footer" statt eines übersetzten Textes): dieser Schlüssel wurde vom Addon verwendet (tf('liga_pdf_footer', ['year'=>..., 'version'=>...])), war aber weder im Core noch in irgendeiner Addon-eigenen Sprachdatei definiert - das Addon hat bewusst kein eigenes lang_dir (addon.json), verlässt sich also auf Core-Schlüssel. Systematische Prüfung aller von der kompletten Addon-Sammlung verwendeten liga_-Schlüssel gegen alle vorhandenen Sprachdateien ergab einen zweiten, verwandten fehlenden Schlüssel derselben Datei: liga_col_nr (Spaltenüberschrift "Nr." - alle Geschwister-Schlüssel liga_col_datum/heim/gast/ergebnis existierten bereits, nur dieser eine fehlte). Beide ergänzt, liga_pdf_footer im selben Stil wie der bestehende HTML-Copyright-Hinweis ("LMOnext {version} {year}").
@@ -1196,6 +1208,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.61.0 - New language key liga_tab_karte ("Map") for the new tab of the team-notizen add-on.
 - Changelog: 1.58.0 - New key liga_gt_footnote_grund for the appended additional text in the GT footnote.
 - Changelog: 1.57.0 - New keys liga_gt_footnote_line_beide and liga_gt_footnote_line_beide_no_real for the footnote explanation of the new "both teams lose" GT decision.
 - Changelog: 1.56.0 - Gleicher Fix wie lang/frontend/de.php 1.56.0 - liga_pdf_footer und liga_col_nr ergänzt.
@@ -1368,6 +1381,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Home/HomeRepository.php
 
+- Changelog: 1.2.0 - getActiveLigenList() (Startseite, "Aktive Ligen") sortiert jetzt alphabetisch nach Liganame (ORDER BY l.name ASC) statt nach Datum absteigend.
 - Changelog: 1.1.0 - getArchivedLigenByFolder() sortiert archivierte Ligen innerhalb jedes Ordners jetzt absteigend nach Liganame (ORDER BY l.name DESC) statt aufsteigend - bei gleichem Liga-Basisnamen mit Saison-Suffix ergibt das korrekt neueste Saison zuerst (z.B. "2025/26" vor "1963/64"), analog zur selben Korrektur im Admin-Archiv (admin/data_loader.php). Feste Sortierung statt einer Steuerleiste, da diese Ansicht für Besucher gedacht ist.
 - Changelog: 1.0.0 - Initiale Version: Teil der Umstrukturierung von frontend/data_home.php (siehe frontend/data_home.php 3.0.0 für den vollen Kontext der Umstellung). Datenzugriff für die Startseite (aktive Ligen, Archiv-Ordnerbaum, archivierte Ligen je Ordner).
 
@@ -1390,6 +1404,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/LigaRepositoryTrait.php
 
+- Changelog: 1.3.0 - Neues Flag "karte" in getLigaViewFlags() (Quelle: liga_options "ShowKarte", Default false) - steuert den neuen "Karte"-Reiter auf der Liga-Detailseite (team-notizen-Addon, Übersichtskarte der Team-Standorte), analog zum bestehenden "spielerstatistik"-Flag des Player-Addons.
 - Changelog: 1.2.0 - getLigaOptions() ruft jetzt vor dem Cachen der Rückgabe migrateFavSelTeamToStableId() auf (siehe TeamRepositoryTrait.php 1.1.0 für den vollständigen Hintergrund) - stellt sicher, dass jede Liga beim ersten Frontend-Zugriff automatisch von der alten, positionsbasierten favTeam/selTeam-Logik auf die stabile Team-ID migriert wird.
 - Changelog: 1.1.0 - Neue Funktion getLigaSportType() (Beitrag: Torsten Hofmann).
 - Changelog: 1.0.0 - Initiale Version: Teil der Umstrukturierung von frontend/data_liga.php in fokussierte Traits (siehe frontend/data_liga.php 3.0.0 für den vollen Kontext der Umstellung). Grundfunktionen zu einzelnen Ligen (getLigaById, getLigaType, getLigaTeamCount, getLigaOptions, ligaFlagEnabled, getLigaViewFlags).
@@ -1401,6 +1416,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.28.0 - Neuer Tab-Label-Eintrag "karte" (tf('liga_tab_karte')) in renderTabsBar() für den neuen Karten-Reiter des team-notizen-Addons, analog zum bestehenden "spielerstatistik"-Eintrag.
 - Changelog: 1.26.0 - renderGtFootnotes() hängt jetzt einen vorhandenen gt_grund-Zusatztext an den bestehenden Fußnotentext an - als eigener, optisch abgesetzter Satz ("Grund: ..."), gemeinsam für beide Entscheidungs-Zweige (Sieger-Fall und "beide verlieren"-Fall) umgesetzt, um den Code nicht zu duplizieren.
 - Changelog: 1.25.0 - renderGtFootnotes() erklärt jetzt auch gt_entscheidung=3 (siehe StandingsTrait.php 1.12.0) mit einem eigenen Textbaustein (liga_gt_footnote_line_beide/liga_gt_footnote_line_beide_no_real) statt des "sieger"-Textbausteins, der hier nicht passt - zeigt die tatsächlich angerechnete Niederlage-Tordifferenz je Team (GtToreBeideVerlieren, per Liga einstellbar), nicht das pauschale "0:0" aus gtCreditedScore().
 - Changelog: 1.24.0 - renderTickerBlock() und renderTickerErgebnisText() komplett entfernt (als eigenständiges Addon "ticker" ausgegliedert, siehe frontend/data_liga.php 3.5.0 für den neuen Hook-Wrapper) - leben jetzt unverändert in addon/ticker/TickerRenderer.php.
@@ -1900,6 +1916,10 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 - Changelog: (neu) - Hauptlogo erneut ausgetauscht (echtes Vektor-SVG, 126 KB, 1000×226px Ansicht). Hinweis: Diese Version hat weiterhin KEINEN echt transparenten Hintergrund - nur die vier abgerundeten Ecken sind transparent, die Fläche dahinter (dunkles Blau) bleibt voll deckend, gleiches Verhalten wie die vorherige Version. Auf hellem Grund (z.B. Login-Seite mit hellem Template) ist der dunkle Rahmen entsprechend sichtbar.
 - Changelog: (neu) -  - Hauptlogo durch neues Design ersetzt. Originaldatei (1,93 MB, eingebettetes Rasterbild) auf eine optimierte, schlanke Version (172 KB, Anzeigegröße 723×160px) reduziert und im echten Browser (Playwright) bestätigt korrekt dargestellt. Alte Version gesichert.
+
+## assets/vendor/maplibre-gl.js + maplibre-gl.css
+
+- Changelog: (neu) - MapLibre GL JS 4.7.1 (BSD-3-Clause) lokal vendort (wie bereits chart.umd.min.js), fürs neue "Karte"-Feature des team-notizen-Addons - klassisches UMD-Bundle (definiert globales window.maplibregl, kein Build-Schritt/keine ES-Module nötig), bewusst keine CDN-Einbindung aus Datenschutz- und Ad-Blocker-Gründen (gleiche Begründung wie beim Chart.js-Vendoring, siehe dessen CHANGELOG-Eintrag).
 
 ## assets/pdf/logo_rgb.zz + logo_alpha.zz
 

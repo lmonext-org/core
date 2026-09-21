@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.18.0
+ * Fileversion: 1.19.0
  *
  * PHP version 8.2
  *
@@ -477,6 +477,12 @@ if ($tab === 'grundwerte') { ?>
               <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_cb_ligastatistik')) ?></td>
               <td style="padding:5px 10px"><input type="checkbox" name="Ligastats" value="1"<?= $oc('Ligastats')?' checked':'' ?>></td>
             </tr>
+<?php if (function_exists('addonManager') && addonManager()->isEnabled('team-notizen')) { ?>
+            <tr>
+              <td style="text-align:right;padding:7px 12px;font-size:.85rem;color:var(--muted)"><?= h(t('ls_cb_karte')) ?></td>
+              <td style="padding:5px 10px"><input type="checkbox" name="ShowKarte" value="1"<?= $oc('ShowKarte')?' checked':'' ?>></td>
+            </tr>
+<?php } ?>
 <?php } else { ?>
 <?php if (function_exists('addonManager') && addonManager()->isEnabled('player')) { ?>
             <tr>

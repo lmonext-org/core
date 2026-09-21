@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.13.0
+ * Fileversion: 1.15.0
  *
  * PHP version 8.2
  *
@@ -43,6 +43,12 @@ set_exception_handler(static function (Throwable $e) : void {
 // set_error_handler() - gibt bewusst false zurück, damit PHPs reguläre
 // Fehlerbehandlung zusätzlich weiterläuft.
 set_error_handler(static function (int $errno, string $errstr, string $errfile = '', int $errline = 0) : bool {
+    // Bugfix (siehe admin/bootstrap.php für den ausführlichen Kommentar):
+    // respektiert jetzt den @-Operator, statt jede damit bewusst
+    // unterdrückte Warnung trotzdem zu protokollieren.
+    if (error_reporting() === 0) {
+        return false;
+    }
     if (function_exists('logPhpIssue')) {
         $level = match ($errno) {
             E_WARNING, E_USER_WARNING       => 'WARNING',
@@ -86,7 +92,9 @@ if (!headers_sent()) {
     header("Content-Security-Policy: default-src 'self'; "
          . "style-src 'self' 'unsafe-inline'; "
          . "script-src 'self' 'unsafe-inline'; "
-         . "img-src 'self' data: blob:; "
+         . "img-src 'self' data: blob: https://tiles.openfreemap.org; "
+         . "connect-src 'self' https://tiles.openfreemap.org; "
+         . "worker-src 'self' blob:; "
          . "font-src 'self' data:; "
          . "object-src 'none'; "
          . "base-uri 'self'; "
