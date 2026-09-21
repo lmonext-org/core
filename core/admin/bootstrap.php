@@ -1211,7 +1211,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('bericht_url', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `bericht_url` VARCHAR(500) NULL DEFAULT NULL');
         }
-        // "nicht_gewertet" (auf Wunsch: Vereins-Spielbetrieb-Einstellung mit
+        // "nicht_gewertet" (Vereins-Spielbetrieb-Einstellung mit
         // rückwirkender Annullierung ALLER Spiele, z.B. Lizenzentzug) - bewusst
         // eine EIGENE, von "status" (i.E./n.V.) UNABHÄNGIGE Spalte statt einen
         // dritten status-Wert einzuführen: ein Elfmeterschießen-Spiel, das
@@ -1224,7 +1224,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('nicht_gewertet', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `nicht_gewertet` TINYINT(1) NOT NULL DEFAULT 0');
         }
-        // "gt_entscheidung" (auf Wunsch: Grüne-Tisch-Entscheidung / Sportgericht-
+        // "gt_entscheidung" (Grüne-Tisch-Entscheidung / Sportgericht-
         // Wertung nach DFB-Rechts- und Verfahrensordnung) - 0 = keine
         // Entscheidung, 1 = Heimteam gewinnt am grünen Tisch, 2 = Gastteam
         // gewinnt am grünen Tisch. Wirkt in computeStandings() über
@@ -1238,7 +1238,7 @@ function ensureSpielstatusColumns() : void
         if (!in_array('gt_entscheidung', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `gt_entscheidung` TINYINT NOT NULL DEFAULT 0');
         }
-        // "gt_grund" (auf Wunsch): freier Zusatztext zur Grüne-Tisch-
+        // "gt_grund" (freier Zusatztext zur Grüne-Tisch-
         // Entscheidung (z.B. "gravierender Regelverstoß beider Teams",
         // "kein sportärztlicher Nachweis erbracht") - wird im Ergebniseditor
         // nur eingeblendet, wenn eine Entscheidung ausgewählt ist (siehe
