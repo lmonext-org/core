@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: colored | Filename: layout.tpl.php | Fileversion: 1.8.2
+  Template: colored | Filename: layout.tpl.php | Fileversion: 1.8.3
   HTML-Grundgerüst der ganzen Seite. Enthält AUSSCHLIESSLICH Markup und
   Platzhalter der Form <comment>Name</comment> (als HTML-Kommentar), kein PHP. Alle Werte
   werden von den Root-Controllern (home.php, liga.php) über
@@ -348,6 +348,16 @@ table.standings-table td{padding:8px 10px;border-top:1px solid var(--border)}
 .team-sidebar-item.team-sidebar-active{background:var(--grad);color:#fff}
 .schedule-content{flex:1;padding:20px 24px;min-width:0}
 .schedule-content .empty-msg{margin:0}
+/* Bugfix (gemeldet: Teamnamen-Spalte der Spielplan-Ansicht auf mobilen
+   Geraeten zu breit, quetscht die Termin-Spalte auf einen schmalen Rest
+   zusammen - siehe gleicher Fix im matchday-Template) - schmalere feste
+   Breite plus kleinere Schrift/Innenabstaende unterhalb der
+   Handy-Breakpoint-Grenze. */
+@media (max-width:480px){
+  .schedule-sidebar{flex-basis:104px;max-height:420px}
+  .team-sidebar-item{padding:7px 6px;font-size:.72rem}
+  .schedule-content{padding:14px 12px}
+}
 .col-nr{color:var(--muted);width:1%;white-space:nowrap;text-align:center}
 .col-vs{color:var(--muted);width:1%;text-align:center}
 .col-heim,.col-gast{text-align:left}

@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: dark | Filename: layout.tpl.php | Fileversion: 1.7.2
+  Template: dark | Filename: layout.tpl.php | Fileversion: 1.7.3
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -339,6 +339,16 @@ table.standings-table td{padding:8px 10px;border-top:1px solid var(--border)}
 .team-sidebar-item.team-sidebar-active{background:var(--accent);color:#fff}
 .schedule-content{flex:1;padding:20px 24px;min-width:0}
 .schedule-content .empty-msg{margin:0}
+/* Bugfix (gemeldet: Teamnamen-Spalte der Spielplan-Ansicht auf mobilen
+   Geraeten zu breit, quetscht die Termin-Spalte auf einen schmalen Rest
+   zusammen - siehe gleicher Fix im matchday-Template) - schmalere feste
+   Breite plus kleinere Schrift/Innenabstaende unterhalb der
+   Handy-Breakpoint-Grenze. */
+@media (max-width:480px){
+  .schedule-sidebar{flex-basis:104px;max-height:420px}
+  .team-sidebar-item{padding:7px 6px;font-size:.72rem}
+  .schedule-content{padding:14px 12px}
+}
 .col-nr{color:var(--muted);width:1%;white-space:nowrap;text-align:center}
 .col-vs{color:var(--muted);width:1%;text-align:center}
 .col-heim,.col-gast{text-align:left}

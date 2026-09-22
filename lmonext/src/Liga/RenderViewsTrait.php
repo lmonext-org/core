@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.28.0
+ * Fileversion: 1.30.0
  *
  * PHP version 8.2
  *
@@ -835,6 +835,30 @@ trait RenderViewsTrait
 
     /**
      * "← vorheriger Spieltag" / "nächster Spieltag →"-Navigation für die
+     * Ergebnisse-Ansicht (Beitrag: Nutzeranfrage) - optisch identisch zu
+     * renderStandingsSpieltagNav() bei der Tabelle (gleiche CSS-Klassen),
+     * zeigt aber zu view=ergebnisse statt view=tabelle. Am ersten Spieltag
+     * fehlt der "vorheriger"-Link, am letzten der "nächster"-Link.
+     */
+    public static function renderErgebnisseSpieltagNav(int $ligaId, int $nr, int $maxNr) : string
+    {
+        if ($maxNr <= 1) {
+            return '';
+        }
+        $prev = $nr > 1
+            ? '<a class="st-spieltag-nav-prev" href="?id=' . $ligaId . '&view=ergebnisse&nr=' . ($nr - 1) . '">&larr; ' . h(tf('liga_standings_vorheriger_spieltag')) . '</a>'
+            : '';
+        $next = $nr < $maxNr
+            ? '<a class="st-spieltag-nav-next" href="?id=' . $ligaId . '&view=ergebnisse&nr=' . ($nr + 1) . '">' . h(tf('liga_standings_naechster_spieltag')) . ' &rarr;</a>'
+            : '';
+        if ($prev === '' && $next === '') {
+            return '';
+        }
+        return '<div class="st-spieltag-nav">' . $prev . $next . '</div>';
+    }
+
+    /**
+     * "← vorheriger Spieltag" / "nächster Spieltag →"-Navigation für die
      * Tabellen-nach-Spieltag-Ansicht, analog zu kicker.de. Am ersten
      * Spieltag fehlt der "vorheriger"-Link, am letzten der "nächster"-Link.
      */
@@ -878,18 +902,23 @@ trait RenderViewsTrait
                 $tid   = (int)$t['id'];
                 $url   = 'liga.php?id=' . $ligaId . '&view=spielplaene&team=' . $tid;
                 $sel   = $tid === $selectedTeamId ? ' selected' : '';
-                $label = h($t['mittel'] !== '' ? $t['mittel'] : $t['name']);
+                $label = h($t['kurz'] !== '' ? $t['kurz'] : ($t['mittel'] !== '' ? $t['mittel'] : $t['name']));
                 $sidebarHtml .= '<option value="' . $url . '"' . $sel . '>' . $label . '</option>';
             }
             $sidebarHtml .= '</select>';
         } else {
+            // Bugfix (gemeldet: Teamnamen in der Spielplan-Sidebar der
+            // Matchday-Vorlage viel zu lang für mobile Ansichten): der
+            // Platzhalter hieß zwar "Kurz", wurde aber tatsächlich mit dem
+            // MITTLEREN (oder sogar vollen) Namen befüllt, kurz gar nicht
+            // verwendet. Jetzt tatsächlich kurz zuerst.
             foreach ($teams as $t) {
                 $sidebarHtml .= renderPartial('team_sidebar_item', [
                     'ActiveClass' => ((int)$t['id'] === $selectedTeamId) ? ' team-sidebar-active' : '',
                     'LigaId'      => $ligaId,
                     'TeamId'      => (int)$t['id'],
                     'Logo'        => self::renderTeamLogoImgWrapped((int)$t['id'], $showLogos),
-                    'Kurz'        => h($t['mittel'] !== '' ? $t['mittel'] : $t['name']),
+                    'Kurz'        => h($t['kurz'] !== '' ? $t['kurz'] : ($t['mittel'] !== '' ? $t['mittel'] : $t['name'])),
                 ]);
             }
         }

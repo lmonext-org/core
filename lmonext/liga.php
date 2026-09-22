@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.20.0
+ * Fileversion: 3.23.0
  *
  * PHP version 8.2
  *
@@ -356,7 +356,6 @@ switch ($currentView) {
                 $ergebnisInhalt .= renderGtFootnotes($groupPartien);
                 $ergebnisInhalt .= renderStatsBlock($heading, $groupPartien);
             }
-            $ergebnisInhalt .= $pdfButtonHtml;
         } else {
             assignGtFootnoteNumbers($partien);
             $headingText = $isKO
@@ -367,12 +366,24 @@ switch ($currentView) {
             $ergebnisInhalt .= $showSpielfrei ? renderSpielfreiNote($ligaId, $partien) : '';
             $ergebnisInhalt .= renderGtFootnotes($partien);
             $ergebnisInhalt .= renderStatsBlock($currentName, $partien);
-            $ergebnisInhalt .= $pdfButtonHtml;
         }
 
         $picker = renderSpieltagPicker($allSpieltage, $ligaId, $currentNr !== null ? (int)$currentNr : null, $isKO, $maxNr);
 
-        $viewInhalt = $subtitle . $picker . $ergebnisInhalt;
+        // Bugfix (gemeldet: "vorheriger/nächster Spieltag"-Linkleiste, wie
+        // sie die Tabellen-Ansicht oben UND unten zeigt, fehlte bei den
+        // Ergebnissen komplett - dort stand bisher nur das Spieltag-
+        // Dropdown, kein direkter Link) - eigene Funktion analog zu
+        // renderStandingsSpieltagNav() bei der Tabelle, hier für
+        // view=ergebnisse statt view=tabelle - oben UND unten platziert.
+        $spieltagNav = renderErgebnisseSpieltagNav($ligaId, $currentNr !== null ? (int)$currentNr : $maxNr, $maxNr);
+
+        // Bugfix (gemeldet: die untere Vorheriger/Nächster-Spieltag-Leiste
+        // sollte wie bei der Tabelle OBERHALB des PDF-Buttons stehen, nicht
+        // darunter) - $pdfButtonHtml wird deshalb jetzt hier separat ganz
+        // ans Ende gehängt, statt (wie zuvor) bereits am Ende von
+        // $ergebnisInhalt zu stehen.
+        $viewInhalt = $subtitle . $picker . $spieltagNav . $ergebnisInhalt . $spieltagNav . $pdfButtonHtml;
         break;
 }
 
