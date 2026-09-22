@@ -833,13 +833,6 @@ trait RenderViewsTrait
         return $html;
     }
 
-    /**
-     * "← vorheriger Spieltag" / "nächster Spieltag →"-Navigation für die
-     * Ergebnisse-Ansicht (Beitrag: Nutzeranfrage) - optisch identisch zu
-     * renderStandingsSpieltagNav() bei der Tabelle (gleiche CSS-Klassen),
-     * zeigt aber zu view=ergebnisse statt view=tabelle. Am ersten Spieltag
-     * fehlt der "vorheriger"-Link, am letzten der "nächster"-Link.
-     */
     public static function renderErgebnisseSpieltagNav(int $ligaId, int $nr, int $maxNr) : string
     {
         if ($maxNr <= 1) {
