@@ -721,6 +721,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_liga.php
 
+- Changelog: 3.6.0 - Neue Wrapper-Funktion renderErgebnisseSpieltagNav(), delegiert an LigaService::renderErgebnisseSpieltagNav() (siehe RenderViewsTrait.php 1.29.0).
 - Changelog: 3.5.0 - renderTickerBlock() ist nach der Auslagerung als eigenständiges Addon "ticker" jetzt ein reiner Hook-Wrapper (doHook('liga.ticker_block', ...)) statt eines Aufrufs an \LMOnext\Liga\LigaService:: - Core kennt den Ticker nur noch über diesen einen Hook-Punkt, kein Fallback ohne aktives Addon (wie beim alten LMO4-Newsticker, der ebenfalls ein eigenständiges Addon war).
 - Changelog: 3.4.0 - Neuer Wrapper renderTickerBlock(), delegiert an LigaService::renderTickerBlock() (siehe RenderViewsTrait.php 1.22.0).
 - Changelog: 3.3.0 - Veralteten Kommentarverweis auf frontend/data_liga_pretraits.php entfernt, nachdem diese Datei komplett gelöscht wurde (siehe dortiger Changelog-Eintrag).
@@ -1304,6 +1305,9 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## liga.php
 
+- Changelog: 3.23.0 - Bugfix (gemeldet: die untere Vorheriger/Naechster-Spieltag-Leiste stand bei den Ergebnissen unterhalb des PDF-Buttons, bei der Tabelle dagegen oberhalb): $pdfButtonHtml wird jetzt erst NACH der unteren Navigationsleiste angehaengt, statt bereits am Ende von $ergebnisInhalt zu stehen - Reihenfolge jetzt identisch zur Tabellen-Ansicht (Inhalt, Navigationsleiste, PDF-Button).
+- Changelog: 3.21.0 - FEHLERHAFTER Fix (siehe 3.22.0 fuer die Korrektur): faelschlich das Spieltag-Dropdown (renderSpieltagPicker()) statt der Vorheriger/Naechster-Spieltag-Linkleiste verdoppelt.
+- Changelog: 3.22.0 - Korrigierter Bugfix (Nutzer-Rueckmeldung: gemeint war die "← VORHERIGER SPIELTAG"/"NAECHSTER SPIELTAG →"-Linkleiste wie bei der Tabellen-Ansicht, nicht das Spieltag-Dropdown): neue Funktion renderErgebnisseSpieltagNav() (RenderViewsTrait.php + globaler Wrapper in frontend/data_liga.php) - optisch identisch zu renderStandingsSpieltagNav() bei der Tabelle (gleiche CSS-Klassen), zeigt aber zu view=ergebnisse statt view=tabelle. Oben UND unten platziert, das Dropdown bleibt unveraendert nur einmal oben stehen.
 - Changelog: 3.20.0 - Neues _gt_tore_beide_verlieren-Feld (GtToreBeideVerlieren-Liga-Einstellung), an jede Partie injiziert - selbes Muster wie die bestehenden _gt_tore_gespielt/_gt_tore_nichtantritt, für renderGtFootnotes() (siehe RenderViewsTrait.php 1.25.0).
 - Changelog: 3.19.0 - Übergibt jetzt TickerBlock (renderTickerBlock($ligaId)) an das liga.tpl.php-Template, siehe RenderViewsTrait.php 1.22.0 für den vollständigen Bugfix-Hintergrund.
 - Changelog: 3.18.0 - Default-Fallback für GtToreNichtantritt von 3 auf 2 geändert (siehe StandingsTrait::gtCreditedScore() 1.11.0), konsistent mit dem neuen einheitlichen 2:0-Standard für beide Grüne-Tisch-Szenarien.
@@ -1416,6 +1420,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.30.0 - Bugfix (gemeldet: Teamnamen in der Spielplan-Sidebar der Matchday-Vorlage zu lang für mobile Ansichten): der an team_sidebar_item.tpl.php (und die sportartspezifische Dropdown-Variante) übergebene "Kurz"-Platzhalter wurde trotz seines Namens tatsächlich mit dem mittleren (oder sogar vollen) Teamnamen befüllt, nie mit dem echten Kurznamen (teams_global.kurz). Jetzt korrekt kurz zuerst, mit Rückfall auf mittel dann name, falls kurz leer ist.
+- Changelog: 1.29.0 - Neue öffentliche Methode renderErgebnisseSpieltagNav() - "vorheriger/nächster Spieltag"-Linkleiste für die Ergebnisse-Ansicht, optisch identisch zu der bereits bestehenden (privaten) renderStandingsSpieltagNav() bei der Tabelle, zeigt aber zu view=ergebnisse statt view=tabelle.
 - Changelog: 1.28.0 - Neuer Tab-Label-Eintrag "karte" (tf('liga_tab_karte')) in renderTabsBar() für den neuen Karten-Reiter des team-notizen-Addons, analog zum bestehenden "spielerstatistik"-Eintrag.
 - Changelog: 1.26.0 - renderGtFootnotes() hängt jetzt einen vorhandenen gt_grund-Zusatztext an den bestehenden Fußnotentext an - als eigener, optisch abgesetzter Satz ("Grund: ..."), gemeinsam für beide Entscheidungs-Zweige (Sieger-Fall und "beide verlieren"-Fall) umgesetzt, um den Code nicht zu duplizieren.
 - Changelog: 1.25.0 - renderGtFootnotes() erklärt jetzt auch gt_entscheidung=3 (siehe StandingsTrait.php 1.12.0) mit einem eigenen Textbaustein (liga_gt_footnote_line_beide/liga_gt_footnote_line_beide_no_real) statt des "sieger"-Textbausteins, der hier nicht passt - zeigt die tatsächlich angerechnete Niederlage-Tordifferenz je Team (GtToreBeideVerlieren, per Liga einstellbar), nicht das pauschale "0:0" aus gtCreditedScore().
@@ -1722,6 +1728,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.19.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.17.16 - .liga-ticker-CSS komplett entfernt (als eigenständiges Addon "ticker" ausgegliedert) - lebt jetzt als Inline-<style>-Block im Hook-Ergebnis (addon/ticker/TickerRenderer.php), da das Addon keinen festen Platz mehr im Core-Template-CSS hat.
 - Changelog: 1.17.15 - .liga-ticker/.liga-ticker-text CSS komplett auf einen echten CSS-Marquee-Scroll umgebaut (siehe src/Liga/RenderViewsTrait.php 1.23.0 und das neue ticker_block.tpl.php 2.0.0) - Viewport mit overflow:hidden + Track mit @keyframes-Animation (translateX 0 -> -50%, Text im Partial dupliziert für nahtlosen Loop), pausiert bei :hover, respektiert prefers-reduced-motion (Animation aus, normaler horizontaler Scroll-Container, Duplikat ausgeblendet).
 - Changelog: 1.17.14 - Neue CSS-Klassen .liga-ticker/.liga-ticker-text für den neuen Ticker-Hinweis (siehe src/Liga/RenderViewsTrait.php 1.22.0) - hervorgehobene Box mit Akzentfarben-Balken links, analog zur bestehenden .spielfrei-note, aber bewusst auffälliger gestaltet.
@@ -1749,6 +1756,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/colored/layout.tpl.php
 
+- Changelog: 1.8.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.6.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.6.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.6.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
@@ -1773,6 +1781,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/dark/layout.tpl.php
 
+- Changelog: 1.7.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.5.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
@@ -1797,6 +1806,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/light/layout.tpl.php
 
+- Changelog: 1.7.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.5.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
 - Changelog: 1.5.11 - Gleicher Fix wie template/default/layout.tpl.php 1.17.11 (siehe dortiger Changelog-Eintrag für den ausführlichen Hintergrund) - .st-team-logo-wrap auf feste Box-Größe mit object-fit:contain umgestellt, statt der unzureichenden min-width.
@@ -1821,6 +1831,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.5.0 - Neuer Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content: schmalere feste Breite (104px statt 176px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.2.16 - Gleiche Entfernung wie template/default/layout.tpl.php 1.17.16.
 - Changelog: 1.2.15 - Gleicher CSS-Marquee-Umbau wie template/default/layout.tpl.php 1.17.15, mit den für dieses Template üblichen Farbvariablen (--ink/--bg-alt).
 - Changelog: 1.2.14 - Gleiche neue CSS-Klassen wie template/default/layout.tpl.php 1.17.14, mit den für dieses Template üblichen Farbvariablen (--ink/--bg-alt statt --text/--bg).
