@@ -413,7 +413,7 @@ if ($action === 'liga_settings' && isLoggedIn()) {
             // Annullierung, z.B. Lizenzentzug, siehe admin/handler_settings.php
             // Aktion "strafe_annullieren" sowie StandingsTrait::computeStandings()).
             //
-            // BUGFIX (gemeldet: nach Annullierung eines einzelnen Teams
+            // BUGFIX (nach Annullierung eines einzelnen Teams
             // zeigte die Strafen-Übersicht plötzlich ALLE Teams als
             // "Annulliert" an, obwohl nur eines wirklich betroffen war):
             // die vorherige Prüfung ("mindestens ein annulliertes Spiel

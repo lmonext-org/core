@@ -900,7 +900,7 @@ trait RenderViewsTrait
             }
             $sidebarHtml .= '</select>';
         } else {
-            // Bugfix (gemeldet: Teamnamen in der Spielplan-Sidebar der
+            // Bugfix (Teamnamen in der Spielplan-Sidebar der
             // Matchday-Vorlage viel zu lang für mobile Ansichten): der
             // Platzhalter hieß zwar "Kurz", wurde aber tatsächlich mit dem
             // MITTLEREN (oder sogar vollen) Namen befüllt, kurz gar nicht

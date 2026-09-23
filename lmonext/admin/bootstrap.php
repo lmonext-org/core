@@ -1266,7 +1266,7 @@ function ensureSpielstatusColumns() : void
 /**
  * Admin-eigenständige Kopie von TeamRepositoryTrait::migrateFavSelTeamToStableId()
  * (siehe dort für den vollständigen Hintergrund zum behobenen favTeam/selTeam-
- * Bug). KRITISCHER Bugfix (gemeldet: Liga-Einstellungen komplett kaputt -
+ * Bug). KRITISCHER Bugfix (Liga-Einstellungen komplett kaputt -
  * Teams-Tab leer, alle Tab-Navigations-Links ohne "id="): admin/data_loader.php
  * rief ursprünglich \LMOnext\Liga\LigaService::migrateFavSelTeamToStableId()
  * auf - diese Klasse (und ihre Trait-Kette) wird aber AUSSCHLIESSLICH von

@@ -14,7 +14,7 @@
  */
 
 // ── View: Liga Settings ──────────────────────────────────────────────────────────
-        // Defensiver Fallback (gemeldet: wiederholte "Undefined array key 'lid'"-
+        // Defensiver Fallback (wiederholte "Undefined array key 'lid'"-
         // Warnungen im Error-Log): $ligaSettingsData bleibt in admin/data_loader.php
         // NULL, wenn die id in der URL fehlt/ungültig ist (0 oder kein numerischer
         // Wert) oder die Liga nicht (mehr) existiert - z.B. bei einem alten

@@ -261,7 +261,7 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $extraData = !empty($sets) ? json_encode(['sets' => $sets]) : null;
 
-                // BUGFIX (gemeldet: Grüne-Tisch-Entscheidung wurde nach dem
+                // BUGFIX (Grüne-Tisch-Entscheidung wurde nach dem
                 // Speichern immer wieder auf "–" zurückgesetzt, obwohl das
                 // Ergebnis selbst korrekt gespeichert wurde): status_<pid>,
                 // bericht_<pid> und gt_<pid> waren in diesem UPDATE komplett

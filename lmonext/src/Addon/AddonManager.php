@@ -437,7 +437,7 @@ class AddonManager
 
         $this->discover();
 
-        // ── KRITISCHER Bugfix (gemeldet: Sprachschlüssel wie
+        // ── KRITISCHER Bugfix (Sprachschlüssel wie
         // "liga_h2h_modal_title" erschienen roh statt übersetzt im
         // Teamvergleich-Modal, obwohl das Addon seine eigene Sprachdatei
         // korrekt hatte) ───────────────────────────────────────────────────
@@ -761,7 +761,7 @@ class AddonManager
         $relDir  = (string)($addon['manifest']['lang_dir'] ?? 'lang/');
         $langDir = $addon['path'] . rtrim($relDir, '/\\') . '/';
 
-        // Bugfix (gemeldet: Addon-Übersetzung für eine dritte Sprache "nl"
+        // Bugfix (Addon-Übersetzung für eine dritte Sprache "nl"
         // wurde vom Übersetzungs-Editor korrekt erkannt und war vollständig
         // ausgefüllt, erschien aber trotzdem nicht im laufenden System -
         // nur der Core-Admin-Bereich selbst schaltete korrekt auf

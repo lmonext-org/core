@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.10.0
  *
  * PHP version 8.2
  *
@@ -206,7 +206,7 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
               </div>
               <?php } ?>
               <!-- Einzel-Spiele -->
-              <div class="ko-spiele" style="padding-left:0">
+              <div class="ko-spiele" style="padding-left:0;overflow-x:auto">
 <?php
                 // Teamnamen für Anzeige ermitteln
                 $teamMap = array_column($allTeams, 'name', 'id');
@@ -238,7 +238,7 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                         $spielHeim = $heimName;
                         $spielGast = $gastName;
                     } ?>
-                <div class="ko-spiel-zeile" style="display:grid;grid-template-columns:<?= $currentModus > 1 ? '84px ' : '' ?>1fr 54px 16px 54px 1fr 160px;gap:6px;align-items:center;margin-bottom:6px;padding:6px 8px;background:var(--bg);border-radius:var(--radius)">
+                <div class="ko-spiel-zeile" style="display:grid;grid-template-columns:<?= $currentModus > 1 ? '84px ' : '' ?>minmax(120px,1fr) 54px 16px 54px minmax(120px,1fr) 160px;gap:6px;align-items:center;margin-bottom:6px;padding:6px 8px;background:var(--bg);border-radius:var(--radius)">
                   <?php if ($currentModus > 1) { ?><span style="font-size:.76rem;color:var(--muted);font-style:italic"><?= h($spielLbl) ?></span><?php } ?>
                   <span class="ko-heim-name" style="font-size:.85rem;font-weight:500;text-align:right;padding-right:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($spielHeim) ?>"><?= h($spielHeim) ?></span>
                   <input type="number" name="h_<?= $pIdx ?>_<?= $s ?>" value="<?= h((string)$hTore) ?>"
@@ -433,7 +433,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
             else { sHeim = heimName; sGast = gastName; }
 
             const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-            html += `<div class="ko-spiel-zeile" style="display:grid;grid-template-columns:${modus>1?'84px ':''}1fr 54px 16px 54px 1fr 160px;gap:6px;align-items:center;margin-bottom:6px;padding:6px 8px;background:var(--bg);border-radius:var(--radius)">
+            html += `<div class="ko-spiel-zeile" style="display:grid;grid-template-columns:${modus>1?'84px ':''}minmax(120px,1fr) 54px 16px 54px minmax(120px,1fr) 160px;gap:6px;align-items:center;margin-bottom:6px;padding:6px 8px;background:var(--bg);border-radius:var(--radius)">
               ${lblCol}
               <span class="ko-heim-name" style="font-size:.85rem;font-weight:500;text-align:right;padding-right:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(sHeim)}">${esc(sHeim)}</span>
               <input type="number" name="h_${pIdx}_${s}" value="" min="0" max="99" placeholder="–"
@@ -487,7 +487,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
               ${koPickerHtml('gast', idx, 0, i18nSp.placeholderWord + ' B')}
               <button type="button" class="btn btn-danger btn-sm" onclick="koRemovePair(this)">\u2715</button>
             </div>
-            <div class="ko-spiele" style="padding-left:0">
+            <div class="ko-spiele" style="padding-left:0;overflow-x:auto">
               ${koSpielZeilen(idx, koModus, i18nSp.placeholderWord + ' A', i18nSp.placeholderWord + ' B')}
             </div>`;
           document.getElementById('ko-pairs-container').appendChild(wrap);
@@ -573,7 +573,14 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
         <form method="post" action="?action=save_partie_teams">
           <input type="hidden" name="liga_id" value="<?= $lid ?>">
           <input type="hidden" name="spieltag_nr" value="<?= $stNr ?>">
-        <table class="tbl" style="margin-bottom:16px">
+        <!-- Bugfix (auf schmalen Bildschirmen quetschten sich die
+             Heim-/Gast-Dropdowns auf einen einzelnen sichtbaren Buchstaben
+             zusammen, da die Tabelle keinerlei Mindestbreite hatte und
+             stattdessen auf width:100% zusammengedrückt wurde) - Tabelle
+             bekommt jetzt eine Mindestbreite und wird bei Bedarf horizontal
+             gescrollt, statt ihren Inhalt unbrauchbar zu stauchen. -->
+        <div style="overflow-x:auto">
+        <table class="tbl" style="margin-bottom:16px;min-width:860px">
           <thead>
             <tr>
               <th><?= h(t('sp_col_heim')) ?></th>
@@ -613,7 +620,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
             <tr>
               <td>
                 <select name="heim_<?= (int)$p['id'] ?>"
-                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:5px 8px;font-size:.85rem">
+                        style="width:100%;min-width:150px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:5px 8px;font-size:.85rem">
 <?php
                 foreach ($allTeams as $team) { ?>
                   <option value="<?= (int)$team['id'] ?>"<?= (int)$team['id'] === (int)$p['heim_id'] ? ' selected' : '' ?>><?= h($team['name']) ?></option>
@@ -636,7 +643,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
               </td>
               <td>
                 <select name="gast_<?= (int)$p['id'] ?>"
-                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:5px 8px;font-size:.85rem">
+                        style="width:100%;min-width:150px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:5px 8px;font-size:.85rem">
 <?php
                 foreach ($allTeams as $team) { ?>
                   <option value="<?= (int)$team['id'] ?>"<?= (int)$team['id'] === (int)$p['gast_id'] ? ' selected' : '' ?>><?= h($team['name']) ?></option>
@@ -717,6 +724,7 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
             } ?>
           </tbody>
         </table>
+        </div>
         <script>
 document.querySelectorAll('.gt-select').forEach(function (sel) {
     sel.addEventListener('change', function () {

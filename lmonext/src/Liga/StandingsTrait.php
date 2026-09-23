@@ -1079,7 +1079,7 @@ trait StandingsTrait
         $arColor    = ($opts['ARColor']  ?? '') !== '' ? $opts['ARColor']  : '#f97316';
         $abColor    = ($opts['ABColor']  ?? '') !== '' ? $opts['ABColor']  : '#ef4444';
     
-        // BUGFIX (gemeldet: "Champions-League-Qualifikanten" auf 1 gesetzt,
+        // BUGFIX ("Champions-League-Qualifikanten" auf 1 gesetzt,
         // aber Tabellenzweiter bekam keine Markierung, obwohl Meister und
         // Absteiger korrekt markiert wurden): die CL/CK/UC-Zählung ging
         // bisher IMMER ab Platz 1 (index=0) los, unabhängig davon, ob

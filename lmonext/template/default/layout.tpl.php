@@ -375,7 +375,7 @@ table.standings-table td{padding:8px 10px;border-top:1px solid var(--border)}
 .team-sidebar-item.team-sidebar-active{background:var(--accent);color:#fff}
 .schedule-content{flex:1;padding:20px 24px;min-width:0}
 .schedule-content .empty-msg{margin:0}
-/* Bugfix (gemeldet: Teamnamen-Spalte der Spielplan-Ansicht auf mobilen
+/* Bugfix (Teamnamen-Spalte der Spielplan-Ansicht auf mobilen
    Geraeten zu breit, quetscht die Termin-Spalte auf einen schmalen Rest
    zusammen - siehe gleicher Fix im matchday-Template) - schmalere feste
    Breite plus kleinere Schrift/Innenabstaende unterhalb der

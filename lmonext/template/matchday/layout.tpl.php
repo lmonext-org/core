@@ -399,7 +399,7 @@ table.standings-table td{padding:9px 10px;border-top:1px solid var(--line)}
 .team-sidebar-item.team-sidebar-active{background:var(--ink);color:#fff;border-left-color:var(--accent)}
 .schedule-content{flex:1;padding:22px 24px;min-width:0;background:var(--surface)}
 .schedule-content .empty-msg{margin:0}
-/* Bugfix (gemeldet: Teamnamen-Spalte der Spielplan-Ansicht auf mobilen
+/* Bugfix (Teamnamen-Spalte der Spielplan-Ansicht auf mobilen
    Geräten zu breit, quetscht die Termin-Spalte auf einen schmalen Rest
    zusammen) - schmalere feste Breite plus kleinere Schrift/Innenabstände
    unterhalb der Handy-Breakpoint-Grenze. */
