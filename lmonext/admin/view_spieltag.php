@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.11.0
  *
  * PHP version 8.2
  *
@@ -683,6 +683,20 @@ $tickerText  = $spieltagData['tickertext'] ?? '';
                        placeholder="<?= h(t('sp_placeholder_report_link')) ?>"
                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
                               border-radius:var(--radius);padding:4px 8px;font-size:.78rem">
+                <?php
+                  // Hook-Punkt - erlaubt Addons, sich hier mit einem eigenen
+                  // Link pro Begegnung einzuklinken, ohne dass der Core
+                  // das jeweilige Addon kennen muss - analog zu
+                  // liga.view_render bei liga.php.
+                  $partieRowHook = doHook('admin.spieltag_partie_row', [
+                      'partie_id' => (int)$p['id'],
+                      'liga_id'   => $lid,
+                      'heim_id'   => (int)($p['heim_id'] ?? 0),
+                      'gast_id'   => (int)($p['gast_id'] ?? 0),
+                      'html'      => '',
+                  ]);
+                  if (!empty($partieRowHook['html'])) { echo $partieRowHook['html']; }
+                ?>
               </td>
             </tr>
             <tr class="gt-grund-row" data-gt-grund-for="<?= (int)$p['id'] ?>" style="<?= $gt > 0 ? '' : 'display:none' ?>">

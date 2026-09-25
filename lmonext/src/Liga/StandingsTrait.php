@@ -74,8 +74,8 @@ trait StandingsTrait
     /**
      * Berechnet die "Wertung" (angerechnetes Ergebnis) für eine Grüne-Tisch-
      * Entscheidung (Sportgericht), nach der DFB-Spielordnung - die zwischen
-     * ZWEI Szenarien unterscheidet (nach Recherche des Nutzers,
-     * ersetzt die vorherige pauschale FIFA/UEFA-Regel "immer 3:0"):
+     * ZWEI Szenarien unterscheidet
+     * (ersetzt die vorherige pauschale FIFA/UEFA-Regel "immer 3:0"):
      *
      * 1. Das Spiel HAT STATTGEFUNDEN (wurde abgebrochen oder nachträglich
      *    z.B. wegen eines nicht spielberechtigten Akteurs gewertet) -
@@ -105,7 +105,7 @@ trait StandingsTrait
      * Entscheidung (Sportgericht). Die beiden Standardwerte (Tore für die
      * siegende Mannschaft je nach Szenario) sind PRO LIGA
      * einstellbar (siehe liga_options "GtToreGespielt"/"GtToreNichtantritt",
-     * Recherche des Nutzers zu den 21 DFB-Landesverbänden: die genaue
+     * Zu den 21 DFB-Landesverbänden: die genaue
      * Ausgestaltung ist NICHT bundeseinheitlich - z.B. 2:0 bei den meisten
      * west-/norddeutschen Verbänden, 5:0 beim BFV/HFV/Badischen FV). Die
      * Parameter-Defaults (2/3) sind der bisherige DFB-Standard und greifen,

@@ -852,8 +852,8 @@ trait RenderViewsTrait
 
     /**
      * "← vorheriger Spieltag" / "nächster Spieltag →"-Navigation für die
-     * Tabellen-nach-Spieltag-Ansicht, analog zu kicker.de. Am ersten
-     * Spieltag fehlt der "vorheriger"-Link, am letzten der "nächster"-Link.
+     * Tabellen-nach-Spieltag-Ansicht. Am ersten Spieltag fehlt der
+     * "vorheriger"-Link, am letzten der "nächster"-Link.
      */
     private static function renderStandingsSpieltagNav(int $ligaId, int $nr, int $maxNr, string $tableMode = 'gesamt') : string
     {

@@ -254,8 +254,8 @@ switch ($currentView) {
         // _liga_id für die sport-profil-abhängige Ergebnis-Anzeige (Beitrag:
         // Torsten Hofmann, siehe RenderViewsTrait::formatScore()) - getSpieltagPartien()
         // kennt die Liga selbst nicht (nur den Spieltag), daher hier ergänzt.
-        // _gt_tore_gespielt/_gt_tore_nichtantritt (nach Nutzer-
-        // Recherche zu den 21 DFB-Landesverbänden: die Standardwertung einer
+        // _gt_tore_gespielt/_gt_tore_nichtantritt (nach Recherche zu den
+        // 21 DFB-Landesverbänden: die Standardwertung einer
         // Grüne-Tisch-Entscheidung ist NICHT bundeseinheitlich, z.B. 2:0 bei
         // den meisten west-/norddeutschen Verbänden, 5:0 beim BFV/HFV/
         // Badischen FV) - liga_options-Werte (bereits oben als $opts
