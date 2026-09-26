@@ -45,6 +45,7 @@ return [
     'liga_col_heim'              => 'Home',
     'liga_col_gast'              => 'Away',
     'liga_col_ergebnis'          => 'Result',
+    'liga_link_spielbericht'     => 'Open match report',
     'liga_col_nr'                => 'No.',
     'liga_pdf_export_button'     => 'Export as PDF',
     'liga_pdf_title_matchday'    => 'Results Matchday {n}',

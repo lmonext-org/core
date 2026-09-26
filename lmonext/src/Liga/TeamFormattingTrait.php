@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/TeamFormattingTrait.php
- * Fileversion: 1.3.0
+ * Fileversion: 1.4.0
  *
  * PHP version 8.2
  *
@@ -130,16 +130,40 @@ trait TeamFormattingTrait
         return $img !== '' ? '<span class="st-team-logo-wrap">' . $img . '</span>' : '';
     }
     /**
+     * Nur http(s)-URLs werden als Link ausgegeben - verhindert, dass ein
+     * gespeichertes "javascript:..."-Pseudo-Protokoll im Homepage-Feld
+     * beim Klick im Frontend für jeden Besucher beliebigen JavaScript-Code
+     * ausführen könnte (gleiche Absicherung wie an anderen Stellen im
+     * Projekt, wo Nutzer-URLs ausgegeben werden).
+     */
+    private static function safeHomepageUrl(?string $url) : string
+    {
+        $url = trim((string)$url);
+        return ($url !== '' && preg_match('#^https?://#i', $url)) ? $url : '';
+    }
+
+    /**
      * Wie partieTeamName(), aber als fertiges HTML-Snippet mit vorangestelltem
      * Logo (falls die Liga-Einstellung ShowLogos aktiv ist) – für alle
      * HTML-Ausgaben in der Besucheransicht. partieTeamName() selbst bleibt
      * unverändert (liefert reinen Text), da es auch für den PDF-Export
      * verwendet wird, wo kein HTML/Logo-Markup hinpasst.
+     *
+     * $linkHomepage (Bugfix: die Liga-Einstellung "Mannschafts-Homepages
+     * verlinken"/urlH wurde bisher an keiner Stelle im Frontend
+     * ausgewertet) - verlinkt den Teamnamen zur in teams_global.url
+     * hinterlegten Homepage, wenn aktiv UND eine gültige http(s)-URL
+     * hinterlegt ist.
      */
-    public static function partieTeamNameWithLogo(array $partie, string $side, bool $showLogos) : string
+    public static function partieTeamNameWithLogo(array $partie, string $side, bool $showLogos, bool $linkHomepage = false) : string
     {
         $teamId = (int)($partie[$side . '_id'] ?? 0);
-        return self::renderTeamLogoImg($teamId, $showLogos) . h(self::partieTeamName($partie, $side));
+        $name = h(self::partieTeamName($partie, $side));
+        $url = $linkHomepage ? self::safeHomepageUrl($partie[$side . '_url'] ?? null) : '';
+        if ($url !== '') {
+            $name = '<a href="' . h($url) . '" target="_blank" rel="noopener">' . $name . '</a>';
+        }
+        return self::renderTeamLogoImg($teamId, $showLogos) . $name;
     }
     /**
      * Wie partieTeamNameWithLogo(), aber umgekehrte Reihenfolge (Name zuerst,
@@ -147,10 +171,15 @@ trait TeamFormattingTrait
      * regulärer (nicht-KO-)Ligen verwendet. Der KO-Turnierbaum behält bewusst
      * die normale Logo-zuerst-Reihenfolge (nicht Teil dieser Anforderung).
      */
-    public static function partieTeamNameWithLogoReversed(array $partie, string $side, bool $showLogos) : string
+    public static function partieTeamNameWithLogoReversed(array $partie, string $side, bool $showLogos, bool $linkHomepage = false) : string
     {
         $teamId = (int)($partie[$side . '_id'] ?? 0);
-        return h(self::partieTeamName($partie, $side)) . self::renderTeamLogoImg($teamId, $showLogos);
+        $name = h(self::partieTeamName($partie, $side));
+        $url = $linkHomepage ? self::safeHomepageUrl($partie[$side . '_url'] ?? null) : '';
+        if ($url !== '') {
+            $name = '<a href="' . h($url) . '" target="_blank" rel="noopener">' . $name . '</a>';
+        }
+        return $name . self::renderTeamLogoImg($teamId, $showLogos);
     }
     /**
      * Datum/Uhrzeit einer einzelnen Partie: eigene Zeit falls gesetzt, sonst der

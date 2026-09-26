@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.6.0
+ * Fileversion: 3.7.0
  *
  * PHP version 8.2
  *
@@ -191,14 +191,14 @@ function renderTeamLogoImgWrapped(int $teamId, bool $showLogos) : string
     return \LMOnext\Liga\LigaService::renderTeamLogoImgWrapped($teamId, $showLogos);
 }
 
-function partieTeamNameWithLogo(array $partie, string $side, bool $showLogos) : string
+function partieTeamNameWithLogo(array $partie, string $side, bool $showLogos, bool $linkHomepage = false) : string
 {
-    return \LMOnext\Liga\LigaService::partieTeamNameWithLogo($partie, $side, $showLogos);
+    return \LMOnext\Liga\LigaService::partieTeamNameWithLogo($partie, $side, $showLogos, $linkHomepage);
 }
 
-function partieTeamNameWithLogoReversed(array $partie, string $side, bool $showLogos) : string
+function partieTeamNameWithLogoReversed(array $partie, string $side, bool $showLogos, bool $linkHomepage = false) : string
 {
-    return \LMOnext\Liga\LigaService::partieTeamNameWithLogoReversed($partie, $side, $showLogos);
+    return \LMOnext\Liga\LigaService::partieTeamNameWithLogoReversed($partie, $side, $showLogos, $linkHomepage);
 }
 
 function partieZeitDisplay(array $partie, ?string $spieltagStart) : string
@@ -236,9 +236,9 @@ function renderPartieRow(array $partie, ?string $spieltagStart = null, ?int $fav
     return \LMOnext\Liga\LigaService::renderPartieRow($partie, $spieltagStart, $favTeamId, $showLogos, $reverseHeim);
 }
 
-function renderResultsTable(array $partien, ?string $spieltagStart, ?int $favTeamId = null, bool $showLogos = false, bool $reverseHeim = false) : string
+function renderResultsTable(array $partien, ?string $spieltagStart, ?int $favTeamId = null, bool $showLogos = false, bool $reverseHeim = false, bool $linkHomepage = false, bool $linkBerichte = false) : string
 {
-    return \LMOnext\Liga\LigaService::renderResultsTable($partien, $spieltagStart, $favTeamId, $showLogos, $reverseHeim);
+    return \LMOnext\Liga\LigaService::renderResultsTable($partien, $spieltagStart, $favTeamId, $showLogos, $reverseHeim, $linkHomepage, $linkBerichte);
 }
 
 function renderStatsBlock(string $heading, array $partien) : string

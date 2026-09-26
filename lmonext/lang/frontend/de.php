@@ -47,6 +47,7 @@ return [
     'liga_col_heim'              => 'Heim',
     'liga_col_gast'              => 'Gast',
     'liga_col_ergebnis'          => 'Ergebnis',
+    'liga_link_spielbericht'     => 'Spielbericht öffnen',
     'liga_col_nr'                => 'Nr.',
     'liga_pdf_export_button'     => 'Als PDF exportieren',
     'liga_pdf_title_matchday'    => 'Ergebnisse Spieltag {n}',

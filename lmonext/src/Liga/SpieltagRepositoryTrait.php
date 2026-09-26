@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/SpieltagRepositoryTrait.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -163,9 +163,10 @@ trait SpieltagRepositoryTrait
         try {
             $s = getDB()->prepare(
                 'SELECT p.id, p.heim_id, p.gast_id, p.heim_label, p.gast_label,
-                        p.h_tore, p.g_tore, p.zeit, p.spiel_nr' . $statusSelect . $extraDataSelect . $nichtGewertetSelect . $gtSelect . $gtGrundSelect . ',
+                        p.h_tore, p.g_tore, p.zeit, p.spiel_nr, p.bericht_url' . $statusSelect . $extraDataSelect . $nichtGewertetSelect . $gtSelect . $gtGrundSelect . ',
                         th.name AS heim_name, tg.name AS gast_name,
-                        th.kurz AS heim_kurz, tg.kurz AS gast_kurz
+                        th.kurz AS heim_kurz, tg.kurz AS gast_kurz,
+                        th.url AS heim_url, tg.url AS gast_url
                    FROM ' . tbl('liga_partien') . ' p
                    LEFT JOIN ' . tbl('teams_global') . ' th ON th.id = p.heim_id
                    LEFT JOIN ' . tbl('teams_global') . ' tg ON tg.id = p.gast_id
