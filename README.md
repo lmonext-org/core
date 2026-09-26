@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.liga-manager-online.org/web/">Projektseite / Project page</a> ·
+  <a href="https://www.liga-manager-online.org/lmonext/">Projektseite / Project page</a> ·
   <a href="https://www.liga-manager-online.org/forum/viewforum.php?f=16">Forum</a> ·
   <a href="./LICENSE">Lizenz / License: GPL-3.0-only</a>
 </p>
@@ -104,7 +104,7 @@ Offizielle Addons (Auswahl):
 
 - **Support/Diskussion:** [Forum](https://www.liga-manager-online.org/forum/viewforum.php?f=16)
 - **Quellcode/Issues/Releases:** [github.com/lmonext-org/core](https://github.com/lmonext-org/core)
-- **Projektseite:** [liga-manager-online.org/web](https://www.liga-manager-online.org/lmonext/)
+- **Projektseite:** [liga-manager-online.org/lmonext](https://www.liga-manager-online.org/lmonext/)
 - Änderungen an jeder einzelnen Datei sind lückenlos im projektweiten `CHANGELOG.md` dokumentiert.
 
 ## Lizenz
@@ -192,7 +192,7 @@ Official add-ons (selection):
 
 - **Support/discussion:** [Forum](https://www.liga-manager-online.org/forum/viewforum.php?f=16)
 - **Source code/issues/releases:** [github.com/lmonext-org/core](https://github.com/lmonext-org/core)
-- **Project page:** [liga-manager-online.org/web](https://www.liga-manager-online.org/lmonext/)
+- **Project page:** [liga-manager-online.org/lmonext](https://www.liga-manager-online.org/lmonext/)
 - Changes to every single file are documented in full in the project-wide `CHANGELOG.md`.
 
 ## License
