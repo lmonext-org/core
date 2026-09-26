@@ -104,7 +104,7 @@ Offizielle Addons (Auswahl):
 
 - **Support/Diskussion:** [Forum](https://www.liga-manager-online.org/forum/viewforum.php?f=16)
 - **Quellcode/Issues/Releases:** [github.com/lmonext-org/core](https://github.com/lmonext-org/core)
-- **Projektseite:** [liga-manager-online.org/web](https://www.liga-manager-online.org/web/)
+- **Projektseite:** [liga-manager-online.org/web](https://www.liga-manager-online.org/lmonext/)
 - Änderungen an jeder einzelnen Datei sind lückenlos im projektweiten `CHANGELOG.md` dokumentiert.
 
 ## Lizenz
@@ -114,7 +114,7 @@ LMOnext steht unter der **GPL-3.0-only**-Lizenz, siehe [LICENSE](./LICENSE).
 ## Mitwirkende
 
 - **Dietmar Kersting** ([@henshingly](https://github.com/henshingly)) – Projektbetreuer
-- **Torsten Hofmann** ([@webfalter](https://github.com/webfalter)) – Mitentwicklung (u. a. Addon-Manager, mehrere offizielle Addons)
+- **Torsten Hofmann** ([@webfalter](https://github.com/webfalter)) – Mitentwicklung (u. a. LMONext, Addon-Manager, mehrere offizielle Addons)
 
 ---
 
@@ -192,7 +192,7 @@ Official add-ons (selection):
 
 - **Support/discussion:** [Forum](https://www.liga-manager-online.org/forum/viewforum.php?f=16)
 - **Source code/issues/releases:** [github.com/lmonext-org/core](https://github.com/lmonext-org/core)
-- **Project page:** [liga-manager-online.org/web](https://www.liga-manager-online.org/web/)
+- **Project page:** [liga-manager-online.org/web](https://www.liga-manager-online.org/lmonext/)
 - Changes to every single file are documented in full in the project-wide `CHANGELOG.md`.
 
 ## License
@@ -202,4 +202,4 @@ LMOnext is licensed under **GPL-3.0-only**, see [LICENSE](./LICENSE).
 ## Contributors
 
 - **Dietmar Kersting** ([@henshingly](https://github.com/henshingly)) – project maintainer
-- **Torsten Hofmann** ([@webfalter](https://github.com/webfalter)) – co-development (incl. the add-on manager and several official add-ons)
+- **Torsten Hofmann** ([@webfalter](https://github.com/webfalter)) – co-development (incl. the lmonext, add-on manager and several official add-ons)
