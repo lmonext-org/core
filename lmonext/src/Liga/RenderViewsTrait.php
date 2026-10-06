@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.39.2
+ * Fileversion: 1.39.3
  *
  * PHP version 8.2
  *
@@ -88,8 +88,7 @@ trait RenderViewsTrait
         $datum    = h(self::partieZeitDisplay($partie, $spieltagStart, $dateFormat));
         $hId      = (int)($partie['heim_id'] ?? 0);
         $gId      = (int)($partie['gast_id'] ?? 0);
-        $berichtUrl = ($linkBerichte && !empty($partie['bericht_url']) && preg_match('#^https?://#i', (string)$partie['bericht_url']))
-            ? (string)$partie['bericht_url'] : '';
+        $berichtUrl = $linkBerichte ? self::safeReportUrl($partie['bericht_url'] ?? null) : '';
         $berichtIcon = $berichtUrl !== ''
             ? '<a href="' . h($berichtUrl) . '"' . self::linkTargetAttr($berichtTarget) . ' class="bericht-icon" title="' . h(tf('liga_link_spielbericht')) . '">📋</a>'
             : '';

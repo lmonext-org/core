@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.57.0
+ * Fileversion: 1.57.1
  *
  * PHP version 8.2
  *
@@ -333,6 +333,7 @@ return [
     'sp_status_nv'                   => 'After extra time',
     'sp_placeholder_venue'           => '📝 Match note',
     'sp_placeholder_report_link'     => '🔗 Match report link (optional)',
+    'sp_title_report_link'           => 'Absolute URL (https://…) or relative path, e.g. reports/match12.html or /reports/match12.html',
     'sp_placeholder_gt_grund'        => '📝 Additional information about the sports court decision (optional)',
     'sp_label_saetze'                => 'Sets',
     'sp_btn_satz_add'                => 'Add another set',

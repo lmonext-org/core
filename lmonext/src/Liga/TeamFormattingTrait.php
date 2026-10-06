@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/TeamFormattingTrait.php
- * Fileversion: 1.12.0
+ * Fileversion: 1.12.1
  *
  * PHP version 8.2
  *
@@ -211,6 +211,35 @@ trait TeamFormattingTrait
     {
         $url = trim((string)$url);
         return ($url !== '' && preg_match('#^https?://#i', $url)) ? $url : '';
+    }
+
+    /**
+     * Link zum Spielbericht: bisher wurde jede URL ohne "http(s)://" pauschal
+     * verworfen, auch ein relativer Pfad wie "berichte/spiel12.html" oder
+     * "/berichte/spiel12.html" auf der eigenen Website. Erlaubt jetzt:
+     *   - absolute http(s)-URLs (wie bisher),
+     *   - relative URLs ohne Schema ("berichte/x.html", "/berichte/x.html",
+     *     "../x.pdf", "//host/x", "?x=1", "#x").
+     * Abgelehnt (leerer String) wird weiterhin jedes ANDERE Schema
+     * (javascript:, data:, vbscript:, file:, mailto: ...) - das Hauptziel der
+     * alten Prüfung war ja, dass ein gespeichertes "javascript:..." beim Klick
+     * im Frontend keinen Code ausführen kann.
+     *
+     * Steuerzeichen (auch Tab/Zeilenumbruch) führen ebenfalls zur Ablehnung:
+     * Browser entfernen sie beim Parsen einer URL stillschweigend, ein
+     * "java<TAB>script:..." sähe sonst für diese Prüfung wie ein harmloser
+     * relativer Pfad aus und würde im Browser trotzdem zu "javascript:...".
+     */
+    public static function safeReportUrl(?string $url) : string
+    {
+        $url = trim((string)$url);
+        if ($url === '' || preg_match('/[\x00-\x1F\x7F]/', $url)) {
+            return '';
+        }
+        if (preg_match('/^([a-z][a-z0-9+.\-]*):/i', $url, $m)) {
+            return in_array(strtolower($m[1]), ['http', 'https'], true) ? $url : '';
+        }
+        return $url; // kein Schema => relativ
     }
 
     /**

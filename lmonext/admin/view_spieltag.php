@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.12.1
+ * Fileversion: 1.12.2
  *
  * PHP version 8.2
  *
@@ -263,8 +263,8 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                          placeholder="<?= h(t('sp_placeholder_venue')) ?>"
                          style="width:140px;background:var(--surface2);border:1px solid var(--border);
                                 color:var(--text);border-radius:var(--radius);padding:3px 8px;font-size:.78rem">
-                  <input type="url" name="bericht_<?= $pIdx ?>_<?= $s ?>" value="<?= h($bericht) ?>"
-                         placeholder="<?= h(t('sp_placeholder_report_link')) ?>"
+                  <input type="text" inputmode="url" name="bericht_<?= $pIdx ?>_<?= $s ?>" value="<?= h($bericht) ?>"
+                         placeholder="<?= h(t('sp_placeholder_report_link')) ?>" title="<?= h(t('sp_title_report_link')) ?>"
                          style="flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);
                                 color:var(--text);border-radius:var(--radius);padding:3px 8px;font-size:.78rem">
                 </div>
@@ -687,8 +687,8 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
             </tr>
             <tr>
               <td colspan="<?= $tableColCount ?>" style="padding:2px 8px 8px">
-                <input type="url" name="bericht_<?= (int)$p['id'] ?>" value="<?= h($bericht) ?>"
-                       placeholder="<?= h(t('sp_placeholder_report_link')) ?>"
+                <input type="text" inputmode="url" name="bericht_<?= (int)$p['id'] ?>" value="<?= h($bericht) ?>"
+                       placeholder="<?= h(t('sp_placeholder_report_link')) ?>" title="<?= h(t('sp_title_report_link')) ?>"
                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
                               border-radius:var(--radius);padding:4px 8px;font-size:.78rem">
                 <?php

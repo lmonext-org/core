@@ -625,6 +625,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_spieltag.php
 
+- Changelog: 1.12.2 - Eingabefelder "Link zum Spielbericht" von type="url" auf type="text" inputmode="url" umgestellt: der Browser ließ bei type="url" nur absolute URLs mit Schema zu und blockierte schon beim Absenden des Formulars alles Relative. inputmode="url" behält die URL-Tastatur auf Mobilgeräten. Neuer Tooltip (title) erklärt die erlaubten Formen.
 - Changelog: 1.12.1 - Bugfix (von Torsten gemeldet: bei deaktiviertem Addon "ticker" erschien in KO-Ligen unter "Ergebnisse eintragen" weiterhin der Block "Spieltags-unabhängige Einstellungen" mit Ticker anzeigen/Tickertext/Ticker speichern) - der Block war fest im Core verdrahtet und nicht an das Addon gekoppelt, anders als die Ticker-Einstellungen in den Liga-Einstellungen (dort bereits an isEnabled('ticker') gebunden). Block entfernt - der Ticker wird jetzt ausschließlich unter Einstellungen > Anzeigen/Darstellung konfiguriert, und nur bei aktiviertem Addon.
 - Changelog: 1.12.0 - koTogglePicker()/koPickerHtml() auf den neuen 3-Stufen-Zyklus Team → Platzhalter → Freilos → Team erweitert (siehe admin/handler_ko.php 1.4.0 für den PHP-seitigen Hintergrund). Räumt dabei sorgfältig die name-Attribute der beteiligten Formularfelder um, damit nie zwei Felder gleichzeitig denselben Namen tragen (sonst im POST mehrdeutig, abhängig von der DOM-Reihenfolge).
 - Changelog: 1.11.0 - Neuer Hook-Punkt admin.spieltag_partie_row - direkt unter dem "Link zum Spielbericht"-Feld jeder Begegnung, liefert partie_id/liga_id/heim_id/gast_id. Erlaubt Addons (z.B. player-pro: Spielbericht mit Aufstellung/Wechseln/Karten/Toren pro Begegnung), sich dort mit einem eigenen Link einzuklinken, ohne dass der Core das jeweilige Addon kennen muss - analog zu liga.view_render bei liga.php. Betrifft nur die reguläre (Nicht-KO-) Ergebnistabelle.
@@ -944,6 +945,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.58.1 - Neuer Schlüssel sp_title_report_link (Tooltip am Feld "Link zum Spielbericht").
 - Changelog: 1.58.0 - Neue Schlüssel sp_btn_freilos_short/sp_freilos_label für den 3-Stufen-KO-Picker, sp_tooltip_toggle_team_placeholder aktualisiert.
 - Changelog: 1.57.1 - Beschriftung des Notizfelds im KO-Eingabeformular von "📍 Spielort" zu "📝 Notiz zum Spiel" geändert - das Feld ist im Datenmodell ein freies Notizfeld (liga_partien.notiz), kein Standortfeld.
 - Changelog: 1.57.0 - Neuer Schlüssel ls_opt_target_top.
@@ -1065,6 +1067,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.57.1 - New key sp_title_report_link, see lang/admin/de.php 1.58.1.
 - Changelog: 1.57.0 - Matching new/updated keys, see lang/admin/de.php 1.58.0.
 - Changelog: 1.56.1 - Matching English label change, see lang/admin/de.php 1.57.1.
 - Changelog: 1.56.0 - New key ls_opt_target_top.
@@ -1185,6 +1188,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.63.2 - Schlüssel liga_info_title ("LMOnext – Version {version}") wieder ergänzt - fehlte in der deutschen Sprachdatei, dadurch hätte die Überschrift der Info-Seite sonst den rohen Schlüsselnamen gezeigt.
 - Changelog: 1.63.1 - Info-Text überarbeitet (Copyright um Torsten Hofmann ergänzt und neuer Schlüssel liga_info_link_github.
 - Changelog: 1.63.0 - Neuer Schlüssel liga_freilos_label ("Freilos") für die Anzeige von Freilos-Begegnungen bei KO-Turnieren.
 - Changelog: 1.62.0 - Neue Schlüssel liga_weekday_full_1..7 (volle Wochentagsnamen) und liga_month_short_1..12 (kurze Monatsnamen), ergänzen die bereits vorhandenen liga_weekday_mo..so/liga_month_1..12 - siehe TeamFormattingTrait.php 1.8.0.
@@ -1496,6 +1500,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.39.3 - renderPartieRow() nutzt für den Spielbericht-Link jetzt TeamFormattingTrait::safeReportUrl() statt der festen Prüfung auf "http(s)://" - relative URLs werden damit angezeigt.
 - Changelog: 1.39.2 - renderInfoView() übergibt zusätzlich LinkGithub an das Info-Template.
 - Changelog: 1.39.1 - Neues 📝-Symbol in der Ergebnisliste (renderPartieRow()), zeigt den Inhalt von liga_partien.notiz als Hover-Tooltip, sofern vorhanden - bisher wurde dieses Feld (im KO-Formular bisher "Spielort" beschriftet, im Datenmodell aber ein freies Notizfeld) nirgends im Frontend angezeigt.
 - Changelog: 1.39.0 - Die Kreuztabellen-Kopfzeile übergibt jetzt den vollen Teamnamen als Titel an renderTeamLogoImg() (siehe TeamFormattingTrait.php 1.10.0) - zeigt den Mannschaftsnamen als Tooltip beim Hovern über das Wappen, da dort sonst kein begleitender Text sichtbar ist.
@@ -1583,6 +1588,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/TeamFormattingTrait.php
 
+- Changelog: 1.12.1 - Neue Funktion safeReportUrl() für den "Link zum Spielbericht" (eine URL ohne "http(s)://" wurde bisher pauschal verworfen). Erlaubt jetzt absolute http(s)-URLs UND relative URLs ohne Schema ("berichte/x.html", "/berichte/x.html", "../x.pdf", "//host/x", "?x", "#x"). Jedes andere Schema (javascript:, data:, vbscript:, file:, mailto: ...) wird weiterhin abgelehnt, ebenso jede URL mit Steuerzeichen (Tab/Zeilenumbruch) - Browser entfernen diese beim Parsen stillschweigend, ein "java<TAB>script:" sähe sonst wie ein harmloser relativer Pfad aus.
 - Changelog: 1.12.0 - Beitrag: Nutzeranfrage - neues assets/img/freilos.svg (weiße Flagge, Platzhalter-Symbol) wird bei aktivierten Mannschaftslogos jetzt anstelle eines Teamwappens gezeigt, wenn die jeweilige Seite ein Freilos ist. Neue gemeinsame Hilfsfunktion resolveSideLogoHtml(), genutzt von partieTeamNameWithLogo()/-Reversed() - wirkt dadurch automatisch überall, wo diese beiden Funktionen bereits verwendet werden (Ergebnisse, KO-Finalrunden-Gruppierung, Team-Spielplan).
 - Changelog: 1.11.0 - partieTeamName() übersetzt den Freilos-Marker (KO_FREILOS_MARKER) jetzt zentral in den sichtbaren Text "Freilos" (tf('liga_freilos_label')) - gilt automatisch für jede Ausgabestelle (Ergebnisse, Spielplan, Kreuztabelle), ohne dass jede einzelne Stelle das selbst prüfen müsste. Dafür partieIsEmptyPlaceholder()/partieHasEmptySide() auf eine neue, gemeinsame Hilfsfunktion partieSideIsEmptyRaw() umgestellt, die bewusst auf dem ROHEN Label statt dem (jetzt übersetzten) Anzeigenamen prüft - sonst hätte die neue Übersetzung das Ausblenden leerer Begegnungen auf der Ergebnisseite (siehe vorheriger Changelog-Eintrag) wieder außer Kraft gesetzt, da "Freilos" als Text ja nicht mehr leer aussieht.
 - Changelog: 1.10.1 - Neue Funktion partieHasEmptySide() (Beitrag: Nutzeranfrage - Freilose bei KO-Turnieren sollen auf der Ergebnisliste nicht angezeigt werden). Anders als partieIsEmptyPlaceholder() (verlangt BEIDE Seiten leer) reicht hier bereits EINE leere Seite.
@@ -1829,6 +1835,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.19.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.19.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.17.16 - .liga-ticker-CSS komplett entfernt (als eigenständiges Addon "ticker" ausgegliedert) - lebt jetzt als Inline-<style>-Block im Hook-Ergebnis (addon/ticker/TickerRenderer.php), da das Addon keinen festen Platz mehr im Core-Template-CSS hat.
 - Changelog: 1.17.15 - .liga-ticker/.liga-ticker-text CSS komplett auf einen echten CSS-Marquee-Scroll umgebaut (siehe src/Liga/RenderViewsTrait.php 1.23.0 und das neue ticker_block.tpl.php 2.0.0) - Viewport mit overflow:hidden + Track mit @keyframes-Animation (translateX 0 -> -50%, Text im Partial dupliziert für nahtlosen Loop), pausiert bei :hover, respektiert prefers-reduced-motion (Animation aus, normaler horizontaler Scroll-Container, Duplikat ausgeblendet).
@@ -1857,6 +1864,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/colored/layout.tpl.php
 
+- Changelog: 1.8.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.8.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.6.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.6.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
@@ -1882,6 +1890,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/dark/layout.tpl.php
 
+- Changelog: 1.7.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.7.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.5.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
@@ -1907,6 +1916,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/light/layout.tpl.php
 
+- Changelog: 1.7.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.7.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.5.13 - Gleicher CSS-Fix wie template/default/layout.tpl.php 1.17.13.
 - Changelog: 1.5.12 - Gleiche neue CSS-Regeln .gt-footnote/.gt-footnote-line wie template/default/layout.tpl.php 1.17.12.
@@ -1932,6 +1942,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.5.1 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.5.0 - Neuer Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content: schmalere feste Breite (104px statt 176px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
 - Changelog: 1.2.16 - Gleiche Entfernung wie template/default/layout.tpl.php 1.17.16.
 - Changelog: 1.2.15 - Gleicher CSS-Marquee-Umbau wie template/default/layout.tpl.php 1.17.15, mit den für dieses Template üblichen Farbvariablen (--ink/--bg-alt).

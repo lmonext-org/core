@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.0
+ * Fileversion: 1.58.1
  *
  * PHP version 8.2
  *
@@ -334,6 +334,7 @@ return [
     'sp_status_nv'                   => 'n.V. (nach Verlängerung)',
     'sp_placeholder_venue'           => '📝 Notiz zum Spiel',
     'sp_placeholder_report_link'     => '🔗 Link zum Spielbericht (optional)',
+    'sp_title_report_link'           => 'Absolute URL (https://…) oder relativer Pfad, z.B. berichte/spiel12.html oder /berichte/spiel12.html',
     'sp_placeholder_gt_grund'        => '📝 Zusätzliche Informationen zur Sportgericht-Entscheidung (optional)',
     'sp_label_saetze'                => 'Sätze',
     'sp_btn_satz_add'                => 'Weiteren Satz hinzufügen',

@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: colored | Filename: layout.tpl.php | Fileversion: 1.8.3
+  Template: colored | Filename: layout.tpl.php | Fileversion: 1.8.4
   HTML-Grundgerüst der ganzen Seite. Enthält AUSSCHLIESSLICH Markup und
   Platzhalter der Form <comment>Name</comment> (als HTML-Kommentar), kein PHP. Alle Werte
   werden von den Root-Controllern (home.php, liga.php) über
@@ -305,7 +305,7 @@ table.standings-table td{padding:8px 10px;border-top:1px solid var(--border)}
 /* Form-Dots (letzte 5 Spiele) */
 .st-form{white-space:nowrap;text-align:center;min-width:70px}
 .form-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 1px;vertical-align:middle}
-.form-win{background:#22c55e}.form-draw{background:#9ca3af}.form-loss{background:#1f2937}
+.form-win{background:#22c55e}.form-draw{background:#9ca3af}.form-loss{background:#ef4444}
 .form-dot-wrap{position:relative;display:inline-block}
 .form-tooltip{display:none;position:absolute;top:135%;right:-8px;left:auto;
   background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;
