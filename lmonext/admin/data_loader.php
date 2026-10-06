@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.17.1
+ * Fileversion: 1.17.2
  *
  * PHP version 8.2
  *
@@ -497,11 +497,12 @@ if ($action === 'liga_settings' && isLoggedIn()) {
 $teamsData = null;
 if ($action === 'teams' && isLoggedIn()) {
     ensureTeamUrlSchema();
+    ensureTeamFreilosSchema();
     try {
         $db = getDB();
         // Alle Teams mit Anzahl Ligen-Verwendungen
         $sT = $db->query(
-            'SELECT g.id, g.name, g.mittel, g.kurz, g.url,
+            'SELECT g.id, g.name, g.mittel, g.kurz, g.url, g.is_freilos,
                     COUNT(DISTINCT lt.liga_id) AS liga_count
                FROM '.tbl('teams_global').' g
                LEFT JOIN '.tbl('liga_teams').' lt ON lt.team_id = g.id

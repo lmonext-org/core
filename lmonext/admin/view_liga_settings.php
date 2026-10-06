@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.24.0
+ * Fileversion: 1.24.1
  *
  * PHP version 8.2
  *
@@ -260,6 +260,7 @@ if ($tab === 'grundwerte') { ?>
           </table>
           <script>
           const i18nLdNoMatch = <?= json_encode(t('ld_js_no_match')) ?>;
+          const i18nLdFreilos = <?= json_encode(t('teams_typ_freilos')) ?>;
           const i18nLdIdNotFound = <?= json_encode(t('ld_js_id_not_found')) ?>;
           const i18nLdLoading = <?= json_encode(t('common_loading')) ?>;
           // ── Team-Editor: öffnen/schließen ─────────────────────────────────────
@@ -304,7 +305,7 @@ if ($tab === 'grundwerte') { ?>
                       const div = document.createElement('div');
                       div.style.cssText = 'padding:10px 12px;font-size:.85rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;-webkit-tap-highlight-color:rgba(59,130,246,.2)';
                       div.innerHTML = `<span style="font-weight:500">${esc(t.name)}</span>`
-                                    + `<span style="color:var(--muted);font-size:.78rem">${esc(t.mittel)}${t.kurz ? ' · '+esc(t.kurz) : ''}</span>`;
+                                    + `<span style="color:var(--muted);font-size:.78rem">${esc(t.mittel)}${t.kurz ? ' · '+esc(t.kurz) : ''}${parseInt(t.is_freilos) ? ' · ' + i18nLdFreilos : ''}</span>`;
 
                       div.addEventListener('mouseover', () => div.style.background = 'var(--surface2)');
                       div.addEventListener('mouseout',  () => div.style.background = '');

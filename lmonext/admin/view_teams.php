@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_teams.php
- * Fileversion: 1.7.1
+ * Fileversion: 1.8.0
  *
  * PHP version 8.2
  *
@@ -80,6 +80,10 @@ foreach ($teams as $t) {
               </td>
               <td>
                 <span class="team-disp-name" style="font-weight:500"><?= h($t['name']) ?></span>
+                <?php if (!empty($t['is_freilos'])) { ?>
+                <span class="chip" title="<?= h(t('teams_typ_freilos_hint')) ?>"
+                      style="font-size:.68rem;margin-left:4px;background:var(--surface2);color:var(--muted)"><?= h(t('teams_typ_freilos')) ?></span>
+                <?php } ?>
                 <?php if (!empty($t['url'])) { ?>
                 <a href="<?= h($t['url']) ?>" target="_blank" rel="noopener" title="<?= h($t['url']) ?>"
                    style="margin-left:4px;text-decoration:none">🔗</a>
@@ -108,7 +112,7 @@ foreach ($teams as $t) {
               </td>
               <td style="white-space:nowrap">
                 <button class="btn btn-muted btn-sm"
-                        onclick="openGlobalEdit(<?= $t['id'] ?>, <?= h(json_encode($t['name'])) ?>, <?= h(json_encode($t['mittel'])) ?>, <?= h(json_encode($t['kurz'])) ?>, <?= h(json_encode($t['url'] ?? '')) ?>)">✏️</button>
+                        onclick="openGlobalEdit(<?= $t['id'] ?>, <?= h(json_encode($t['name'])) ?>, <?= h(json_encode($t['mittel'])) ?>, <?= h(json_encode($t['kurz'])) ?>, <?= h(json_encode($t['url'] ?? '')) ?>, <?= !empty($t['is_freilos']) ? 1 : 0 ?>)">✏️</button>
                 <button class="btn btn-muted btn-sm" style="position:relative"
                         title="<?= h(t('teams_btn_links')) ?>"
                         onclick="openLinkModal(<?= $t['id'] ?>, <?= h(json_encode($t['name'])) ?>)">🔗<?php if ((int)($t['link_count'] ?? 0) > 0) { ?><span
@@ -157,6 +161,15 @@ foreach ($teams as $t) {
                     <input type="text" name="team_url" id="ge-url-<?= $t['id'] ?>" placeholder="https://…"
                            style="background:var(--bg);border:1px solid var(--border);color:var(--text);
                                   border-radius:var(--radius);padding:5px 10px;font-size:.87rem;width:220px">
+                  </div>
+                  <div>
+                    <label style="font-size:.73rem;color:var(--muted);display:block;margin-bottom:2px"><?= h(t('teams_field_typ')) ?></label>
+                    <select name="team_typ" id="ge-typ-<?= $t['id'] ?>" title="<?= h(t('teams_typ_freilos_hint')) ?>"
+                            style="background:var(--bg);border:1px solid var(--border);color:var(--text);
+                                   border-radius:var(--radius);padding:5px 10px;font-size:.87rem">
+                      <option value="team"><?= h(t('teams_typ_team')) ?></option>
+                      <option value="freilos"><?= h(t('teams_typ_freilos')) ?></option>
+                    </select>
                   </div>
                   <div>
                     <label style="font-size:.73rem;color:var(--muted);display:block;margin-bottom:2px"><?= h(t('teams_field_logo')) ?></label>
@@ -336,12 +349,13 @@ const i18nTeams = {
 };
 
 // ── Inline-Edit ───────────────────────────────────────────────────────────────
-function openGlobalEdit(id, name, mittel, kurz, url) {
+function openGlobalEdit(id, name, mittel, kurz, url, isFreilos) {
   document.querySelectorAll('[id^="edit-"]').forEach(r => r.style.display = 'none');
   document.getElementById('ge-name-'   + id).value = name;
   document.getElementById('ge-mittel-' + id).value = mittel;
   document.getElementById('ge-kurz-'   + id).value = kurz;
   document.getElementById('ge-url-'    + id).value = url || '';
+  document.getElementById('ge-typ-'    + id).value = isFreilos ? 'freilos' : 'team';
   document.getElementById('edit-' + id).style.display = '';
   document.getElementById('ge-name-' + id).focus();
 }

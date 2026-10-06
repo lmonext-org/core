@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.14.0
+ * Fileversion: 1.14.2
  *
  * PHP version 8.2
  *
@@ -82,10 +82,13 @@ if ($action === 'team_search' && isset($_GET['q'])) {
     header('Content-Type: application/json; charset=utf-8');
     $q = '%' . trim($_GET['q']) . '%';
     try {
+        ensureTeamFreilosSchema();
+        // Freilos-Teams bleiben auswählbar (werden für KO-Turniere gebraucht),
+        // erscheinen aber am Ende der Trefferliste und sind markiert.
         $s = getDB()->prepare(
-            'SELECT id, name, mittel, kurz FROM '.tbl('teams_global').'
+            'SELECT id, name, mittel, kurz, is_freilos FROM '.tbl('teams_global').'
               WHERE name LIKE ? OR mittel LIKE ? OR kurz LIKE ?
-              ORDER BY name LIMIT 20'
+              ORDER BY is_freilos, name LIMIT 20'
         );
         $s->execute([$q, $q, $q]);
         echo json_encode($s->fetchAll(), JSON_UNESCAPED_UNICODE);
@@ -358,14 +361,16 @@ if ($action === 'save_global_team' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $mittel = trim($_POST['team_mittel'] ?? '');
     $kurz   = trim($_POST['team_kurz']   ?? '');
     $url    = trim($_POST['team_url']    ?? '');
+    $isFreilos = (($_POST['team_typ'] ?? '') === 'freilos') ? 1 : 0;
     if ($url !== '' && !preg_match('~^https?://~i', $url)) {
         $url = 'https://' . $url; // bequemer für den Admin, muss nicht jedes Mal "https://" mit eintippen
     }
     if ($tid > 0 && $name !== '') {
         try {
             ensureTeamUrlSchema();
-            getDB()->prepare('UPDATE '.tbl('teams_global').' SET name=?, mittel=?, kurz=?, url=? WHERE id=?')
-                   ->execute([$name, $mittel, $kurz, $url !== '' ? $url : null, $tid]);
+            ensureTeamFreilosSchema();
+            getDB()->prepare('UPDATE '.tbl('teams_global').' SET name=?, mittel=?, kurz=?, url=?, is_freilos=? WHERE id=?')
+                   ->execute([$name, $mittel, $kurz, $url !== '' ? $url : null, $isFreilos, $tid]);
 
             if (!empty($_FILES['team_logo']['name'])) {
                 $logoResult = saveTeamLogoUpload($tid, $_FILES['team_logo']);

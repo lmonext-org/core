@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.57.1
+ * Fileversion: 1.57.2
  *
  * PHP version 8.2
  *
@@ -292,6 +292,10 @@ return [
     'teams_field_kurz'           => 'Abbr.',
     'teams_field_url'            => 'Club/team website',
     'teams_field_logo'           => 'Logo',
+    'teams_field_typ'            => 'Type',
+    'teams_typ_team'             => 'Team',
+    'teams_typ_freilos'          => 'Bye',
+    'teams_typ_freilos_hint'     => 'Bye = placeholder team for knockout brackets with fewer teams; hidden e.g. in the all-time table.',
     'teams_logo_remove'          => 'Remove logo',
     'teams_logo_hint'            => 'SVG, JPG, PNG or GIF, at least 50px tall.',
     'teams_col_logo'             => 'Logo',

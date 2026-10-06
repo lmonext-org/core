@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.1
+ * Fileversion: 1.58.2
  *
  * PHP version 8.2
  *
@@ -293,6 +293,10 @@ return [
     'teams_field_kurz'           => 'Kürzel',
     'teams_field_url'            => 'Vereins-/Team-Website',
     'teams_field_logo'           => 'Logo',
+    'teams_field_typ'            => 'Typ',
+    'teams_typ_team'             => 'Team',
+    'teams_typ_freilos'          => 'Freilos',
+    'teams_typ_freilos_hint'     => 'Freilos = Platzhalter-Team für KO-Turniere mit weniger Teams; wird z.B. in der Ewigen Tabelle ausgeblendet.',
     'teams_logo_remove'          => 'Logo entfernen',
     'teams_logo_hint'            => 'SVG, JPG, PNG oder GIF, mindestens 50px hoch.',
     'teams_col_logo'             => 'Logo',

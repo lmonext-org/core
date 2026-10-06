@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: install.php
- * Fileversion: 2.9.0
+ * Fileversion: 2.9.1
  *
  * PHP version 8.2
  *
@@ -262,6 +262,7 @@ function setupDatabase(array $cfg): array {
                 `kurz`   VARCHAR(30)  NOT NULL DEFAULT '',
                 `mittel` VARCHAR(80)  NOT NULL DEFAULT '',
                 `url`    VARCHAR(500) NULL     DEFAULT NULL,
+                `is_freilos` TINYINT(1) NOT NULL DEFAULT 0,
                 UNIQUE KEY `uniq_team_name` (`name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
@@ -548,6 +549,10 @@ function setupDatabase(array $cfg): array {
         $teamsGlobalCols = $pdo->query("SHOW COLUMNS FROM `{$p}teams_global`")->fetchAll(PDO::FETCH_COLUMN);
         if (!in_array('url', $teamsGlobalCols, true)) {
             $pdo->exec("ALTER TABLE `{$p}teams_global` ADD COLUMN `url` VARCHAR(500) NULL DEFAULT NULL");
+        }
+        // ── Kennzeichen "Freilos" (siehe ensureTeamFreilosSchema() in admin/bootstrap.php) ──
+        if (!in_array('is_freilos', $teamsGlobalCols, true)) {
+            $pdo->exec("ALTER TABLE `{$p}teams_global` ADD COLUMN `is_freilos` TINYINT(1) NOT NULL DEFAULT 0");
         }
 
         // ── team_links-Migration (siehe ensureTeamLinksSchema() in

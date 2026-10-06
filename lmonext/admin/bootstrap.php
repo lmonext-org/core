@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.32.1
+ * Fileversion: 1.32.2
  *
  * PHP version 8.2
  *
@@ -1016,6 +1016,24 @@ function ensureTeamUrlSchema() : void
         $cols = $db->query('SHOW COLUMNS FROM '.tbl('teams_global'))->fetchAll(PDO::FETCH_COLUMN);
         if (!in_array('url', $cols, true)) {
             $db->exec('ALTER TABLE '.tbl('teams_global').' ADD COLUMN `url` VARCHAR(500) NULL DEFAULT NULL');
+        }
+    } catch (Throwable) {}
+}
+
+/**
+ * Stellt sicher, dass teams_global.is_freilos existiert (0 = normales Team,
+ * 1 = Freilos-/Platzhalter-Team, z.B. "Z_Freilos01" in KO-Turnieren mit
+ * weniger als 16 Teams). Freilos-Teams werden u.a. in der Ewigen Tabelle
+ * ausgeblendet.
+ */
+function ensureTeamFreilosSchema() : void
+{
+    static $done = false; if ($done) return; $done = true;
+    try {
+        $db   = getDB();
+        $cols = $db->query('SHOW COLUMNS FROM '.tbl('teams_global'))->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('is_freilos', $cols, true)) {
+            $db->exec('ALTER TABLE '.tbl('teams_global').' ADD COLUMN `is_freilos` TINYINT(1) NOT NULL DEFAULT 0');
         }
     } catch (Throwable) {}
 }

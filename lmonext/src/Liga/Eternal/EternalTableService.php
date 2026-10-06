@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/Eternal/EternalTableService.php
- * Fileversion: 1.2.0
+ * Fileversion: 1.3.0
  *
  * @author    Dietmar Kersting <webmaster@liga-manager-online.org>
  * @author    Torsten Hofmann <entwickler@bastel-code.de>
@@ -60,6 +60,33 @@ final class EternalTableService
             $out[] = ['id' => (int)$r['id'], 'name' => $r['name']];
         }
         return $out;
+    }
+
+    /**
+     * IDs aller als "Freilos" gekennzeichneten Teams (teams_global.is_freilos = 1).
+     * Existiert die Spalte noch nicht (ältere Installation, Teams-Seite noch nie
+     * geöffnet), ist die Menge leer - es wird dann nichts herausgefiltert.
+     *
+     * @return array<int,true>
+     */
+    private function freilosTeamIds(): array
+    {
+        static $cache = null;
+        if ($cache !== null) {
+            return $cache;
+        }
+        $cache = [];
+        try {
+            $rows = getDB()->query(
+                'SELECT id FROM ' . tbl('teams_global') . ' WHERE is_freilos = 1'
+            )->fetchAll(\PDO::FETCH_COLUMN);
+            foreach ($rows as $id) {
+                $cache[(int)$id] = true;
+            }
+        } catch (\Throwable) {
+            // Spalte fehlt noch - nichts filtern
+        }
+        return $cache;
     }
 
     /**
@@ -303,9 +330,13 @@ final class EternalTableService
         // tatsächlich vorkommenden Team-IDs, bevor sie einmalig läuft.
         $rawBySeasonTeam = [];
         $allTeamIds = [];
+        $freilos = $this->freilosTeamIds();
         foreach ($ligaIds as $lid) {
             foreach ($this->leagueStandings((int)$lid) as $r) {
                 $id = (int)$r['id'];
+                if (isset($freilos[$id])) {
+                    continue; // Freilos-Team: nicht in der Ewigen Tabelle
+                }
                 $rawBySeasonTeam[(int)$lid][$id] = $r;
                 $allTeamIds[$id] = true;
             }
@@ -450,8 +481,12 @@ final class EternalTableService
             $lid = (int)$lid;
             $info = LigaService::getLigaById($lid);
             $seasons[$lid] = $info['name'] ?? ('Liga ' . $lid);
+            $freilos = $this->freilosTeamIds();
             foreach ($this->leagueStandings($lid) as $r) {
                 $tid = (int)$r['id'];
+                if (isset($freilos[$tid])) {
+                    continue; // Freilos-Team: nicht im Mehrjahresvergleich
+                }
                 $rawByLiga[$lid][$tid] = $r;
                 $allTeamIds[$tid] = true;
             }
