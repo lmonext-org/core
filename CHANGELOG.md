@@ -660,6 +660,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_teams.php
 
+- Changelog: 1.9.0 - Neue Anfangsbuchstaben-Leiste (0-9, A-Z, #) über der Teamliste: zeigt nur Zeichen, mit denen mindestens ein Team beginnt (Umlaute/Akzente auf den Grundbuchstaben abgebildet); Klick filtert die Liste, erneuter Klick bzw. "Alle" hebt den Filter auf. Kombinierbar mit Suchfeld und Dubletten-Filter.
 - Changelog: 1.8.0 - Neues Feld "Typ" (Team / Freilos) im Bearbeiten-Formular eines globalen Teams; Freilos-Teams werden in der Liste mit einer Markierung versehen.
 - Changelog: 1.7.1 - Sicherheitsfix: csrfField() in jedes POST-Formular eingefügt (CSRF-Schutz, siehe admin/bootstrap.php).
 - Changelog: 1.7.0 - Bugfix: Team-Verknüpfungen-Modal bietet jetzt eine explizite Richtungswahl ("Wer ist der heutige/aktuelle Name?") beim Anlegen einer Verknüpfung, plus ein Dropdown zum nachträglichen Ändern bei bestehenden Verknüpfungen – behebt, dass die "(heute...)"-Kennzeichnung im Teamvergleich vom Aufrufkontext abhing statt fest zu sein
@@ -952,6 +953,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.58.3 - Neuer Schlüssel teams_letter_all.
 - Changelog: 1.58.2 - Neue Schlüssel teams_field_typ, teams_typ_team, teams_typ_freilos, teams_typ_freilos_hint.
 - Changelog: 1.58.1 - Neuer Schlüssel sp_title_report_link (Tooltip am Feld "Link zum Spielbericht").
 - Changelog: 1.58.0 - Neue Schlüssel sp_btn_freilos_short/sp_freilos_label für den 3-Stufen-KO-Picker, sp_tooltip_toggle_team_placeholder aktualisiert.
@@ -1075,6 +1077,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.57.3 - Matching new key teams_letter_all, see lang/admin/de.php 1.58.3.
 - Changelog: 1.57.2 - Matching new keys, see lang/admin/de.php 1.58.2.
 - Changelog: 1.57.1 - New key sp_title_report_link, see lang/admin/de.php 1.58.1.
 - Changelog: 1.57.0 - Matching new/updated keys, see lang/admin/de.php 1.58.0.

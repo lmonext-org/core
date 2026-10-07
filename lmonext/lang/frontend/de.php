@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.63.1
+ * Fileversion: 1.63.2
  *
  * PHP version 8.2
  *
@@ -201,6 +201,7 @@ return [
     'liga_tab_info'          => 'Info',
 
     // ── Info-Ansicht ──────────────────────────────────────────────────────────
+    'liga_info_title'      => 'LMOnext – Version {version}',
     'liga_info_copyright'  => '© 2026 Dietmar Kersting, Torsten Hofmann',
     'liga_info_text_1'     => 'LMOnext ist eine Software zur Verwaltung von Sportligen und Turnieren – für reguläre Ligen ebenso wie für KO-Turniere mit automatischer Rundenstruktur.',
     'liga_info_text_2'     => 'Es handelt sich um eine komplette Neuentwicklung für PHP 8 und MySQL/MariaDB, inspiriert vom Liga Manager Online (LMO).',

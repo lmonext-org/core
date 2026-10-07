@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.2
+ * Fileversion: 1.58.3
  *
  * PHP version 8.2
  *
@@ -293,6 +293,7 @@ return [
     'teams_field_kurz'           => 'Kürzel',
     'teams_field_url'            => 'Vereins-/Team-Website',
     'teams_field_logo'           => 'Logo',
+    'teams_letter_all'           => 'Alle',
     'teams_field_typ'            => 'Typ',
     'teams_typ_team'             => 'Team',
     'teams_typ_freilos'          => 'Freilos',
