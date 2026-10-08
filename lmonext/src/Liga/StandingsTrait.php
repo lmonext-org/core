@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace LMOnext\Liga;
 
 use LMOnext\Sport\VolleyballProfile;
+use LMOnext\Sport\BadmintonProfile;
 
 /**
  * Extracted from the legacy frontend/data_liga.php.
@@ -209,6 +210,7 @@ trait StandingsTrait
         // bestehende Liga) nutzen unverändert die bisherige Logik.
         $sportType = $ligaId !== null ? self::getLigaSportType($ligaId) : 'football';
         $isVolleyball = $sportType === 'volleyball';
+        $isBadminton = $sportType === 'badminton';
     
         $rows = [];
         foreach ($teamsList as $t) {
@@ -438,6 +440,19 @@ trait StandingsTrait
                         elseif ($catH === '1:3') { $rows[$hId]['l13']++; }
                         elseif ($catH === '2:3') { $rows[$hId]['l23']++; }
                     }
+                }
+            } elseif ($isBadminton) {
+                $bdPts = new BadmintonProfile()->computeMatchPoints($ht, $gt);
+                if ($ht > $gt) {
+                    $rows[$hId]['s']++;
+                    $rows[$hId]['pkt'] += $bdPts['home_pts'];
+                    $rows[$gId]['n']++;
+                    $rows[$gId]['pkt'] += $bdPts['guest_pts'];
+                } else {
+                    $rows[$hId]['n']++;
+                    $rows[$hId]['pkt'] += $bdPts['home_pts'];
+                    $rows[$gId]['s']++;
+                    $rows[$gId]['pkt'] += $bdPts['guest_pts'];
                 }
             } elseif ($gtHeimGewinnt ?? ($ht > $gt)) {
                 // Bei einer Grünen-Tisch-Entscheidung entscheidet
