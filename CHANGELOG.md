@@ -2015,6 +2015,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.5.3 - Stern-Markierung hinter der Lieblingsmannschaft in der Tabelle entfernt (.st-team.fav-team::after); die Hervorhebung bleibt über die fette Schrift erhalten.
 - Changelog: 1.5.2 - Bisher fest eingetragene Farben als Variablen im :root-Block angelegt (--chip-blue-bg, --chip-yellow-bg, --th-bg, --th-text, --tipp-th-bg, --tipp-th-text, --btn-text, --down) und in den Regeln .chip-blue, .chip-yellow, Tabellenköpfe (Ergebnisse, Kalender, Tippspiel), .btn-primary und .tipp-rang-ab verwendet. Die Werte entsprechen den bisherigen Farben, das Aussehen bleibt unverändert; die Farben sind dadurch zentral (z.B. im Template-Studio-Designer) änderbar.
 - Changelog: 1.5.1 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.5.0 - Neuer Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content: schmalere feste Breite (104px statt 176px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
