@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.5.1
+  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.5.3
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,6 +48,11 @@
   --radius:3px;
   --font-display:'Oswald',system-ui,sans-serif;
   --font-body:system-ui,-apple-system,'Segoe UI',sans-serif;
+  /* Feste Farben als Variablen (im Template-Studio-Designer änderbar) */
+  --chip-blue-bg:var(--ink);--chip-yellow-bg:var(--accent);
+  --th-bg:var(--ink);--th-text:#fff;
+  --tipp-th-bg:var(--ink);--tipp-th-text:#fff;
+  --btn-text:var(--accent-ink);--down:var(--danger);
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body);background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;font-size:15px}
@@ -82,8 +87,8 @@ a.liga-link .liga-name{font-weight:600}
 
 .chip{display:inline-block;font-size:.68rem;padding:3px 9px;border-radius:2px;font-weight:700;
   white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
-.chip-blue{background:var(--ink);color:#fff}
-.chip-yellow{background:var(--accent);color:var(--accent-ink)}
+.chip-blue{background:var(--chip-blue-bg);color:#fff}
+.chip-yellow{background:var(--chip-yellow-bg);color:var(--accent-ink)}
 
 details.archiv-folder{border-bottom:1px solid var(--line)}
 details.archiv-folder:last-child{border-bottom:none}
@@ -118,7 +123,7 @@ details.archiv-folder .folder-desc{color:var(--muted);font-size:.82rem;font-weig
 
 .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px}
 table.results-table{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface)}
-table.results-table thead th{background:var(--ink);color:#fff;text-align:left;padding:11px 14px;
+table.results-table thead th{background:var(--th-bg);color:var(--th-text);text-align:left;padding:11px 14px;
   font-weight:600;font-size:.72rem;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em;
   font-family:var(--font-display)}
 table.results-table thead th.col-ergebnis{text-align:center}
@@ -206,7 +211,7 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .tipp-form input[type=text],.tipp-form input[type=email],.tipp-form input[type=password]{
   width:100%;box-sizing:border-box;background:var(--bg-alt);border:1px solid var(--line);
   color:var(--ink);border-radius:var(--radius);padding:8px 10px;font-size:.9rem}
-.btn-primary{display:inline-block;background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--radius);
+.btn-primary{display:inline-block;background:var(--accent);color:var(--btn-text);border:none;border-radius:var(--radius);
   padding:9px 18px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:14px;text-decoration:none;
   text-transform:uppercase;letter-spacing:.03em}
 .btn-primary:hover{opacity:.85}
@@ -215,7 +220,7 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .flash-success{border-left-color:var(--pitch)}
 .flash-error{border-left-color:var(--danger)}
 table.tipp-table{width:100%;border-collapse:collapse;font-size:.87rem;background:var(--surface)}
-table.tipp-table thead th{background:var(--ink);color:#fff;text-align:left;padding:9px 12px;font-weight:600;font-size:.8rem;
+table.tipp-table thead th{background:var(--tipp-th-bg);color:var(--tipp-th-text);text-align:left;padding:9px 12px;font-weight:600;font-size:.8rem;
   text-transform:uppercase;letter-spacing:.03em}
 table.tipp-table tbody tr:nth-child(even){background:var(--bg-alt)}
 table.tipp-table td{padding:8px 12px;border-top:1px solid var(--line)}
@@ -236,7 +241,7 @@ table.tipp-matrix .tipp-matrix-treffer{color:var(--text);font-weight:600}
 table.tipp-matrix .tipp-matrix-treffer sub{color:var(--accent);font-weight:700;margin-left:1px}
 table.tipp-matrix .tipp-matrix-leer{color:var(--muted)}
 .tipp-rang-auf{color:var(--green)}
-.tipp-rang-ab{color:#dc2626}
+.tipp-rang-ab{color:var(--down)}
 .tipp-spieltag-nav a{color:var(--accent);text-decoration:none;font-size:1rem}
 .tipp-spieltag-sieger{color:#dc2626;font-weight:700}
 .tipp-archiv-badge{display:inline-block;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--border);vertical-align:middle}
@@ -301,7 +306,7 @@ table.tipp-matrix .tipp-matrix-leer{color:var(--muted)}
   text-transform:uppercase;letter-spacing:.03em}
 .cal-today-link{font-size:.78rem;color:var(--muted) !important;font-weight:600 !important}
 table.cal-table{width:100%;border-collapse:collapse;table-layout:fixed}
-table.cal-table th{background:var(--ink);color:#fff;padding:7px 4px;font-size:.68rem;font-weight:700;
+table.cal-table th{background:var(--th-bg);color:var(--th-text);padding:7px 4px;font-size:.68rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.03em}
 table.cal-table td.cal-day{border:1px solid var(--line);vertical-align:top;height:58px;padding:4px 5px;font-size:.78rem}
 table.cal-table td.cal-empty{background:var(--bg-alt);border:1px solid var(--line)}
@@ -339,8 +344,6 @@ table.standings-table td{padding:9px 10px;border-top:1px solid var(--line)}
   font-size:1.25rem;font-variant-numeric:tabular-nums}
 .st-team{font-weight:600;white-space:nowrap}
 .st-team.fav-team{font-weight:700;color:var(--ink)}
-.st-team.fav-team::after{content:'★';color:var(--accent-ink);background:var(--accent);
-  font-size:.6rem;padding:1px 3px;margin-left:6px;border-radius:2px;vertical-align:middle}
 .st-num{text-align:center;width:1%;white-space:nowrap;font-variant-numeric:tabular-nums}
 .st-pkt{text-align:center;font-weight:700;color:var(--ink);width:1%;white-space:nowrap;
   font-family:var(--font-display);font-size:1.05rem;font-variant-numeric:tabular-nums}
