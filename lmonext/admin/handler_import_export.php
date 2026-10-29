@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_import_export.php
- * Fileversion: 1.14.0
+ * Fileversion: 1.14.1
  *
  * PHP version 8.2
  *
@@ -813,6 +813,9 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                         } elseif ($gtSieger === 'b') {
                             $gtEntscheidung = $aHatHeim ? 2 : 1;
                         }
+                        $exQ = $db->prepare('SELECT id FROM '.tbl('liga_partien').' WHERE spieltag_id=? AND spiel_nr=? LIMIT 1');
+                        $exQ->execute([$stid, $spielNr]);
+                        if ($exQ->fetchColumn()) { continue; } // bereits vorhanden
                         $stmtPL->execute([
                             $stid, $spielHId, $spielGId,
                             $spielHLabel, $spielGLabel,
@@ -830,6 +833,19 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                 foreach (($st['partien'] ?? []) as $p) {
                     $hId = $teamMap[$p['heim']] ?? null; $gId = $teamMap[$p['gast']] ?? null;
                     if ($hId && $gId) {
+                        // Existiert die Liga schon (gleicher Name), dieselbe Paarung
+                        // im selben Spieltag aktualisieren statt doppelt anzulegen.
+                        $exQ = $db->prepare('SELECT id FROM '.tbl('liga_partien').' WHERE spieltag_id=? AND heim_id=? AND gast_id=? ORDER BY id LIMIT 1');
+                        $exQ->execute([$stid, $hId, $gId]);
+                        $exId = (int)$exQ->fetchColumn();
+                        if ($exId) {
+                            $db->prepare('UPDATE '.tbl('liga_partien').' SET h_tore=?,g_tore=?,zeit=COALESCE(?,zeit),notiz=?,status=?,bericht_url=?,extra_data=?,gt_entscheidung=? WHERE id=?')->execute([
+                                $p['h_tore'], $p['g_tore'], $p['zeit'], $p['notiz'] ?: null,
+                                $p['status'] ?? 0, $p['bericht'] ?? null,
+                                !empty($p['sets']) ? json_encode(['sets' => $p['sets']]) : null,
+                                $p['gt_entscheidung'] ?? 0, $exId]);
+                            continue;
+                        }
                         $stmtP->execute([
                             $stid, $hId, $gId, $p['h_tore'], $p['g_tore'], $p['zeit'], $p['notiz'] ?: null,
                             $p['status'] ?? 0, $p['bericht'] ?? null, $p['spiel_nr'],

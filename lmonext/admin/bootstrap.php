@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.32.2
+ * Fileversion: 1.32.3
  *
  * PHP version 8.2
  *
@@ -1192,14 +1192,29 @@ function saveTeamLogoUpload(int $teamId, array $file) : array
     if ($file['error'] !== UPLOAD_ERR_OK) {
         return ['ok' => false, 'error' => t('teams_logo_err_upload')];
     }
-    $ext = strtolower(pathinfo((string)$file['name'], PATHINFO_EXTENSION));
+    $tmpPath = (string)$file['tmp_name'];
+    if (!is_uploaded_file($tmpPath)) {
+        return ['ok' => false, 'error' => t('teams_logo_err_upload')];
+    }
+    return saveTeamLogoFromPath($teamId, $tmpPath, (string)$file['name'], true);
+}
+
+/**
+ * Gemeinsame Prüfung + Speicherung eines Team-Logos aus einer Datei auf dem
+ * Server (Einzel-Upload: $isUpload = true -> move_uploaded_file; Massen-Upload
+ * aus dem Zwischenverzeichnis: $isUpload = false -> copy). Alle Prüfungen
+ * (Format, Inhalt, Mindesthöhe, SVG-Bereinigung) sind für beide Wege identisch.
+ *
+ * @return array{ok:bool,error:?string}
+ */
+function saveTeamLogoFromPath(int $teamId, string $tmpPath, string $origName, bool $isUpload) : array
+{
+    $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
     if ($ext === 'jpeg') { $ext = 'jpg'; }
     if (!in_array($ext, ['svg', 'jpg', 'png', 'gif'], true)) {
         return ['ok' => false, 'error' => t('teams_logo_err_format')];
     }
-
-    $tmpPath = (string)$file['tmp_name'];
-    if (!is_uploaded_file($tmpPath)) {
+    if (!is_file($tmpPath)) {
         return ['ok' => false, 'error' => t('teams_logo_err_upload')];
     }
 
@@ -1252,7 +1267,7 @@ function saveTeamLogoUpload(int $teamId, array $file) : array
         if (@file_put_contents($destPath, $sanitizedSvgContent) === false) {
             return ['ok' => false, 'error' => t('teams_logo_err_upload')];
         }
-    } elseif (!move_uploaded_file($tmpPath, $destPath)) {
+    } elseif ($isUpload ? !move_uploaded_file($tmpPath, $destPath) : !@copy($tmpPath, $destPath)) {
         return ['ok' => false, 'error' => t('teams_logo_err_upload')];
     }
     @chmod($destPath, 0644);

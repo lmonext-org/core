@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_import.php
- * Fileversion: 1.2.2
+ * Fileversion: 1.2.3
  *
  * PHP version 8.2
  *
@@ -18,6 +18,9 @@ $importDetails = $_SESSION['import_details'] ?? [];
 unset($_SESSION['import_details']);
 $maxUploads = (int)ini_get('max_file_uploads') ?: 20;
 ?>
+      <div style="margin-bottom:12px">
+        <a href="?action=import_merge" class="btn btn-muted btn-sm" style="text-decoration:none">🔀 <?= h(t('impm_link_to_merge')) ?></a>
+      </div>
       <!-- Tab-Auswahl -->
       <div style="display:flex;gap:0;margin-bottom:0;flex-wrap:wrap">
         <a href="#tab-multi" onclick="switchTab('multi')"

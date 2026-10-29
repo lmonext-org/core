@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.17.2
+ * Fileversion: 1.17.4
  *
  * PHP version 8.2
  *
@@ -667,6 +667,10 @@ $pageTitle = match($action) {
     'tabelle'      => t('title_tabelle'),
     'import'       => t('title_import'),
     'import_review'=> t('title_import_review'),
+    'team_logos' => t('tlb_heading'),
+    'team_logos_review' => t('tlb_review_heading'),
+    'import_merge' => t('impm_heading'),
+    'import_merge_review' => t('impm_review_heading'),
     'archiv'       => t('title_archiv'),
     'teams'        => t('nav_teams'),
     'tippspiel'    => t('nav_tippspiel'),

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/Eternal/EternalTableService.php
- * Fileversion: 1.3.0
+ * Fileversion: 1.3.1
  *
  * @author    Dietmar Kersting <webmaster@liga-manager-online.org>
  * @author    Torsten Hofmann <entwickler@bastel-code.de>
@@ -502,7 +502,14 @@ final class EternalTableService
             foreach ($teamsInSeason as $origId => $r) {
                 $tid = $canonicalOf[$origId] ?? $origId;
                 $teams[$tid] = $canonicalNames[$tid] ?? $r['name'];
-                $matrix[$tid][$lid] = ['rang' => (int)$r['rang'], 'pkt' => (int)$r['pkt']];
+                $matrix[$tid][$lid] = [
+                    'rang' => (int)$r['rang'],
+                    'pkt'  => (int)$r['pkt'],
+                    // Bilanz der Saison - für KO-Turniere (keine Punkte) im Ewige-Tabelle-Addon
+                    'sp'   => (int)$r['sp'],
+                    's'    => (int)$r['s'],
+                    'n'    => (int)$r['n'],
+                ];
             }
         }
 

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: admin.php
- * Fileversion: 1.7.0
+ * Fileversion: 1.7.2
  *
  * PHP version 8.2
  *
@@ -45,6 +45,8 @@ require_once ADMIN_INC . '/handler_user.php';
 require_once ADMIN_INC . '/handler_settings.php';
 require_once ADMIN_INC . '/handler_ko.php';            // koHeimatTeamA() muss vor import_export bekannt sein
 require_once ADMIN_INC . '/handler_import_export.php';
+require_once ADMIN_INC . '/handler_import_merge.php';   // .l98 in vorhandene Liga übernehmen
+require_once ADMIN_INC . '/handler_team_logos.php';     // Team-Logos per Massen-Upload
 require_once ADMIN_INC . '/handler_wizard.php';
 require_once ADMIN_INC . '/handler_export.php';
 require_once ADMIN_INC . '/handler_liga.php';
@@ -105,6 +107,11 @@ if ($addonView !== null) {
 
 } elseif ($action === 'import_review') {
     require ADMIN_INC . '/view_import_review.php';
+
+} elseif ($action === 'team_logos' || $action === 'team_logos_review') {
+    require ADMIN_INC . '/view_team_logos.php';
+} elseif ($action === 'import_merge' || $action === 'import_merge_review') {
+    require ADMIN_INC . '/view_import_merge.php';
 
 } elseif ($action === 'users') {
     require ADMIN_INC . '/view_users.php';
