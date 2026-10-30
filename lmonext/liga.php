@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.29.1
+ * Fileversion: 3.30.0
  *
  * PHP version 8.2
  *
@@ -121,6 +121,15 @@ if ($isKO) {
     $flags['kreuztabelle']  = false;
     $flags['fieberkurve']   = false;
     $flags['ligastatistik'] = false;
+}
+
+// Liga-Option "Ergebnisse und Tabelle auf einer Seite" (wie im alten LMO):
+// die Tabelle erscheint unter den Ergebnissen, der eigene Tabellen-Reiter
+// entfällt. Nur bei regulären Ligen mit aktivem Ergebnisse-Reiter.
+$combinedResultsTable = !$isKO && !empty($flags['ergebnisse']) && !empty($flags['tabelle'])
+    && ($opts['ErgebnisTabelle'] ?? '0') === '1';
+if ($combinedResultsTable) {
+    $flags['tabelle'] = false;
 }
 
 $allSpieltage = getAllSpieltage($ligaId);
@@ -395,7 +404,14 @@ switch ($currentView) {
         // darunter) - $pdfButtonHtml wird deshalb jetzt hier separat ganz
         // ans Ende gehängt, statt (wie zuvor) bereits am Ende von
         // $ergebnisInhalt zu stehen.
-        $viewInhalt = $subtitle . $picker . $spieltagNav . $ergebnisInhalt . $spieltagNav . $pdfButtonHtml;
+        $kombiTabelle = '';
+        if ($combinedResultsTable && $currentNr !== null) {
+            $kombiMode    = (string)($_GET['table'] ?? 'gesamt');
+            $kombiTabelle = '<div class="results-table-combined" style="margin-top:20px">'
+                . renderStandingsView($ligaId, $allSpieltage, (int)$currentNr, $kombiMode, 'ergebnisse')
+                . '</div>';
+        }
+        $viewInhalt = $subtitle . $picker . $spieltagNav . $ergebnisInhalt . $spieltagNav . $kombiTabelle . $pdfButtonHtml;
         break;
 }
 

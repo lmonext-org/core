@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.32.3
+ * Fileversion: 1.32.4
  *
  * PHP version 8.2
  *
@@ -1048,6 +1048,13 @@ function ensureTeamFreilosSchema() : void
 const TEAM_LOGO_ALLOWED_EXT  = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
 const TEAM_LOGO_MIN_HEIGHT_PX = 50;
 
+function teamLogoMinHeight() : int
+{
+    $v = getAdminSetting('team_logo_min_height', '');
+    if ($v === '' || !ctype_digit($v)) { return TEAM_LOGO_MIN_HEIGHT_PX; }
+    return min(1000, (int)$v);
+}
+
 /** Absoluter Dateisystempfad zum Team-Logo-Verzeichnis (wird bei Bedarf angelegt). */
 function teamLogoDir() : string
 {
@@ -1230,8 +1237,8 @@ function saveTeamLogoFromPath(int $teamId, string $tmpPath, string $origName, bo
         // Höhe nur prüfen, wenn sie sich eindeutig aus width/height/viewBox
         // ergibt – SVGs ohne feste Pixelmaße werden nicht abgelehnt.
         if (preg_match('/height=["\']?([\d.]+)/i', $content, $hm)) {
-            if ((float)$hm[1] < TEAM_LOGO_MIN_HEIGHT_PX) {
-                return ['ok' => false, 'error' => t('teams_logo_err_too_small', ['min' => TEAM_LOGO_MIN_HEIGHT_PX])];
+            if ((float)$hm[1] < teamLogoMinHeight()) {
+                return ['ok' => false, 'error' => t('teams_logo_err_too_small', ['min' => teamLogoMinHeight()])];
             }
         }
         // Sicherheitsfix (Security-Audit Punkt 3): Scripts, Event-Handler und
@@ -1253,8 +1260,8 @@ function saveTeamLogoFromPath(int $teamId, string $tmpPath, string $origName, bo
         if ($detectedExt !== $ext) {
             return ['ok' => false, 'error' => t('teams_logo_err_invalid')];
         }
-        if ((int)$info[1] < TEAM_LOGO_MIN_HEIGHT_PX) {
-            return ['ok' => false, 'error' => t('teams_logo_err_too_small', ['min' => TEAM_LOGO_MIN_HEIGHT_PX])];
+        if ((int)$info[1] < teamLogoMinHeight()) {
+            return ['ok' => false, 'error' => t('teams_logo_err_too_small', ['min' => teamLogoMinHeight()])];
         }
     }
 

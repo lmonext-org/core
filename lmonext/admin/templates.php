@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: templates.php
- * Fileversion: 1.2.1
+ * Fileversion: 1.2.2
  *
  * PHP version 8.2
  *
@@ -52,6 +52,7 @@ const LIGA_TEMPLATES = [
             'nameTor'         => 'Tore',
             'tableHinRueck'   => '0',
             'tableHeimAusw'   => '0',
+            'ErgebnisTabelle' => '0',
             'DatC'            => '0',
             'DatS'            => '1',
             'DatM'            => '1',
@@ -171,6 +172,7 @@ const LIGA_TEMPLATES = [
             'PointsForLost'   => '0',
             'tableHinRueck'   => '0',
             'tableHeimAusw'   => '0',
+            'ErgebnisTabelle' => '0',
             'enableGameSort'  => '1',
             'stats'           => '1',
             'Plan'            => '1',

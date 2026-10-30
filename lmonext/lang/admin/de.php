@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.7
+ * Fileversion: 1.58.11
  *
  * PHP version 8.2
  *
@@ -464,6 +464,10 @@ return [
     'sp_col_anstoss'                 => 'Anstoß',
     'sp_status_dash'                 => '–',
     'sp_status_ie_short'             => 'i.E.',
+    'sp_status_ie_icehockey'         => 'n.P. (nach Penaltyschießen)',
+    'sp_status_ie_short_icehockey'   => 'n.P.',
+    'sp_status_ie_handball'          => 'n.7m (nach 7-Meter-Werfen)',
+    'sp_status_ie_short_handball'    => 'n.7m',
     'sp_status_nv_short'             => 'n.V.',
     'sp_col_gt'                      => 'Sportgericht',
     'sp_gt_tip'                      => 'Grüne-Tisch-Entscheidung: bitte nur auswählen, wenn wirklich eine solche Entscheidung unabhängig vom Spielergebnis getroffen wurde. Standardwertung für die siegende Mannschaft ist im Strafen-Tab dieser Liga einstellbar (Vorgabe: 2:0, sowohl bei stattgefundenem Spiel als auch bei Nichtantritt), außer das real erzielte Ergebnis war für sie noch höher.',
@@ -805,6 +809,8 @@ return [
 
     'ls_cb_hin_rueck_tables' => 'Hin-/Rückrundentabellen',
     'ls_cb_heim_ausw_tables' => 'Heim-/Auswärtstabellen',
+    'ls_cb_ergebnis_tabelle' => 'Ergebnisse und Tabelle auf einer Seite',
+    'ls_cb_ergebnis_tabelle_hint' => 'Zeigt die Tabelle (mit Auswahl Heim/Auswärts/Hin-/Rückrunde) unter den Ergebnissen; der eigene Tabellen-Reiter entfällt.',
     'ls_heading_table_markers' => 'Tabellenmarkierungen',
     'ls_marker_champ' => 'Meister wird ausgespielt',
     'ls_marker_cl'    => 'Champions-League-Teilnehmer bzw. Aufsteiger',
@@ -920,6 +926,8 @@ return [
     'settings_hint_show_back_link'         => 'Wenn nein, wird sowohl der "← Zur Übersicht"-Link auf der Liga-Detailseite als auch die komplette Liga-Auswahl auf der Startseite (aktive Ligen + Archiv) für Besucher ausgeblendet. Ligen sind dann nur noch direkt über liga.php?id=LIGA_ID erreichbar – gedacht für Betreiber, die nur eine einzelne, feste Liga per iframe/include auf einer fremden Webseite einbinden möchten (entspricht "Ligaauswahl" im alten LMO).',
     'settings_label_show_team_logos'       => 'Mannschaftslogos anzeigen?',
     'settings_hint_show_team_logos'        => 'Gilt für alle Ligen und Pokale in der Besucheransicht (Ergebnisse, Tabelle, Spielplan usw.). Ersetzt die frühere Einstellung "Logo anzeigen" in den einzelnen Ligen.',
+    'settings_label_team_logo_min_height'  => 'Mindesthöhe für Team-Logos (Pixel)',
+    'settings_hint_team_logo_min_height'   => 'Gilt für den Upload von Team-Logos (Einzel- und Massen-Upload). Kleinere Pixelbilder werden abgelehnt, 0 = keine Prüfung. Standard: {default}. Bei SVG wird nur geprüft, wenn die Datei eine Höhe angibt.',
 
     // ── Wartung (Datenbank-Backup/Wiederherstellung) ──────────────────────────
     'wartung_tab_wartung'             => 'Wartung',

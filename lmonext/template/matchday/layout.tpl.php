@@ -2,7 +2,7 @@
 <html lang="<!--HtmlLang-->">
 <head>
 <!--
-  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.5.3
+  Template: matchday | Filename: layout.tpl.php | Fileversion: 1.5.4
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,6 +53,8 @@
   --th-bg:var(--ink);--th-text:#fff;
   --tipp-th-bg:var(--ink);--tipp-th-text:#fff;
   --btn-text:var(--accent-ink);--down:var(--danger);
+  --pdf-bg:var(--ink);--pdf-text:#fff;--pdf-border:var(--ink);
+  --pdf-hover-bg:var(--accent);--pdf-hover-text:var(--accent-ink);--pdf-hover-border:var(--accent);
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body);background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;font-size:15px}
@@ -195,10 +197,10 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .gt-footnote-line{margin:4px 0}
 
 .pdf-export-row{text-align:right;margin-top:16px}
-.btn-pdf-export{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;
-  border:1px solid var(--ink);padding:9px 18px;border-radius:var(--radius);font-size:.8rem;font-weight:700;
+.btn-pdf-export{display:inline-flex;align-items:center;gap:8px;background:var(--pdf-bg);color:var(--pdf-text);
+  border:1px solid var(--pdf-border);padding:9px 18px;border-radius:var(--radius);font-size:.8rem;font-weight:700;
   text-decoration:none;text-transform:uppercase;letter-spacing:.04em;transition:background .15s ease,color .15s ease}
-.btn-pdf-export:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn-pdf-export:hover{background:var(--pdf-hover-bg);color:var(--pdf-hover-text);border-color:var(--pdf-hover-border)}
 
 .tabs-bar{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:20px;background:var(--bg-alt);padding:4px;border-radius:var(--radius)}
 .tab-item{padding:9px 16px;font-size:.8rem;text-decoration:none;color:var(--muted);font-weight:700;

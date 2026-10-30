@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_liga.php
- * Fileversion: 1.14.2
+ * Fileversion: 1.15.0
  *
  * PHP version 8.2
  *
@@ -235,7 +235,7 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->exec('ALTER TABLE '.tbl('liga_partien').' ADD COLUMN `extra_data` JSON NULL DEFAULT NULL AFTER `g_tore`');
         }
         $stmtP = $db->prepare(
-            'UPDATE '.tbl('liga_partien').' SET heim_id=?, gast_id=?, h_tore=?, g_tore=?, zeit=?, extra_data=?, status=?, bericht_url=?, gt_entscheidung=?, gt_grund=? WHERE id=?'
+            'UPDATE '.tbl('liga_partien').' SET heim_id=?, gast_id=?, h_tore=?, g_tore=?, zeit=?, extra_data=?, status=?, bericht_url=?, notiz=?, gt_entscheidung=?, gt_grund=? WHERE id=?'
         );
         foreach ($_POST as $key => $val) {
             if (preg_match('/^heim_(\d+)$/', $key, $m)) {
@@ -281,6 +281,17 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($status < 0 || $status > 2) { $status = 0; }
                 $bericht = trim($_POST['bericht_'.$pid] ?? '');
                 $berichtDb = $bericht !== '' ? $bericht : null;
+                // Spielnotiz (Tooltip am 📝-Symbol im Frontend): nur überschreiben,
+                // wenn das Feld mitgeschickt wurde - sonst bleibt eine vorhandene
+                // (z.B. importierte) Notiz unverändert.
+                $notizPost = array_key_exists('notiz_'.$pid, $_POST) ? trim((string)$_POST['notiz_'.$pid]) : null;
+                if ($notizPost === null) {
+                    $sN = $db->prepare('SELECT notiz FROM '.tbl('liga_partien').' WHERE id=?');
+                    $sN->execute([$pid]);
+                    $notizDb = $sN->fetchColumn() ?: null;
+                } else {
+                    $notizDb = $notizPost !== '' ? $notizPost : null;
+                }
                 // BUGFIX (gefunden beim Ergänzen von gt_grund):
                 // die Obergrenze hier stammte noch von vor der Einführung
                 // von Option 3 ("beide Mannschaften verlieren", siehe
@@ -297,7 +308,7 @@ if ($action === 'save_partie_teams' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $gtGrund = trim($_POST['gt_grund_'.$pid] ?? '');
                 $gtGrundDb = $gtGrund !== '' ? $gtGrund : null;
 
-                $stmtP->execute([$hid, $gid, $hTore, $gTore, $zeitDb, $extraData, $status, $berichtDb, $gt, $gtGrundDb, $pid]);
+                $stmtP->execute([$hid, $gid, $hTore, $gTore, $zeitDb, $extraData, $status, $berichtDb, $notizDb, $gt, $gtGrundDb, $pid]);
             }
         }
         flash(t('hl_flash_spieltag_saved', ['n' => $stNr]));

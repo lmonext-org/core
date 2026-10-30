@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_settings.php
- * Fileversion: 1.19.0
+ * Fileversion: 1.20.0
  *
  * PHP version 8.2
  *
@@ -151,6 +151,7 @@ if ($action === 'save_liga_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'tabelle':
                 $save('tableHinRueck',  isset($_POST['tableHinRueck'])  ? '1' : '0');
                 $save('tableHeimAusw',  isset($_POST['tableHeimAusw'])  ? '1' : '0');
+                $save('ErgebnisTabelle', isset($_POST['ErgebnisTabelle']) ? '1' : '0');
                 // Bugfix: Checkbox im Formular heißt "Champ_enabled" (nicht "Champ") –
                 // $_POST['Champ'] existierte nie, wodurch dieser Haken bislang immer
                 // stillschweigend als "0" gespeichert wurde, unabhängig von der Auswahl.

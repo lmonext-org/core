@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.57.7
+ * Fileversion: 1.57.11
  *
  * PHP version 8.2
  *
@@ -463,6 +463,10 @@ return [
     'sp_col_anstoss'                 => 'Kick-off',
     'sp_status_dash'                 => '–',
     'sp_status_ie_short'             => 'pens.',
+    'sp_status_ie_icehockey'         => 'Shootout',
+    'sp_status_ie_short_icehockey'   => 'SO',
+    'sp_status_ie_handball'          => 'After 7m throws',
+    'sp_status_ie_short_handball'    => '7m',
     'sp_status_nv_short'             => 'a.e.t.',
     'sp_col_gt'                      => 'Sports court',
     'sp_gt_tip'                      => 'Sports court decision (forfeit/awarded match): only select this if such a decision was really made independent of the match result. Default scoring for the winning team is adjustable in this league\'s Penalties tab (default: 2:0, both if the match took place and for a no-show), unless the real result was even more favorable for them.',
@@ -804,6 +808,8 @@ return [
 
     'ls_cb_hin_rueck_tables' => 'First/second half tables',
     'ls_cb_heim_ausw_tables' => 'Home/away tables',
+    'ls_cb_ergebnis_tabelle' => 'Results and table on one page',
+    'ls_cb_ergebnis_tabelle_hint' => 'Shows the table (with home/away/first/second-half selection) below the results; the separate table tab is hidden.',
     'ls_heading_table_markers' => 'Table markers',
     'ls_marker_champ' => 'Champion is decided on the pitch',
     'ls_marker_cl'    => 'Champions League participants / promotion',
@@ -919,6 +925,8 @@ return [
     'settings_hint_show_back_link'         => 'If no, both the "← Back to overview" link on the league detail page AND the entire league selection on the homepage (active leagues + archive) are hidden from visitors. Leagues are then only reachable directly via liga.php?id=LEAGUE_ID – intended for operators who only want to embed a single, fixed league via iframe/include on an external website (equivalent to "Ligaauswahl" in the old LMO).',
     'settings_label_show_team_logos'       => 'Show team logos?',
     'settings_hint_show_team_logos'        => 'Applies to all leagues and cups in the visitor area (results, table, schedule etc.). Replaces the former "Show logo" setting in the individual leagues.',
+    'settings_label_team_logo_min_height'  => 'Minimum height for team logos (pixels)',
+    'settings_hint_team_logo_min_height'   => 'Applies to team logo uploads (single and bulk). Smaller bitmap images are rejected, 0 = no check. Default: {default}. For SVG the check only applies if the file specifies a height.',
 
     // ── Maintenance (database backup/restore) ─────────────────────────────────
     'wartung_tab_wartung'             => 'Maintenance mode',

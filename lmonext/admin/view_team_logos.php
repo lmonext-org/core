@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_team_logos.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.0.1
  *
  * PHP version 8.2
  *
@@ -161,7 +161,7 @@ $maxUploads = (int)ini_get('max_file_uploads');
       <div class="card" style="max-width:820px">
         <h2>🖼️ <?= h(t('tlb_heading')) ?></h2>
         <p class="text-muted" style="font-size:.86rem;margin-bottom:12px"><?= h(t('tlb_intro')) ?></p>
-        <p class="text-muted" style="font-size:.82rem;margin-bottom:16px"><?= h(t('tlb_formats', ['px' => TEAM_LOGO_MIN_HEIGHT_PX, 'mb' => (int)(TLB_MAX_FILE_BYTES / 1048576)])) ?></p>
+        <p class="text-muted" style="font-size:.82rem;margin-bottom:16px"><?= h(t('tlb_formats', ['px' => teamLogoMinHeight(), 'mb' => (int)(TLB_MAX_FILE_BYTES / 1048576)])) ?></p>
 
         <form method="post" action="?action=team_logos_upload" enctype="multipart/form-data" style="margin-bottom:20px">
           <input type="hidden" name="source" value="files">

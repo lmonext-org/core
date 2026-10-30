@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.39.3
+ * Fileversion: 1.40.0
  *
  * PHP version 8.2
  *
@@ -552,8 +552,16 @@ trait RenderViewsTrait
      * (Platzierungsänderung zum vorherigen Spieltag innerhalb der jeweils
      * aktiven Auswahl), ebenfalls Beitrag von Torsten Hofmann.
      */
-    public static function renderStandingsView(int $ligaId, array $allSpieltage, ?int $uptoSpieltag = null, string $tableMode = 'gesamt') : string
+    /** Ziel-Ansicht der Links innerhalb der Tabelle, siehe renderStandingsView(). */
+    private static string $standingsLinkView = 'tabelle';
+
+    public static function renderStandingsView(int $ligaId, array $allSpieltage, ?int $uptoSpieltag = null, string $tableMode = 'gesamt', string $linkView = 'tabelle') : string
     {
+        // $linkView: Ziel-Ansicht (view=...) aller Links innerhalb der
+        // Tabelle (Gesamt/Heim/Auswärts/Hin/Rück, kurz/mittel/vollständig).
+        // 'tabelle' = eigener Reiter; 'ergebnisse' = Tabelle unterhalb der
+        // Ergebnisse (Liga-Option "Ergebnisse und Tabelle auf einer Seite").
+        self::$standingsLinkView = $linkView === 'ergebnisse' ? 'ergebnisse' : 'tabelle';
         $opts      = self::getLigaOptions($ligaId);
         $teams     = self::getLigaTeamsList($ligaId);
         $partien   = self::getAllLigaPartien($allSpieltage, $ligaId);
@@ -725,7 +733,7 @@ trait RenderViewsTrait
         $footnoteNrs = self::assignStrafFootnotes($rows);
         $totalTeams  = count($rows);
 
-        $nrParam = ($nr > 0 && $nr < $maxNr) ? ('&nr=' . $nr) : '';
+        $nrParam = ($nr > 0 && ($nr < $maxNr || self::$standingsLinkView === 'ergebnisse')) ? ('&nr=' . $nr) : '';
 
         // "Tabellendarstellung: kurz mittel vollständig" - Klartext-Links,
         // aktiver Modus fett, exakt wie im Vorbild.
@@ -733,7 +741,7 @@ trait RenderViewsTrait
         $darstellungLinks = [];
         foreach ($modes as $m) {
             $label = h($modeLabels[$m] ?? $m);
-            $url = '?id=' . $ligaId . '&view=tabelle&table=' . $tableMode . $nrParam . '&tmode=' . $m;
+            $url = '?id=' . $ligaId . '&view=' . self::$standingsLinkView . '&table=' . $tableMode . $nrParam . '&tmode=' . $m;
             $darstellungLinks[] = $m === $tmode
                 ? '<strong>' . $label . '</strong>'
                 : '<a href="' . h($url) . '">' . $label . '</a>';
@@ -855,10 +863,10 @@ trait RenderViewsTrait
             $modes['hin']   = 'liga_standings_nav_hin';
             $modes['rueck'] = 'liga_standings_nav_rueck';
         }
-        $nrParam = ($nr > 0 && $nr < $maxNr) ? ('&nr=' . $nr) : '';
+        $nrParam = ($nr > 0 && ($nr < $maxNr || self::$standingsLinkView === 'ergebnisse')) ? ('&nr=' . $nr) : '';
         $html = '<div class="standings-nav">';
         foreach ($modes as $mode => $langKey) {
-            $url = '?id=' . $ligaId . '&view=tabelle&table=' . $mode . $nrParam;
+            $url = '?id=' . $ligaId . '&view=' . self::$standingsLinkView . '&table=' . $mode . $nrParam;
             $cls = $mode === $activeMode ? ' standings-nav-active' : '';
             $html .= '<a class="standings-nav-item' . $cls . '" href="' . h($url) . '">' . h(tf($langKey)) . '</a>';
         }
@@ -890,7 +898,9 @@ trait RenderViewsTrait
      */
     private static function renderStandingsSpieltagNav(int $ligaId, int $nr, int $maxNr, string $tableMode = 'gesamt') : string
     {
-        if ($maxNr <= 1) {
+        // Im kombinierten Modus (Ergebnisse + Tabelle) steuert die Spieltag-
+        // Navigation der Ergebnisse den Spieltag - keine zweite Navigation.
+        if ($maxNr <= 1 || self::$standingsLinkView === 'ergebnisse') {
             return '';
         }
         $modeParam = $tableMode !== 'gesamt' ? ('&table=' . $tableMode) : '';

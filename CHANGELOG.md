@@ -345,6 +345,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_export.php
 
+- Changelog: 1.2.5 - Option ErgebnisTabelle in die Liste der exportierten Optionen aufgenommen.
 - Changelog: 1.2.4 - Projektname auf "LMOnext" umgestellt (vorher "Online-Liga-Verwaltung Board" / "OLVBoard")
 - Changelog: 1.2.3 - Flash-Meldung über t() übersetzt
 - Changelog: 1.2.2 - Echter Tickertext aus liga_options statt Platzhalter NC=0 exportiert
@@ -366,6 +367,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_import_export.php
 
+- Changelog: 1.14.2 - Option ErgebnisTabelle in die Liste der importierten Optionen aufgenommen.
 - Changelog: 1.14.1 - Bugfix: Existiert beim .l98-Import bereits eine Liga mit demselben Namen (Liga-Name ist eindeutig, der Import verwendet dann die vorhandene Liga), wurden alle Partien ein zweites Mal angelegt. Vorhandene Partien (gleicher Spieltag, gleiche Paarung bzw. gleiche Spielnummer bei KO) werden jetzt aktualisiert bzw. übersprungen statt dupliziert.
 - Changelog: 1.14.0 - Die drei Stellen, die eine Sportart gegen eine feste Liste ['football', 'volleyball', 'icehockey', 'basketball', 'handball', 'badminton'] validiert haben, nutzen jetzt dynamisch array_keys(SportRegistry::all()) - "kegeln" wird dadurch automatisch als gültige Sportart akzeptiert, ohne diese Stellen einzeln anzupassen.
 - Changelog: 1.13.0 - Feature (verifiziert anhand einer echten .l98-Testdatei mit zwei bearbeiteten Begegnungen): .l98-Import erkennt jetzt Grüne-Tisch-Entscheidungen aus dem alten LMO4-Format und überträgt sie nach liga_partien.gt_entscheidung. Das Legacy-Format markiert die SIEGENDE Mannschaft mit einem negativen Tor-Wert ungleich -1 (z.B. GB1=-2, während -1 bereits als "kein Ergebnis" reserviert ist) - da dabei nur EINER der beiden Torwerte real gespeichert ist (die siegende Seite hat gar keinen echten Torwert, nur den Marker), lässt sich kein vollständiges reales Ergebnis rekonstruieren; beide Seiten werden daher als "kein reales Ergebnis" importiert, StandingsTrait::gtCreditedScore() wertet das korrekt mit der Nichtantritt-Standardwertung (3:0). Sowohl im regulären Liga-Zweig als auch im KO-Zweig behoben - im KO-Fall wird die Team-A/B-relative Markierung erst beim tatsächlichen Insert in heim-/gast-relative 1/2 aufgelöst, da A/B je nach Spielnummer/Modus zwischen Heim und Gast wechseln kann (koHeimatTeamA()). ensureSpielstatusColumns() vor dem eigentlichen Import ergänzt (deckt auch die bereits vorhandenen status/nicht_gewertet-Spalten ab, war zuvor nicht sichergestellt). Mit der tatsächlich hochgeladenen Testdatei durchgerechnet: beide markierten Begegnungen (Dortmund–Darmstadt: Gastteam siegt, Heidenheim–Köln: Heimteam siegt) korrekt erkannt, alle sieben unveränderten Begegnungen desselben Spieltags unverändert normal geparst.
@@ -401,6 +403,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_liga.php
 
+- Changelog: 1.15.0 - save_partie_teams speichert die Spielnotiz (notiz_<id>); fehlt das Feld im Formular, bleibt eine vorhandene Notiz unverändert.
 - Changelog: 1.14.2 - team_search: liefert is_freilos mit und sortiert Freilos-Teams ans Ende der Trefferliste (bleiben auswählbar, da für KO-Turniere nötig).
 - Changelog: 1.14.1 - save_global_team: speichert das neue Kennzeichen is_freilos (Auswahl "Typ" Team/Freilos).
 - Changelog: 1.14.0 - KRITISCHER Bugfix, gefunden beim Ergänzen von gt_grund: die Validierung "$gt > 2" an beiden Speicherstellen (auch der tatsächlich vom Formular verwendeten save_partie_teams) stammte noch von vor der Einführung der Grüne-Tisch-Option 3 ("beide Mannschaften verlieren", siehe StandingsTrait.php 1.12.0) und hätte diese IMMER still auf 0 zurückgesetzt - nie tatsächlich gespeichert. Jetzt auf "$gt > 3" korrigiert. Außerdem: speichert jetzt zusätzlich gt_grund an beiden Stellen.
@@ -429,6 +432,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_settings.php
 
+- Changelog: 1.20.0 - Speichert die neue Option ErgebnisTabelle.
 - Changelog: 1.19.0 - Akzeptiert jetzt auch den Wert "top" bei urlT_target/urlB_target, gegen eine Whitelist validiert.
 - Changelog: 1.18.0 - Speichert die neuen Einstellungen urlT_target/urlB_target (Werte "blank"/"self"), siehe admin/view_liga_settings.php 1.23.0.
 - Changelog: 1.17.0 - Sportart-Validierung beim Speichern der Liga-Einstellungen nutzt jetzt dynamisch array_keys(SportRegistry::all()) statt einer festen Liste - siehe admin/handler_import_export.php 1.14.0 für den vollständigen Hintergrund.
@@ -522,6 +526,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/templates.php
 
+- Changelog: 1.2.2 - Standardwert für die Option ErgebnisTabelle ergänzt.
 - Changelog: 1.2.1 - Projektname auf "LMOnext" umgestellt (vorher "Online-Liga-Verwaltung Board" / "OLVBoard")
 - Changelog: 1.2.0 - label/beschreibung/detail sind jetzt Übersetzungs-Keys (über t() aufzulösen), nicht mehr Rohtext
 
@@ -587,6 +592,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_liga_settings.php
 
+- Changelog: 1.25.0 - Neue Checkbox "Ergebnisse und Tabelle auf einer Seite" im Reiter Tabelle.
 - Changelog: 1.24.1 - Team-Suche (Datenbank): Freilos-Teams werden in der Trefferliste mit "Freilos" markiert.
 - Changelog: 1.24.0 - Beitrag: Nutzeranfrage - dritte Option "Im obersten Fenster öffnen (aus iframes ausbrechen)" (target="_top") neben den beiden bestehenden bei der Linkziel-Auswahl für Mannschafts-Homepages/Spielberichte.
 - Changelog: 1.23.0 - Beitrag: Nutzeranfrage - neue Auswahl "Neues Fenster"/"Gleiches Fenster" neben "Mannschafts-Homepages verlinken" und "Spielberichte verlinken" (urlT_target/urlB_target), jeweils separat wählbar.
@@ -664,6 +670,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_spieltag.php
 
+- Changelog: 1.13.0 - Reguläre Liga: neues Eingabefeld "Notiz zum Spiel" je Partie (bisher nur bei KO-Turnieren und per Import vorhanden). Die Notiz erscheint im Frontend als 📝-Symbol mit Tooltip.
 - Changelog: 1.12.4 - Status-Auswahl nutzt bei Handball-Ligen "n.7m" (sp_status_ie_handball / sp_status_ie_short_handball); die Sportart-Zuordnung ist als Liste (Eishockey, Handball) umgesetzt.
 - Changelog: 1.12.3 - Auswahl des Spielstatus zeigt bei Eishockey-Ligen "n.P." statt "i.E." (Sprachschlüssel sp_status_ie_icehockey / sp_status_ie_short_icehockey).
 - Changelog: 1.12.2 - Eingabefelder "Link zum Spielbericht" von type="url" auf type="text" inputmode="url" umgestellt: der Browser ließ bei type="url" nur absolute URLs mit Schema zu und blockierte schon beim Absenden des Formulars alles Relative. inputmode="url" behält die URL-Tastatur auf Mobilgeräten. Neuer Tooltip (title) erklärt die erlaubten Formen.
@@ -802,6 +809,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/data_liga.php
 
+- Changelog: 3.12.2 - Wrapper renderStandingsView() um den Parameter $linkView erweitert.
 - Changelog: 3.12.1 - Neue globale Wrapper-Funktion partieHasEmptySide(), siehe TeamFormattingTrait.php 1.10.1.
 - Changelog: 3.12.0 - Wrapper-Funktionen renderTeamLogoImg()/renderTeamLogoImgWrapped() um den neuen $title-Parameter erweitert.
 - Changelog: 3.11.0 - Wrapper-Funktionen um die neuen Target-Parameter erweitert. Dabei bemerkt und mitbehoben: der renderPartieRow()-Wrapper war seit linkHomepage/linkBerichte/dateFormat nie nachgezogen worden und reichte bis eben nur die ersten fünf Parameter durch - ein externer Aufruf dieser globalen Funktion hätte diese drei Funktionen stets deaktiviert bekommen, unabhängig vom Aufrufer.
@@ -990,6 +998,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.58.11 - Texte für die Option "Ergebnisse und Tabelle auf einer Seite".
 - Changelog: 1.58.10 - Texte für den Handball-Status "n.7m" (sp_status_ie_handball, sp_status_ie_short_handball).
 - Changelog: 1.58.9 - Texte für den Eishockey-Status "n.P." (sp_status_ie_icehockey, sp_status_ie_short_icehockey).
 - Changelog: 1.58.8 - Texte für die Einstellung "Mindesthöhe für Team-Logos".
@@ -1121,6 +1130,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.57.11 - Texts for the option "Results and table on one page".
 - Changelog: 1.57.10 - Texte für den Handball-Status "7m" (sp_status_ie_handball, sp_status_ie_short_handball).
 - Changelog: 1.57.9 - Texte für den Eishockey-Status "Shootout" (sp_status_ie_icehockey, sp_status_ie_short_icehockey).
 - Changelog: 1.57.8 - Texte für die Einstellung "Mindesthöhe für Team-Logos".
@@ -1443,6 +1453,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## liga.php
 
+- Changelog: 3.30.0 - Neue Liga-Option "Ergebnisse und Tabelle auf einer Seite" (Option ErgebnisTabelle): Die Ergebnisse-Ansicht zeigt unter den Ergebnissen des gewählten Spieltags die Tabelle für diesen Spieltag, mit Auswahl Gesamt/Heim/Auswärts/Hinrunde/Rückrunde darüber (soweit in den Liga-Einstellungen aktiviert). Der eigene Tabellen-Reiter entfällt dann; nicht bei KO-Turnieren.
 - Changelog: 3.29.1 - Bugfix (gemeldet: Freilos-Begegnungen bei KO-Turnieren - ein Team ohne echten Gegner - wurden auf der Ergebnisseite trotzdem angezeigt): der Filter verlangte bisher BEIDE Seiten leer (partieIsEmptyPlaceholder()), ein Freilos hat aber nur EINE leere Seite. Nutzt jetzt partieHasEmptySide().
 - Changelog: 3.29.0 - Neue zentrale Zuordnung (match-Ausdruck) von gespeichertem Wert ("blank"/"self"/"top") zum tatsächlichen HTML-target-Attribut, inkl. des neuen "top" (target="_top").
 - Changelog: 3.28.0 - Liest die neuen Einstellungen urlT_target/urlB_target und reicht sie an beide renderResultsTable()-Aufrufstellen durch.
@@ -1569,6 +1580,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.40.0 - renderStandingsView() mit neuem Parameter $linkView: Links der Tabellen-Navigation können auf die Ergebnisse-Ansicht zeigen; die eigene Spieltag-Navigation der Tabelle entfällt in diesem Modus.
 - Changelog: 1.39.3 - renderPartieRow() nutzt für den Spielbericht-Link jetzt TeamFormattingTrait::safeReportUrl() statt der festen Prüfung auf "http(s)://" - relative URLs werden damit angezeigt.
 - Changelog: 1.39.2 - renderInfoView() übergibt zusätzlich LinkGithub an das Info-Template.
 - Changelog: 1.39.1 - Neues 📝-Symbol in der Ergebnisliste (renderPartieRow()), zeigt den Inhalt von liga_partien.notiz als Hover-Tooltip, sofern vorhanden - bisher wurde dieses Feld (im KO-Formular bisher "Spielort" beschriftet, im Datenmodell aber ein freies Notizfeld) nirgends im Frontend angezeigt.
@@ -1904,6 +1916,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/default/layout.tpl.php
 
+- Changelog: 1.19.6 - PDF-Button (.btn-pdf-export) über neue :root-Variablen steuerbar (--pdf-bg, --pdf-text, --pdf-border, --pdf-hover-bg, --pdf-hover-text, --pdf-hover-border); Standardwerte entsprechen dem bisherigen Aussehen.
 - Changelog: 1.19.5 - Bisher fest eingetragene Farben als Variablen im :root-Block angelegt (--chip-blue-bg, --chip-yellow-bg, --th-bg, --th-text, --tipp-th-bg, --tipp-th-text, --btn-text, --down) und in den Regeln .chip-blue, .chip-yellow, Tabellenköpfe (Ergebnisse, Kalender, Tippspiel), .btn-primary und .tipp-rang-ab verwendet. Die Werte entsprechen den bisherigen Farben, das Aussehen bleibt unverändert; die Farben sind dadurch zentral (z.B. im Template-Studio-Designer) änderbar.
 - Changelog: 1.19.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.19.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
@@ -1934,6 +1947,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/colored/layout.tpl.php
 
+- Changelog: 1.8.6 - PDF-Button (.btn-pdf-export) über neue :root-Variablen steuerbar (--pdf-bg, --pdf-text, --pdf-border, --pdf-hover-bg, --pdf-hover-text, --pdf-hover-border); Standardwerte entsprechen dem bisherigen Aussehen.
 - Changelog: 1.8.5 - Bisher fest eingetragene Farben als Variablen im :root-Block angelegt (--chip-blue-bg, --chip-yellow-bg, --th-bg, --th-text, --tipp-th-bg, --tipp-th-text, --btn-text, --down) und in den Regeln .chip-blue, .chip-yellow, Tabellenköpfe (Ergebnisse, Kalender, Tippspiel), .btn-primary und .tipp-rang-ab verwendet. Die Werte entsprechen den bisherigen Farben, das Aussehen bleibt unverändert; die Farben sind dadurch zentral (z.B. im Template-Studio-Designer) änderbar.
 - Changelog: 1.8.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.8.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
@@ -1961,6 +1975,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/dark/layout.tpl.php
 
+- Changelog: 1.7.6 - PDF-Button (.btn-pdf-export) über neue :root-Variablen steuerbar (--pdf-bg, --pdf-text, --pdf-border, --pdf-hover-bg, --pdf-hover-text, --pdf-hover-border); Standardwerte entsprechen dem bisherigen Aussehen.
 - Changelog: 1.7.5 - Bisher fest eingetragene Farben als Variablen im :root-Block angelegt (--chip-blue-bg, --chip-yellow-bg, --th-bg, --th-text, --tipp-th-bg, --tipp-th-text, --btn-text, --down) und in den Regeln .chip-blue, .chip-yellow, Tabellenköpfe (Ergebnisse, Kalender, Tippspiel), .btn-primary und .tipp-rang-ab verwendet. Die Werte entsprechen den bisherigen Farben, das Aussehen bleibt unverändert; die Farben sind dadurch zentral (z.B. im Template-Studio-Designer) änderbar.
 - Changelog: 1.7.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.7.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
@@ -1988,6 +2003,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/light/layout.tpl.php
 
+- Changelog: 1.7.6 - PDF-Button (.btn-pdf-export) über neue :root-Variablen steuerbar (--pdf-bg, --pdf-text, --pdf-border, --pdf-hover-bg, --pdf-hover-text, --pdf-hover-border); Standardwerte entsprechen dem bisherigen Aussehen.
 - Changelog: 1.7.5 - Bisher fest eingetragene Farben als Variablen im :root-Block angelegt (--chip-blue-bg, --chip-yellow-bg, --th-bg, --th-text, --tipp-th-bg, --tipp-th-text, --btn-text, --down) und in den Regeln .chip-blue, .chip-yellow, Tabellenköpfe (Ergebnisse, Kalender, Tippspiel), .btn-primary und .tipp-rang-ab verwendet. Die Werte entsprechen den bisherigen Farben, das Aussehen bleibt unverändert; die Farben sind dadurch zentral (z.B. im Template-Studio-Designer) änderbar.
 - Changelog: 1.7.4 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.
 - Changelog: 1.7.3 - Gleicher Mobile-Breakpoint (max-width:480px) für .schedule-sidebar/.team-sidebar-item/.schedule-content wie im matchday-Template: schmalere feste Breite (104px statt 170px) sowie kleinere Schrift/Innenabstände, damit die Termin-Spalte der Spielplan-Ansicht auf Handy-Breite nicht mehr auf einen schmalen Rest zusammengequetscht wird.
@@ -2015,6 +2031,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## template/matchday/layout.tpl.php
 
+- Changelog: 1.5.4 - PDF-Button (.btn-pdf-export) über neue :root-Variablen steuerbar (--pdf-bg, --pdf-text, --pdf-border, --pdf-hover-bg, --pdf-hover-text, --pdf-hover-border); Standardwerte entsprechen dem bisherigen Aussehen.
 - Changelog: 1.5.3 - Stern-Markierung hinter der Lieblingsmannschaft in der Tabelle entfernt (.st-team.fav-team::after); die Hervorhebung bleibt über die fette Schrift erhalten.
 - Changelog: 1.5.2 - Bisher fest eingetragene Farben als Variablen im :root-Block angelegt (--chip-blue-bg, --chip-yellow-bg, --th-bg, --th-text, --tipp-th-bg, --tipp-th-text, --btn-text, --down) und in den Regeln .chip-blue, .chip-yellow, Tabellenköpfe (Ergebnisse, Kalender, Tippspiel), .btn-primary und .tipp-rang-ab verwendet. Die Werte entsprechen den bisherigen Farben, das Aussehen bleibt unverändert; die Farben sind dadurch zentral (z.B. im Template-Studio-Designer) änderbar.
 - Changelog: 1.5.1 - Farbe der Form-Punkte bei einer Niederlage (.form-loss) von #1f2937 auf #ef4444 (rot) geändert - das dunkle Blau-Grau war auf dunklem Hintergrund (dark-Theme) praktisch nicht zu erkennen. Rot ist als Verlust-Farbe üblich und passt zu Sieg (grün) und Unentschieden (grau); in allen fünf Themes einheitlich geändert.

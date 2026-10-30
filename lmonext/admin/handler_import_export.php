@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_import_export.php
- * Fileversion: 1.14.1
+ * Fileversion: 1.14.2
  *
  * PHP version 8.2
  *
@@ -573,7 +573,7 @@ function parseL98(string $content): array {
     $optionKeys = ['goalfaktor','pointsfaktor','enableGameSort','Kegel','HandS',
         'PointsForWin','PointsForDraw','PointsForLost','Spez','HideDraw','OnRun',
         'MinusPoints','Direct','Champ','CL','CK','UC','AR','AB','namePkt','nameTor',
-        'tableHinRueck','tableHeimAusw','DatC','DatS','DatM','DatF','urlT','urlB',
+        'tableHinRueck','tableHeimAusw','ErgebnisTabelle','DatC','DatS','DatM','DatF','urlT','urlB',
         'stats','Plan','Ergebnis','mittore','favTeam','selTeam','ticker','icon',
         'Graph','Kreuz','Tabelle','Ligastats','kurve1','kurve2','Actual','Title',
         'Rounds','Matches','KlFin','playdown'];

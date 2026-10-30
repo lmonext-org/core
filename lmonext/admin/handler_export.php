@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_export.php
- * Fileversion: 1.2.4
+ * Fileversion: 1.2.5
  *
  * PHP version 8.2
  *
@@ -69,7 +69,7 @@ if ($action === 'export' && isset($_GET['liga_id'])) {
     $stdKeys = ['goalfaktor','pointsfaktor','enableGameSort','Rounds','Matches','Actual',
         'Kegel','HandS','PointsForWin','PointsForDraw','PointsForLost','Spez','HideDraw',
         'OnRun','MinusPoints','Direct','Champ','CL','CK','UC','AR','AB','namePkt','nameTor',
-        'tableHinRueck','tableHeimAusw','DatC','DatS','DatM','DatF','urlT','urlB','stats',
+        'tableHinRueck','tableHeimAusw','ErgebnisTabelle','DatC','DatS','DatM','DatF','urlT','urlB','stats',
         'Plan','Ergebnis','mittore','favTeam','selTeam','ticker','icon','Graph','Kreuz',
         'Tabelle','Ligastats','kurve1','kurve2','KlFin','playdown','playoffmode'];
     // Rounds/Matches aus echten Daten

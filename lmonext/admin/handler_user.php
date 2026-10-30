@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_user.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.10.1
  *
  * PHP version 8.2
  *
@@ -267,6 +267,13 @@ if ($action === 'save_admin_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') 
         // Liga/Pokal einzustellen (vorher Liga-Einstellung "ShowLogos").
         if (isset($_POST['show_team_logos'])) {
             $s->execute(['show_team_logos', $_POST['show_team_logos'] === '1' ? '1' : '0']);
+        }
+
+        // Mindesthöhe für Team-Logos (Pixel, 0 = keine Prüfung, max. 1000)
+        if (isset($_POST['team_logo_min_height'])) {
+            $minH = trim((string)$_POST['team_logo_min_height']);
+            $minH = ctype_digit($minH) ? min(1000, (int)$minH) : TEAM_LOGO_MIN_HEIGHT_PX;
+            $s->execute(['team_logo_min_height', (string)$minH]);
         }
 
         if (isset($_POST['show_back_link'])) {
