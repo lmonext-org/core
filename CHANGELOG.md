@@ -233,6 +233,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/bootstrap.php
 
+- Changelog: 1.32.5 - PHP 8.5-Kompatibilität: curl_close() entfernt; veralteter Aufruf libxml_disable_entity_loader() in sanitizeSvgContent() entfernt (seit PHP 8.0 deprecated und wirkungslos, LIBXML_NONET bleibt).
 - Changelog: 1.32.4 - Mindesthöhe für Team-Logos ist jetzt eine globale Einstellung (admin_settings: team_logo_min_height, neue Funktion teamLogoMinHeight()); TEAM_LOGO_MIN_HEIGHT_PX (50) dient nur noch als Standardwert.
 - Changelog: 1.32.3 - saveTeamLogoUpload() in saveTeamLogoUpload() (Upload-Prüfung) und saveTeamLogoFromPath() (gemeinsame Prüfung und Speicherung) aufgeteilt, damit der Massen-Upload dieselben Prüfungen (Format, Inhalt, Mindesthöhe, SVG-Bereinigung) nutzt. Verhalten des Einzel-Uploads unverändert.
 - Changelog: 1.32.2 - Neue Funktion ensureTeamFreilosSchema(): legt die Spalte teams_global.is_freilos (TINYINT, Standard 0) bei Bestandsinstallationen automatisch an.
@@ -345,6 +346,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_export.php
 
+- Changelog: 1.3.0 - KO-Export: GA/GB werden wie im alten LMO als Tore von Team A/Team B geschrieben (in Spielen, in denen Team B Heimrecht hat, getauscht), passend zum korrigierten Import.
 - Changelog: 1.2.5 - Option ErgebnisTabelle in die Liste der exportierten Optionen aufgenommen.
 - Changelog: 1.2.4 - Projektname auf "LMOnext" umgestellt (vorher "Online-Liga-Verwaltung Board" / "OLVBoard")
 - Changelog: 1.2.3 - Flash-Meldung über t() übersetzt
@@ -353,6 +355,9 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_import_merge.php
 
+- Changelog: 1.3.2 - Zielauswahl enthält auch archivierte Ligen/Turniere (ohne sie zu reaktivieren; aktive zuerst, archivierte danach mit Kennzeichnung).
+- Changelog: 1.3.1 - KO-Übernahme: GA/GB der Datei als Tore von Team A/Team B gelesen (Umrechnung auf Heim/Gast der Ziel-Runde); dient auch zum Korrigieren bereits falsch importierter KO-Turniere (mit "überschreiben").
+- Changelog: 1.3.0 - Neu: Übernahme einer KO-Datei in ein vorhandenes KO-Turnier (mergeKoRounds()). Paarungen werden pro Runde über die beteiligten Teams zugeordnet (Hin-/Rückrichtung egal), Platzhalter wie "Sieger …" bzw. "___" durch die Teams der Datei ersetzt, Ergebnisse nach den bekannten Regeln eingetragen (vorhandene nur mit "überschreiben"), fehlende Paarungen/Runden angelegt; Heim/Gast der Einzelspiele folgt dem Heimrecht-Schema der Ziel-Runde, Grüne-Tisch-Entscheidungen werden entsprechend umgerechnet. Liga-Dateien gehen weiterhin nur in Ligen, KO-Dateien nur in KO-Turniere (neue Fehlermeldung bei Mismatch). Rückgängig machen sichert zusätzlich Teams/Labels geänderter Begegnungen. "Überzählige entfernen" wirkt bei KO nicht. Geprüft anhand der DFB-Pokal-Beispieldatei gegen eine Test-Datenbank (SQLite), nicht gegen MariaDB.
 - Changelog: 1.2.0 - Neue Option "Begegnungen entfernen, die nicht in der Datei stehen": Nach dem Abgleich eines Spieltags werden vorhandene Begegnungen ohne Ergebnis, die keiner Begegnung der Datei entsprechen, entfernt (Begegnungen mit Ergebnis bleiben immer erhalten; Spieltage mit nicht zuordenbaren Teams werden übersprungen). Vorhandene Begegnungen werden beim Abgleich jetzt bevorzugt mit Ergebnis zuerst geprüft. Die entfernten Begegnungen sind im Probelauf sichtbar und über "Rückgängig" wiederherstellbar.
 - Changelog: 1.1.1 - Diagnose: Bei neu anzulegenden Begegnungen wird in der Detailliste angezeigt, welche Ziel-Team-IDs verwendet wurden und welche ähnlichen Begegnungen im Spieltag vorhanden sind (zur Fehlersuche bei nicht erkannten Paarungen).
 - Changelog: 1.1.0 - BUGFIX (gemeldet: Begegnungen erschienen nach der Übernahme doppelt): vorhandene Begegnungen wurden nur über die Team-IDs erkannt - bei doppelt angelegten Teams gleichen Namens oder Teams, die nicht in liga_teams stehen, schlug der Abgleich fehl und es wurden neue Begegnungen angelegt. Jetzt zählt auch ein gleicher (normalisierter) Teamname als Treffer, und die Team-Vorschläge berücksichtigen zusätzlich Teams aus den Partien der Liga. Neu: Übernahme per Knopf rückgängig machen (neu angelegte Begegnungen/Spieltage löschen, geänderte zurücksetzen, solange die Sitzung läuft); Warnung bei neu anzulegenden Begegnungen.
@@ -360,6 +365,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/view_import_merge.php
 
+- Changelog: 1.3.1 - Archivierte Ziele im Dropdown gekennzeichnet.
+- Changelog: 1.3.0 - Zielauswahl enthält jetzt auch KO-Turniere (mit Kennzeichnung); Bericht um "Platzhalter durch Teams ersetzt" ergänzt.
 - Changelog: 1.2.0 - Checkbox "Begegnungen entfernen, die nicht in der Datei stehen", Zähler und Detailtyp "Entfernt".
 - Changelog: 1.1.1 - Diagnosezeile unter neu anzulegenden Begegnungen.
 - Changelog: 1.1.0 - Warnhinweis bei neu anzulegenden Begegnungen (Vorschau/Ergebnis), Knopf "Übernahme rückgängig machen".
@@ -367,6 +374,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_import_export.php
 
+- Changelog: 1.15.0 - Bugfix (gemeldet: Europapokal-Import, Rückspiele mit vertauschten Toren, z.B. 0:9 statt 9:0 für den Auswärtssieger): GA/GB in KO-.l98-Dateien sind die Tore von Team A/Team B (nicht von Heim/Gast, wie im alten LMO). Wenn Team B Heimrecht hat (z.B. Rückspiel), werden Heim- und Gasttore (und Satzergebnisse) beim Import getauscht. Bereits importierte Turniere lassen sich über "In vorhandene Liga übernehmen" (mit "überschreiben") korrigieren. Hinweis: mit älteren LMOnext-Versionen exportierte KO-Dateien enthielten GA/GB als Heim/Gast - dort werden Rückspiele nach dieser Änderung vertauscht gelesen.
+- Changelog: 1.14.3 - Bugfix (gemeldet: Import eines KO-Turniers brach mit "Call to undefined function koHeimatTeamA()" ab): handler_ko.php wird jetzt per require_once explizit eingebunden, der Import hängt nicht mehr von der Ladereihenfolge ab.
 - Changelog: 1.14.2 - Option ErgebnisTabelle in die Liste der importierten Optionen aufgenommen.
 - Changelog: 1.14.1 - Bugfix: Existiert beim .l98-Import bereits eine Liga mit demselben Namen (Liga-Name ist eindeutig, der Import verwendet dann die vorhandene Liga), wurden alle Partien ein zweites Mal angelegt. Vorhandene Partien (gleicher Spieltag, gleiche Paarung bzw. gleiche Spielnummer bei KO) werden jetzt aktualisiert bzw. übersprungen statt dupliziert.
 - Changelog: 1.14.0 - Die drei Stellen, die eine Sportart gegen eine feste Liste ['football', 'volleyball', 'icehockey', 'basketball', 'handball', 'badminton'] validiert haben, nutzen jetzt dynamisch array_keys(SportRegistry::all()) - "kegeln" wird dadurch automatisch als gültige Sportart akzeptiert, ohne diese Stellen einzeln anzupassen.
@@ -394,6 +403,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/handler_ko.php
 
+- Changelog: 1.4.1 - Bugfix: Heimrechtschema 2-2-1 (playoffmode 1) liefert bei Best of 7 jetzt A,A,B,B,A,B,A wie die Originalanzeige (vorher A,A,B,B,A,B,B); Best of 5 und Best of 3 unverändert.
 - Changelog: 1.4.0 - Beitrag: Nutzeranfrage - renderKoTeamPicker() unterstützt jetzt einen dritten Zustand "Freilos" neben "Team" und "Platzhalter" (bei einem größer gewählten KO-Bracket als die tatsächliche Teilnehmerzahl, z.B. 16er-Bracket für 13 Teams, braucht man für die übrigen Plätze kein Dummy-Team mehr in teams_global). Freilos speichert team_id=0 mit dem neuen KO_FREILOS_MARKER als Label statt freiem Text.
 - Changelog: 1.3.2 - Projektname auf "LMOnext" umgestellt (vorher "Online-Liga-Verwaltung Board" / "OLVBoard")
 - Changelog: 1.3.1 - Flash-Meldungen (save_ko_runde, fix_ko_rounds) über t() übersetzt
@@ -998,6 +1008,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.58.13 - Neuer Text impm_archiv_tag.
+- Changelog: 1.58.12 - Texte für die Übernahme in KO-Turniere (impm_err_liga_in_ko, impm_d_resolved, impm_c_placeholders, impm_ko_tag); impm_intro/impm_err_target/impm_err_ko angepasst.
 - Changelog: 1.58.11 - Texte für die Option "Ergebnisse und Tabelle auf einer Seite".
 - Changelog: 1.58.10 - Texte für den Handball-Status "n.7m" (sp_status_ie_handball, sp_status_ie_short_handball).
 - Changelog: 1.58.9 - Texte für den Eishockey-Status "n.P." (sp_status_ie_icehockey, sp_status_ie_short_icehockey).
@@ -1130,6 +1142,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.57.13 - New text impm_archiv_tag.
+- Changelog: 1.57.12 - Texts for importing into knockout tournaments (impm_err_liga_in_ko, impm_d_resolved, impm_c_placeholders, impm_ko_tag); impm_intro/impm_err_target/impm_err_ko adjusted.
 - Changelog: 1.57.11 - Texts for the option "Results and table on one page".
 - Changelog: 1.57.10 - Texte für den Handball-Status "7m" (sp_status_ie_handball, sp_status_ie_short_handball).
 - Changelog: 1.57.9 - Texte für den Eishockey-Status "Shootout" (sp_status_ie_icehockey, sp_status_ie_short_icehockey).
@@ -1453,6 +1467,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## liga.php
 
+- Changelog: 3.30.1 - KO-Turniere: In der Ergebnisse-Ansicht stehen Hin- und Rückspiel einer Paarung direkt untereinander (Paarungen nach Nummer, Spiele nach Spielnummer) statt nach Datum sortiert.
 - Changelog: 3.30.0 - Neue Liga-Option "Ergebnisse und Tabelle auf einer Seite" (Option ErgebnisTabelle): Die Ergebnisse-Ansicht zeigt unter den Ergebnissen des gewählten Spieltags die Tabelle für diesen Spieltag, mit Auswahl Gesamt/Heim/Auswärts/Hinrunde/Rückrunde darüber (soweit in den Liga-Einstellungen aktiviert). Der eigene Tabellen-Reiter entfällt dann; nicht bei KO-Turnieren.
 - Changelog: 3.29.1 - Bugfix (gemeldet: Freilos-Begegnungen bei KO-Turnieren - ein Team ohne echten Gegner - wurden auf der Ergebnisseite trotzdem angezeigt): der Filter verlangte bisher BEIDE Seiten leer (partieIsEmptyPlaceholder()), ein Freilos hat aber nur EINE leere Seite. Nutzt jetzt partieHasEmptySide().
 - Changelog: 3.29.0 - Neue zentrale Zuordnung (match-Ausdruck) von gespeichertem Wert ("blank"/"self"/"top") zum tatsächlichen HTML-target-Attribut, inkl. des neuen "top" (target="_top").
@@ -1520,6 +1535,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Addon/AddonManager.php
 
+- Changelog: 1.10.3 - PHP 8.4/8.5-Kompatibilität: $http_response_header durch http_get_last_response_headers() ersetzt (mit Fallback für PHP < 8.4); curl_close() entfernt (deprecated seit 8.5, seit 8.0 ohne Wirkung). Meldung aus Issue #5.
 - Changelog: 1.10.2 - Beitrag: Torsten Hofmann (1.10.1, Lint-Binary-Ermittlung robuster gegen PHP-FPM-Hosts) plus Nachbesserung bei der Prüfung dieses Patches - pickLintBinary() cachte bisher nur den Erfolgsfall (static $usableBinary, Kurzschluss nur bei !== null); fand kein Kandidat ein taugliches Binary, wurde die komplette Kandidatenliste für JEDE .php-Datei der ZIP erneut durchprobiert statt sich "kein Kandidat taugt" für den Rest des Requests zu merken - auf einem ungünstigen Host bei vielen Dateien unnötig langsam. Jetzt mit eigenem $attempted-Flag, das auch den Fehlschlag-Fall cacht.
 - Changelog: 1.10.0 - KRITISCHER Bugfix ("Core-Version zu niedrig. Benötigt: 1.9.2, vorhanden: 1.9.2-beta" bei einem Addon, das gegen genau diese Core-Version bereits erfolgreich getestet worden war): neue Methode versionSatisfiesMin() ersetzt den direkten version_compare(LMONEXT_VERSION, $minCore, '<')-Aufruf an beiden Stellen, an denen die Kompatibilität geprüft wird (hier bei der Installation, sowie handler_addons.php 1.5.0 beim Aktivieren). PHPs version_compare() stuft einen Pre-Release-Suffix (-beta/-alpha/-rc/-dev) als "kleiner" als dieselbe Zahl ohne Suffix ein - technisch korrekt nach SemVer-Konvention, hier aber falsch angewendet: der Suffix beschreibt die tatsächlich laufende Core-Version selbst ("1.9.2-beta" ist die Version, die läuft), nicht eine andere, tatsächlich ältere Version. Betraf JEDES Addon mit einer min_core_version ohne "-beta"-Suffix (praktisch alle), solange der Core-Versionsstring selbst ein "-beta"-Suffix trägt (seit composer.json 1.9.2-beta durchgängig der Fall) - keine Installation/Aktivierung eines aktuellen Addons wäre mehr möglich gewesen. Fix: versionSatisfiesMin() entfernt einen bekannten Pre-Release-Suffix vor dem Vergleich von BEIDEN Seiten (laufende Version UND Anforderung), sodass "1.9.5-beta" korrekt als >= "1.9.2" gilt, eine echte Unterschreitung (z.B. "1.9.0-beta" gegen "1.9.2") aber weiterhin korrekt erkannt wird. Mit vier Testfällen verifiziert (siehe CHANGELOG-Historie).
 - Changelog: 1.9.0 - KRITISCHER Bugfix (gefunden bei der Integrationsprüfung eines Drittanbieter-Addons mit eigenem Hook-Handler, der trotz korrekter Manifest-Deklaration nie ausgelöst wurde): registerAddonHooks() prüft is_callable($handler), bevor der Hook registriert wird - das schlägt IMMER fehl, wenn die Handler-Funktion erst in einer admin_handlers/frontend_handlers-Datei DESSELBEN Addons definiert wird, da registerAddonHooks() (seit Version 1.8.0) VOR dem Laden dieser Handler-Dateien lief. Betraf potenziell jedes Addon mit einem im Manifest deklarierten Hook, dessen Handler-Funktion in einer eigenen Handler-Datei liegt (nicht nur das gerade geprüfte Addon) - nicht neu durch Version 1.8.0 verursacht, sondern ein vorbestehender Bug, der durch die dortige Umstrukturierung sichtbar/nachvollziehbar wurde. Fix: bootAdmin() und bootFrontend() laufen jetzt in DREI statt zwei Phasen - 1) Sprachen/Templates für alle Addons, 2) ERST DANACH alle Handler-Dateien laden (definiert alle Funktionen), 3) ERST JETZT alle Hooks registrieren. is_callable() findet die Handler-Funktion damit garantiert, unabhängig davon in welcher Datei/welchem Addon sie liegt.
