@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_import_merge.php
- * Fileversion: 1.2.0
+ * Fileversion: 1.3.1
  *
  * PHP version 8.2
  *
@@ -28,8 +28,9 @@ $renderReport = static function (array $res, bool $preview) : void {
         'created'     => t('impm_d_created'),
         'swapped'     => t('impm_d_swapped'),
         'pruned'      => t('impm_d_pruned'),
+        'resolved'    => t('impm_d_resolved'),
     ];
-    $typeIcon = ['filled' => '✅', 'overwritten' => '✏️', 'skipped' => '⏭️', 'created' => '➕', 'swapped' => '⚠️', 'pruned' => '🗑️'];
+    $typeIcon = ['filled' => '✅', 'overwritten' => '✏️', 'skipped' => '⏭️', 'created' => '➕', 'swapped' => '⚠️', 'pruned' => '🗑️', 'resolved' => '🔗'];
     ?>
       <div class="card">
         <h2><?= h($preview ? t('impm_preview_heading') : t('impm_done_heading')) ?></h2>
@@ -49,6 +50,9 @@ $renderReport = static function (array $res, bool $preview) : void {
             <tr><td><?= h(t('impm_c_dates')) ?></td><td style="text-align:right"><strong><?= (int)$c['datesFilled'] ?></strong></td></tr>
             <tr><td><?= h(t('impm_c_swapped')) ?></td><td style="text-align:right"><strong><?= (int)$c['swapped'] ?></strong></td></tr>
             <tr><td><?= h(t('impm_c_unmapped')) ?></td><td style="text-align:right"><strong><?= (int)$c['unmapped'] ?></strong></td></tr>
+<?php if (!empty($c['placeholdersFilled'])) { ?>
+            <tr><td><?= h(t('impm_c_placeholders')) ?></td><td style="text-align:right"><strong><?= (int)$c['placeholdersFilled'] ?></strong></td></tr>
+<?php } ?>
             <tr><td><?= h(t('impm_c_pruned')) ?></td><td style="text-align:right"><strong><?= (int)($c['pruned'] ?? 0) ?></strong></td></tr>
             <tr><td><?= h(t('impm_c_teams_added')) ?></td><td style="text-align:right"><strong><?= (int)$c['teamsAdded'] ?></strong></td></tr>
           </tbody>
@@ -178,7 +182,7 @@ $preselect = (int)($_GET['liga_id'] ?? 0); ?>
             <select name="target_liga" required style="<?= $inpSt ?>;margin-top:6px">
               <option value=""><?= h(t('impm_opt_choose')) ?></option>
 <?php foreach ($targets as $l) { ?>
-              <option value="<?= (int)$l['id'] ?>"<?= $preselect === (int)$l['id'] ? ' selected' : '' ?>><?= h($l['name']) ?> (ID <?= (int)$l['id'] ?>)</option>
+              <option value="<?= (int)$l['id'] ?>"<?= $preselect === (int)$l['id'] ? ' selected' : '' ?>><?= h($l['name']) ?> (ID <?= (int)$l['id'] ?><?= !empty($l['ko']) ? ', ' . h(t('impm_ko_tag')) : '' ?><?= !empty($l['archiv']) ? ', ' . h(t('impm_archiv_tag')) : '' ?>)</option>
 <?php } ?>
             </select>
           </div>

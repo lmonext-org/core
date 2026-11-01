@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.30.0
+ * Fileversion: 3.30.1
  *
  * PHP version 8.2
  *
@@ -266,6 +266,18 @@ switch ($currentView) {
         $activeNr    = $currentNr !== null ? (int)$currentNr : null;
         $currentName = $spieltag !== null ? roundDisplayName($spieltag, $isKO, $maxNr) : '';
         $partien     = $spieltag !== null ? getSpieltagPartien((int)$spieltag['id']) : [];
+        // KO-Turniere: Hin- und Rückspiel einer Paarung stehen untereinander (wie im alten LMO)
+        // statt nach Datum über die ganze Runde verteilt - Paarungen in ihrer Nummerierung,
+        // Spiele einer Paarung nach Spielnummer.
+        if ($isKO && !empty($partien)) {
+            $sortiert = [];
+            foreach (groupPartienByPairing($partien) as $gruppe) {
+                usort($gruppe, static fn(array $x, array $y) =>
+                    (int)(explode('_', (string)$x['spiel_nr'])[1] ?? 0) <=> (int)(explode('_', (string)$y['spiel_nr'])[1] ?? 0));
+                foreach ($gruppe as $eintrag) { $sortiert[] = $eintrag; }
+            }
+            $partien = $sortiert;
+        }
         // _liga_id für die sport-profil-abhängige Ergebnis-Anzeige (Beitrag:
         // Torsten Hofmann, siehe RenderViewsTrait::formatScore()) - getSpieltagPartien()
         // kennt die Liga selbst nicht (nur den Spieltag), daher hier ergänzt.
