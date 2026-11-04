@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_import_export.php
- * Fileversion: 1.15.0
+ * Fileversion: 1.14.2
  *
  * PHP version 8.2
  *
@@ -12,13 +12,6 @@
  * @license   GPL-3.0-only
  *
  */
-
-// koHeimatTeamA() (Heimrecht-Schema bei KO-Turnieren) liegt in handler_ko.php und
-// wird beim Import von KO-.l98-Dateien gebraucht. Explizit nachladen, damit der
-// Import nicht von der Ladereihenfolge in admin.php abhängt (z.B. wenn diese
-// Datei früher als dort vorgesehen eingebunden wird). require_once: kein
-// doppeltes Laden.
-require_once __DIR__ . '/handler_ko.php';
 
 // ── Fuzzy-Namensvergleich für den Team-Abgleich beim .l98-Import ─────────────
 // PHP-Portierung der gleichen Normalisierungs-/Trigram-Logik, die im
@@ -809,16 +802,6 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                         $spielHLabel = $aHatHeim ? $hLabel : $gLabel;
                         $spielGLabel = $aHatHeim ? $gLabel : $hLabel;
                         $spielNr     = $pNr.'_'.$sNr;
-                        // GA/GB der KO-Dateien sind die Tore von Team A/Team B (nicht
-                        // von Heim/Gast, so auch im alten LMO): hat Team B in diesem
-                        // Spiel Heimrecht (z.B. Rückspiel), werden Heim- und Gasttore
-                        // (und Satzergebnisse) getauscht.
-                        if (!$aHatHeim) {
-                            [$spiel['h_tore'], $spiel['g_tore']] = [$spiel['g_tore'], $spiel['h_tore']];
-                            if (!empty($spiel['sets'])) {
-                                $spiel['sets'] = array_map(static fn($x) => ['h' => $x['g'], 'g' => $x['h']], $spiel['sets']);
-                            }
-                        }
                         // gt_sieger ('a'/'b', siehe parseL98()) erst hier in
                         // heim_id/gast_id-relative 1/2 auflösen, da A/B je
                         // nach Spielnummer/Modus zwischen Heim und Gast

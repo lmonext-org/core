@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_ko.php
- * Fileversion: 1.4.1
+ * Fileversion: 1.4.0
  *
  * PHP version 8.2
  *
@@ -83,10 +83,10 @@ function renderKoTeamPicker(int $pIdx, string $slot, int $teamId, string $label,
  * Gibt zurück ob Team A (true) oder Team B (false) in Spiel $s Heimrecht hat.
  *
  * Playoff-Modi (LMO-Quelltext):
- *   0 = 1-1-1-...      A,B,A,B,A,B,A   (alternierend, A beginnt)
- *   1 = 2-2-1          A,A,B,B,A[,B,A] (Best-of-5; bei Best-of-7 wie Modus 2)
- *   2 = 2-2-1-1-1      A,A,B,B,A,B,A   (Best-of-7)
- *   3 = 2-3-2          A,A,B,B,B,A,A   (Best-of-7)
+ *   0 = 1-1-1-...      A,B,A,B,A,B,A  (alternierend, A beginnt)
+ *   1 = 2-2-1           A,A,B,B,A      (Best-of-5)
+ *   2 = 2-2-1-1-1       A,A,B,B,A,B,A  (Best-of-7)
+ *   3 = 2-3-2           A,A,B,B,B,A,A  (Best-of-7)
  *
  * Bei Modus 2 (Hin+Rück) und Modus 1 (Einzelspiel) wird playoffmode ignoriert.
  */
@@ -99,7 +99,9 @@ function koHeimatTeamA(int $spielNr, int $rundeModus, int $playoffMode): bool {
     // Best-of: Heimrechtschema je nach playoffMode
     // $spielNr ist 1-basiert
     switch ($playoffMode) {
-        case 1: // 2-2-1 (Best-of-5: A,A,B,B,A; Best-of-7 wie Modus 2: A,A,B,B,A,B,A)
+        case 1: // 2-2-1 (Best-of-5: A,A,B,B,A)
+            return in_array($spielNr, [1, 2, 5], true);
+
         case 2: // 2-2-1-1-1 (Best-of-7: A,A,B,B,A,B,A)
             return in_array($spielNr, [1, 2, 5, 7], true);
 

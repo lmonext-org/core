@@ -1,0 +1,25 @@
+{
+    "name": "spieltag-viewer",
+    "version": "3.2.2",
+    "type": "standalone",
+    "standalone_entrypoints": ["lmo-viewer.php"],
+    "description": {
+        "de": "Spieltag-Viewer zeigt Spielübersichten über mehrere Ligen in einem wählbaren Zeitraum (Standard- oder Kachel-Template).",
+        "en": "Matchday viewer shows match overviews across multiple leagues in a selectable time range (standard or tile template)."
+    },
+    "author": "Dietmar Kersting, Torsten Hofmann",
+    "license": "GPL-3.0-only",
+    "homepage": "https://github.com/henshingly/lmonext_addon-viewer",
+    "icon": "📅",
+    "min_core_version": "1.9.0",
+    "dependencies": [],
+    "admin_handlers": [],
+    "admin_views": {},
+    "admin_nav": [],
+    "frontend_handlers": ["lmo-viewer.php"],
+    "frontend_views": {},
+    "templates_dir": "templates/",
+    "lang_dir": "lang/",
+    "db_tables": [],
+    "hooks": []
+}

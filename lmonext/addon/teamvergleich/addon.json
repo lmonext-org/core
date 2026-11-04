@@ -1,0 +1,22 @@
+{
+    "name": "teamvergleich",
+    "display_name": "Teamvergleich",
+    "version": "1.1.0",
+    "description": {
+        "de": "Teamvergleich (Direkter Vergleich, Head-to-Head): zeigt bei jeder Begegnung ein anklickbares Vergleichs-Icon mit allen bisherigen direkten Duellen der beiden Teams (ligaübergreifend, über alle Saisons hinweg), inkl. verknüpfter Teams bei Umbenennung/Fusion/Abspaltung. Nach der Aktivierung erscheint in Administrator → Einstellungen → Optionen → Anzeigen/Darstellung die Option, ob Besucher den Teamvergleich sehen.",
+        "en": "Team comparison (head-to-head): shows a clickable comparison icon on every matchup with all previous direct meetings between the two teams (across all leagues and seasons), including linked teams for renames/mergers/splits. After activation, Administrator → Settings → Options → Display shows the option to let visitors see the comparison."
+    },
+    "author": "Dietmar Kersting, Torsten Hofmann",
+    "homepage": "https://github.com/henshingly/lmonext_addon-teamvergleich",
+    "license": "GPL-3.0-only",
+    "min_core_version": "1.9.1",
+    "type": "frontend",
+    "icon": "🆚",
+    "lang_dir": "lang/",
+    "frontend_handlers": [
+        "hooks_frontend.php"
+    ],
+    "hooks": [],
+    "db_tables": [],
+    "dependencies": []
+}
