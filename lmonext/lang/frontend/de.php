@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.63.2
+ * Fileversion: 1.63.4
  *
  * PHP version 8.2
  *
@@ -154,6 +154,10 @@ return [
     // ── Direkter Vergleich (Vergleichs-Modal) ─────────────────────────────────
     'liga_status_ie'             => 'i.E.',
     'liga_status_nv'             => 'n.V.',
+    'liga_status_ie_icehockey'   => 'n.P.',
+    'liga_status_nv_icehockey'   => 'n.V.',
+    'liga_status_ie_handball'    => 'n.7m',
+    'liga_status_nv_handball'    => 'n.V.',
     'liga_status_ng'             => 'nicht gewertet',
     'liga_status_gt'             => '(*)',
     'liga_gt_footnote_heading'   => 'Grüne-Tisch-Entscheidung',

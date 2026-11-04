@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_liga_settings.php
- * Fileversion: 1.24.1
+ * Fileversion: 1.25.0
  *
  * PHP version 8.2
  *
@@ -690,6 +690,8 @@ if ($tab === 'grundwerte') { ?>
           <table style="width:100%;border-collapse:collapse;max-width:500px;margin-bottom:16px">
             <tr><td style="padding:7px 12px"><label><input type="checkbox" name="tableHinRueck" value="1"<?= $oc('tableHinRueck')?' checked':'' ?>> <?= h(t('ls_cb_hin_rueck_tables')) ?></label></td></tr>
             <tr><td style="padding:7px 12px"><label><input type="checkbox" name="tableHeimAusw" value="1"<?= $oc('tableHeimAusw')?' checked':'' ?>> <?= h(t('ls_cb_heim_ausw_tables')) ?></label></td></tr>
+            <tr><td style="padding:7px 12px"><label><input type="checkbox" name="ErgebnisTabelle" value="1"<?= $oc('ErgebnisTabelle')?' checked':'' ?>> <?= h(t('ls_cb_ergebnis_tabelle')) ?></label>
+              <div class="text-muted" style="font-size:.78rem;margin:2px 0 0 22px"><?= h(t('ls_cb_ergebnis_tabelle_hint')) ?></div></td></tr>
           </table>
 
           <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:10px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);max-width:500px"><?= h(t('ls_heading_table_markers')) ?></div>

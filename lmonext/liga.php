@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: liga.php
- * Fileversion: 3.29.1
+ * Fileversion: 3.30.1
  *
  * PHP version 8.2
  *
@@ -121,6 +121,15 @@ if ($isKO) {
     $flags['kreuztabelle']  = false;
     $flags['fieberkurve']   = false;
     $flags['ligastatistik'] = false;
+}
+
+// Liga-Option "Ergebnisse und Tabelle auf einer Seite" (wie im alten LMO):
+// die Tabelle erscheint unter den Ergebnissen, der eigene Tabellen-Reiter
+// entfällt. Nur bei regulären Ligen mit aktivem Ergebnisse-Reiter.
+$combinedResultsTable = !$isKO && !empty($flags['ergebnisse']) && !empty($flags['tabelle'])
+    && ($opts['ErgebnisTabelle'] ?? '0') === '1';
+if ($combinedResultsTable) {
+    $flags['tabelle'] = false;
 }
 
 $allSpieltage = getAllSpieltage($ligaId);
@@ -257,6 +266,18 @@ switch ($currentView) {
         $activeNr    = $currentNr !== null ? (int)$currentNr : null;
         $currentName = $spieltag !== null ? roundDisplayName($spieltag, $isKO, $maxNr) : '';
         $partien     = $spieltag !== null ? getSpieltagPartien((int)$spieltag['id']) : [];
+        // KO-Turniere: Hin- und Rückspiel einer Paarung stehen untereinander (wie im alten LMO)
+        // statt nach Datum über die ganze Runde verteilt - Paarungen in ihrer Nummerierung,
+        // Spiele einer Paarung nach Spielnummer.
+        if ($isKO && !empty($partien)) {
+            $sortiert = [];
+            foreach (groupPartienByPairing($partien) as $gruppe) {
+                usort($gruppe, static fn(array $x, array $y) =>
+                    (int)(explode('_', (string)$x['spiel_nr'])[1] ?? 0) <=> (int)(explode('_', (string)$y['spiel_nr'])[1] ?? 0));
+                foreach ($gruppe as $eintrag) { $sortiert[] = $eintrag; }
+            }
+            $partien = $sortiert;
+        }
         // _liga_id für die sport-profil-abhängige Ergebnis-Anzeige (Beitrag:
         // Torsten Hofmann, siehe RenderViewsTrait::formatScore()) - getSpieltagPartien()
         // kennt die Liga selbst nicht (nur den Spieltag), daher hier ergänzt.
@@ -395,7 +416,14 @@ switch ($currentView) {
         // darunter) - $pdfButtonHtml wird deshalb jetzt hier separat ganz
         // ans Ende gehängt, statt (wie zuvor) bereits am Ende von
         // $ergebnisInhalt zu stehen.
-        $viewInhalt = $subtitle . $picker . $spieltagNav . $ergebnisInhalt . $spieltagNav . $pdfButtonHtml;
+        $kombiTabelle = '';
+        if ($combinedResultsTable && $currentNr !== null) {
+            $kombiMode    = (string)($_GET['table'] ?? 'gesamt');
+            $kombiTabelle = '<div class="results-table-combined" style="margin-top:20px">'
+                . renderStandingsView($ligaId, $allSpieltage, (int)$currentNr, $kombiMode, 'ergebnisse')
+                . '</div>';
+        }
+        $viewInhalt = $subtitle . $picker . $spieltagNav . $ergebnisInhalt . $spieltagNav . $kombiTabelle . $pdfButtonHtml;
         break;
 }
 

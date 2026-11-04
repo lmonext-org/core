@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/IceHockeyProfile.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.1.0
  *
  * PHP version 8.2
  *
@@ -66,8 +66,8 @@ final class IceHockeyProfile implements SportProfile
 
         $status = (int)($match['status'] ?? 0);
         $suffix = match ($status) {
-            1 => ' i.E.',
-            2 => ' n.V.',
+            1 => ' ' . tf('liga_status_ie_icehockey'),
+            2 => ' ' . tf('liga_status_nv_icehockey'),
             default => '',
         };
 

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_settings.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.9.1
  *
  * PHP version 8.2
  *
@@ -220,6 +220,16 @@ foreach ($mainTabs as $key => $label) {
             </select>
             <div style="font-size:.78rem;color:var(--muted);margin-top:4px">
               <?= h(t('settings_hint_show_team_logos')) ?>
+            </div>
+          </div>
+          <div class="form-group">
+            <label><?= h(t('settings_label_team_logo_min_height')) ?></label>
+            <input type="number" name="team_logo_min_height" min="0" max="1000" step="1"
+                   value="<?= (int)teamLogoMinHeight() ?>"
+                   style="width:120px;background:var(--bg);border:1px solid var(--border);
+                   color:var(--text);border-radius:var(--radius);padding:8px 10px;font-size:.87rem;margin-top:4px">
+            <div style="font-size:.78rem;color:var(--muted);margin-top:4px">
+              <?= h(t('settings_hint_team_logo_min_height', ['default' => TEAM_LOGO_MIN_HEIGHT_PX])) ?>
             </div>
           </div>
           <button type="submit" class="btn btn-primary"><?= h(t('common_save')) ?></button>

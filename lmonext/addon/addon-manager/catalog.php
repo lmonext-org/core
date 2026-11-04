@@ -42,7 +42,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📅',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-viewer',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-viewer',
             'short_desc' => 'Spielübersichten über mehrere Ligen hinweg in frei wählbarem Zeitraum — Standard- oder Kachel-Template.',
         ],
         'mini-tabelle' => [
@@ -50,7 +50,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📐',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-mini-tabelle',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-mini-tabelle',
             'short_desc' => 'Kompakte Mini-Tabelle zum Einbinden per Include oder IFrame.',
         ],
         'mini-next' => [
@@ -58,7 +58,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '⏭️',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-mini-tabelle',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-mini-tabelle',
             'short_desc' => 'Mini-Next-Ansicht (nächstes Spiel einer Mannschaft) zum Einbinden per Include oder IFrame.',
         ],
         'ewige' => [
@@ -66,7 +66,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📈',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-ewige',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-ewige',
             'short_desc' => 'Ewige Tabelle über mehrere Ligen hinweg — Summen- oder Verlaufsansicht.',
         ],
         'tabellenrechner' => [
@@ -74,7 +74,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '🧮',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-tabellenrechner',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-tabellenrechner',
             'short_desc' => 'Was-wäre-wenn-Rechner: Ergebnisse simulieren und Tabellenänderung live sehen.',
         ],
         'meister' => [
@@ -82,7 +82,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '🏆',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-liga-klassen-rekorde',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-liga-klassen-rekorde',
             'short_desc' => 'Alle Meister über mehrere Ligen hinweg — mit Punkten, Toren und Bilanz. Plus aggregierte Statistik.',
         ],
         'relegation' => [
@@ -90,7 +90,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '🔀',
             'type'       => 'standalone',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-relegation',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-relegation',
             'short_desc' => 'Relegationsspiele für Auf- und Abstieg zwischen Ligen — Hin- und Rückspiel.',
         ],
         'player' => [
@@ -98,7 +98,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📊',
             'type'       => 'both',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-player',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-player',
             'short_desc' => 'Detaillierte Spielerstatistiken mit Spaltenverwaltung, Foto-Upload und CSV-Import.',
         ],
         'tipp' => [
@@ -106,7 +106,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '🎯',
             'type'       => 'both',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-tipp',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-tipp',
             'short_desc' => 'Tippspiel-System mit Anmeldung, Tippabgabe, Auswertung und Joker-Regeln.',
         ],
         'translator' => [
@@ -114,7 +114,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '🌐',
             'type'       => 'admin',
             'author'     => 'Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-translator',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-translator',
             'short_desc' => 'Split-View Editor für alle Sprachdateien — mit optionaler DeepL Auto-Übersetzung.',
         ],
         'liga-notizen' => [
@@ -122,7 +122,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📝',
             'type'       => 'admin',
             'author'     => 'Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-liga-notizen',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-liga-notizen',
             'short_desc' => 'Notizen pro Liga anlegen, bearbeiten und löschen. Beispiel-Addon für das Addon-System.',
         ],
         'team-notizen' => [
@@ -130,7 +130,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📋',
             'type'       => 'both',
             'author'     => 'Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-team-notizen',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-team-notizen',
             'short_desc' => 'Stammdaten, Erfolge und Trainer-Historie pro Team pflegen und im Frontend anzeigen.',
         ],
         'ticker' => [
@@ -138,7 +138,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📢',
             'type'       => 'both',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => 'https://github.com/henshingly/lmonext_addon-ticker',
+            'homepage'   => '   ',
             'short_desc' => 'Scrollendes Laufband oberhalb der Liga-Tabs — freier Text oder aktuelle Ergebnisse.',
         ],
     ];

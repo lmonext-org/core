@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/HandballProfile.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.1.0
  *
  * PHP version 8.2
  *
@@ -59,7 +59,12 @@ final class HandballProfile implements SportProfile
                 $result .= ' (' . $hz . ')';
             }
         }
-        return $result;
+        $suffix = match ((int)($match['status'] ?? 0)) {
+            1 => ' ' . tf('liga_status_ie_handball'),
+            2 => ' ' . tf('liga_status_nv_handball'),
+            default => '',
+        };
+        return $result . $suffix;
     }
 
     public function formatPeriods(?string $extraData): string

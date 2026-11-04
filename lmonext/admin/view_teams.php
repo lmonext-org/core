@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_teams.php
- * Fileversion: 1.9.0
+ * Fileversion: 1.9.1
  *
  * PHP version 8.2
  *
@@ -53,6 +53,7 @@ if (isset($firstCounts['#'])) { $hash = $firstCounts['#']; unset($firstCounts['#
             <?= h(t('teams_btn_show_dups', ['n' => $dupCount])) ?>
           </button>
           <?php } ?>
+          <a href="?action=team_logos" class="btn btn-muted btn-sm" style="text-decoration:none;white-space:nowrap">🖼️ <?= h(t('tlb_link')) ?></a>
           <span id="team-count" style="font-size:.82rem;color:var(--muted);white-space:nowrap">
             <?= h(t('teams_count_total', ['n' => count($teams)])) ?>
           </span>

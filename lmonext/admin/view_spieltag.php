@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_spieltag.php
- * Fileversion: 1.12.2
+ * Fileversion: 1.13.0
  *
  * PHP version 8.2
  *
@@ -256,7 +256,7 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                           style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);
                                  border-radius:var(--radius);padding:3px 8px;font-size:.78rem">
                     <option value="0"<?= $status === 0 ? ' selected' : '' ?>><?= h(t('sp_status_normal')) ?></option>
-                    <option value="1"<?= $status === 1 ? ' selected' : '' ?>><?= h(t('sp_status_ie')) ?></option>
+                    <option value="1"<?= $status === 1 ? ' selected' : '' ?>><?= h(t(in_array(($liga['sport_type'] ?? ''), ['icehockey', 'handball'], true) ? 'sp_status_ie_' . $liga['sport_type'] : 'sp_status_ie')) ?></option>
                     <option value="2"<?= $status === 2 ? ' selected' : '' ?>><?= h(t('sp_status_nv')) ?></option>
                   </select>
                   <input type="text" name="notiz_<?= $pIdx ?>_<?= $s ?>" value="<?= h($notiz) ?>"
@@ -617,6 +617,7 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                 $status  = (int)($p['status'] ?? 0);
                 $gt      = (int)($p['gt_entscheidung'] ?? 0);
                 $bericht = $p['bericht_url'] ?? '';
+                $notizP  = (string)($p['notiz'] ?? '');
                 $gtGrund = $p['gt_grund'] ?? '';
                 $existingSets = [];
                 if (!empty($p['extra_data'])) {
@@ -665,7 +666,7 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                         style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--muted);
                                border-radius:var(--radius);padding:4px 6px;font-size:.78rem">
                   <option value="0"<?= $status === 0 ? ' selected' : '' ?>><?= h(t('sp_status_dash')) ?></option>
-                  <option value="1"<?= $status === 1 ? ' selected' : '' ?>><?= h(t('sp_status_ie_short')) ?></option>
+                  <option value="1"<?= $status === 1 ? ' selected' : '' ?>><?= h(t(in_array($ligaSportType, ['icehockey', 'handball'], true) ? 'sp_status_ie_short_' . $ligaSportType : 'sp_status_ie_short')) ?></option>
                   <option value="2"<?= $status === 2 ? ' selected' : '' ?>><?= h(t('sp_status_nv_short')) ?></option>
                 </select>
               </td>
@@ -690,6 +691,10 @@ function dtInput(string $hiddenName, string $atVal, string $extraStyle = ''): st
                 <input type="text" inputmode="url" name="bericht_<?= (int)$p['id'] ?>" value="<?= h($bericht) ?>"
                        placeholder="<?= h(t('sp_placeholder_report_link')) ?>" title="<?= h(t('sp_title_report_link')) ?>"
                        style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
+                              border-radius:var(--radius);padding:4px 8px;font-size:.78rem">
+                <input type="text" name="notiz_<?= (int)$p['id'] ?>" value="<?= h($notizP) ?>"
+                       placeholder="<?= h(t('sp_placeholder_venue')) ?>"
+                       style="width:100%;margin-top:4px;background:var(--bg);border:1px solid var(--border);color:var(--text);
                               border-radius:var(--radius);padding:4px 8px;font-size:.78rem">
                 <?php
                   // Hook-Punkt - erlaubt Addons, sich hier mit einem eigenen

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: frontend/data_liga.php
- * Fileversion: 3.12.1
+ * Fileversion: 3.12.2
  *
  * PHP version 8.2
  *
@@ -342,9 +342,9 @@ function computeStandingsMarkerColor(int $index, int $totalTeams, array $opts) :
     return \LMOnext\Liga\LigaService::computeStandingsMarkerColor($index, $totalTeams, $opts);
 }
 
-function renderStandingsView(int $ligaId, array $allSpieltage, ?int $uptoSpieltag = null, string $tableMode = 'gesamt') : string
+function renderStandingsView(int $ligaId, array $allSpieltage, ?int $uptoSpieltag = null, string $tableMode = 'gesamt', string $linkView = 'tabelle') : string
 {
-    return \LMOnext\Liga\LigaService::renderStandingsView($ligaId, $allSpieltage, $uptoSpieltag, $tableMode);
+    return \LMOnext\Liga\LigaService::renderStandingsView($ligaId, $allSpieltage, $uptoSpieltag, $tableMode, $linkView);
 }
 
 function renderTeamScheduleView(int $ligaId, array $allSpieltage, ?int $selectedTeamId) : string

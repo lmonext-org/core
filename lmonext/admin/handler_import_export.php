@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_import_export.php
- * Fileversion: 1.14.0
+ * Fileversion: 1.15.0
  *
  * PHP version 8.2
  *
@@ -12,6 +12,13 @@
  * @license   GPL-3.0-only
  *
  */
+
+// koHeimatTeamA() (Heimrecht-Schema bei KO-Turnieren) liegt in handler_ko.php und
+// wird beim Import von KO-.l98-Dateien gebraucht. Explizit nachladen, damit der
+// Import nicht von der Ladereihenfolge in admin.php abhängt (z.B. wenn diese
+// Datei früher als dort vorgesehen eingebunden wird). require_once: kein
+// doppeltes Laden.
+require_once __DIR__ . '/handler_ko.php';
 
 // ── Fuzzy-Namensvergleich für den Team-Abgleich beim .l98-Import ─────────────
 // PHP-Portierung der gleichen Normalisierungs-/Trigram-Logik, die im
@@ -573,7 +580,7 @@ function parseL98(string $content): array {
     $optionKeys = ['goalfaktor','pointsfaktor','enableGameSort','Kegel','HandS',
         'PointsForWin','PointsForDraw','PointsForLost','Spez','HideDraw','OnRun',
         'MinusPoints','Direct','Champ','CL','CK','UC','AR','AB','namePkt','nameTor',
-        'tableHinRueck','tableHeimAusw','DatC','DatS','DatM','DatF','urlT','urlB',
+        'tableHinRueck','tableHeimAusw','ErgebnisTabelle','DatC','DatS','DatM','DatF','urlT','urlB',
         'stats','Plan','Ergebnis','mittore','favTeam','selTeam','ticker','icon',
         'Graph','Kreuz','Tabelle','Ligastats','kurve1','kurve2','Actual','Title',
         'Rounds','Matches','KlFin','playdown'];
@@ -802,6 +809,16 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                         $spielHLabel = $aHatHeim ? $hLabel : $gLabel;
                         $spielGLabel = $aHatHeim ? $gLabel : $hLabel;
                         $spielNr     = $pNr.'_'.$sNr;
+                        // GA/GB der KO-Dateien sind die Tore von Team A/Team B (nicht
+                        // von Heim/Gast, so auch im alten LMO): hat Team B in diesem
+                        // Spiel Heimrecht (z.B. Rückspiel), werden Heim- und Gasttore
+                        // (und Satzergebnisse) getauscht.
+                        if (!$aHatHeim) {
+                            [$spiel['h_tore'], $spiel['g_tore']] = [$spiel['g_tore'], $spiel['h_tore']];
+                            if (!empty($spiel['sets'])) {
+                                $spiel['sets'] = array_map(static fn($x) => ['h' => $x['g'], 'g' => $x['h']], $spiel['sets']);
+                            }
+                        }
                         // gt_sieger ('a'/'b', siehe parseL98()) erst hier in
                         // heim_id/gast_id-relative 1/2 auflösen, da A/B je
                         // nach Spielnummer/Modus zwischen Heim und Gast
@@ -813,6 +830,9 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                         } elseif ($gtSieger === 'b') {
                             $gtEntscheidung = $aHatHeim ? 2 : 1;
                         }
+                        $exQ = $db->prepare('SELECT id FROM '.tbl('liga_partien').' WHERE spieltag_id=? AND spiel_nr=? LIMIT 1');
+                        $exQ->execute([$stid, $spielNr]);
+                        if ($exQ->fetchColumn()) { continue; } // bereits vorhanden
                         $stmtPL->execute([
                             $stid, $spielHId, $spielGId,
                             $spielHLabel, $spielGLabel,
@@ -830,6 +850,19 @@ function importL98IntoDB(array $data, array $teamNameOverrides = [], ?string $sp
                 foreach (($st['partien'] ?? []) as $p) {
                     $hId = $teamMap[$p['heim']] ?? null; $gId = $teamMap[$p['gast']] ?? null;
                     if ($hId && $gId) {
+                        // Existiert die Liga schon (gleicher Name), dieselbe Paarung
+                        // im selben Spieltag aktualisieren statt doppelt anzulegen.
+                        $exQ = $db->prepare('SELECT id FROM '.tbl('liga_partien').' WHERE spieltag_id=? AND heim_id=? AND gast_id=? ORDER BY id LIMIT 1');
+                        $exQ->execute([$stid, $hId, $gId]);
+                        $exId = (int)$exQ->fetchColumn();
+                        if ($exId) {
+                            $db->prepare('UPDATE '.tbl('liga_partien').' SET h_tore=?,g_tore=?,zeit=COALESCE(?,zeit),notiz=?,status=?,bericht_url=?,extra_data=?,gt_entscheidung=? WHERE id=?')->execute([
+                                $p['h_tore'], $p['g_tore'], $p['zeit'], $p['notiz'] ?: null,
+                                $p['status'] ?? 0, $p['bericht'] ?? null,
+                                !empty($p['sets']) ? json_encode(['sets' => $p['sets']]) : null,
+                                $p['gt_entscheidung'] ?? 0, $exId]);
+                            continue;
+                        }
                         $stmtP->execute([
                             $stid, $hId, $gId, $p['h_tore'], $p['g_tore'], $p['zeit'], $p['notiz'] ?: null,
                             $p['status'] ?? 0, $p['bericht'] ?? null, $p['spiel_nr'],

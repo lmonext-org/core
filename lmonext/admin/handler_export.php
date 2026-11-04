@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_export.php
- * Fileversion: 1.2.4
+ * Fileversion: 1.3.0
  *
  * PHP version 8.2
  *
@@ -69,7 +69,7 @@ if ($action === 'export' && isset($_GET['liga_id'])) {
     $stdKeys = ['goalfaktor','pointsfaktor','enableGameSort','Rounds','Matches','Actual',
         'Kegel','HandS','PointsForWin','PointsForDraw','PointsForLost','Spez','HideDraw',
         'OnRun','MinusPoints','Direct','Champ','CL','CK','UC','AR','AB','namePkt','nameTor',
-        'tableHinRueck','tableHeimAusw','DatC','DatS','DatM','DatF','urlT','urlB','stats',
+        'tableHinRueck','tableHeimAusw','ErgebnisTabelle','DatC','DatS','DatM','DatF','urlT','urlB','stats',
         'Plan','Ergebnis','mittore','favTeam','selTeam','ticker','icon','Graph','Kreuz',
         'Tabelle','Ligastats','kurve1','kurve2','KlFin','playdown','playoffmode'];
     // Rounds/Matches aus echten Daten
@@ -165,9 +165,13 @@ if ($action === 'export' && isset($_GET['liga_id'])) {
 
                 foreach ($spiele as $sNr => $sp) {
                     $key = $pNr.$sNr;
-                    // Tore: -1 wenn nicht gespielt
-                    $ga = $sp['h_tore'] !== null ? $sp['h_tore'] : -1;
-                    $gb = $sp['g_tore'] !== null ? $sp['g_tore'] : -1;
+                    $heimIstA = ($sp['heim_id'] !== null && $erstSpiel['heim_id'] !== null)
+                        ? ((int)$sp['heim_id'] === (int)$erstSpiel['heim_id'])
+                        : koHeimatTeamA((int)$sNr, $roundModus, 0);
+                    $tA = $heimIstA ? $sp['h_tore'] : $sp['g_tore'];
+                    $tB = $heimIstA ? $sp['g_tore'] : $sp['h_tore'];
+                    $ga = $tA !== null ? $tA : -1;
+                    $gb = $tB !== null ? $tB : -1;
                     $lines[] = 'GA'.$key.'='.$ga;
                     $lines[] = 'GB'.$key.'='.$gb;
                     $lines[] = 'SP'.$key.'='.((int)($sp['status'] ?? 0));

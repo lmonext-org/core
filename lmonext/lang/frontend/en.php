@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/en.php
- * Fileversion: 1.63.1
+ * Fileversion: 1.63.3
  *
  * PHP version 8.2
  *
@@ -152,6 +152,10 @@ return [
     // ── Head-to-head comparison modal ─────────────────────────────────────────
     'liga_status_ie'             => 'pens.',
     'liga_status_nv'             => 'AET',
+    'liga_status_ie_icehockey'   => 'SO',
+    'liga_status_nv_icehockey'   => 'OT',
+    'liga_status_ie_handball'    => '7m',
+    'liga_status_nv_handball'    => 'AET',
     'liga_status_ng'             => 'not counted',
     'liga_status_gt'             => '(*)',
     'liga_gt_footnote_heading'   => 'Sports court decision',
