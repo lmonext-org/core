@@ -1,0 +1,25 @@
+{
+    "name": "mini-tabelle",
+    "version": "1.3.2",
+    "type": "standalone",
+    "standalone_entrypoints": ["lmo-minitab.php", "lmo-mininext.php"],
+    "description": {
+        "de": "Kompakte Mini-Tabelle und Mini-Next-Ansicht zum Einbinden per Include oder IFrame.",
+        "en": "Compact mini table and mini-next view for embedding via include or iframe."
+    },
+    "author": "Dietmar Kersting, Torsten Hofmann",
+    "license": "GPL-3.0-only",
+    "homepage": "https://github.com/henshingly/lmonext_addon-mini-tabelle",
+    "icon": "📐",
+    "min_core_version": "1.9.0",
+    "dependencies": [],
+    "admin_handlers": [],
+    "admin_views": {},
+    "admin_nav": [],
+    "frontend_handlers": ["lmo-minitab.php", "lmo-mininext.php"],
+    "frontend_views": {},
+    "templates_dir": "templates/",
+    "lang_dir": "lang/",
+    "db_tables": [],
+    "hooks": []
+}

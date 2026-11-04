@@ -163,11 +163,13 @@ final class BadmintonProfile implements SportProfile
         return $errors;
     }
 
-    public function getDisplayModes(): array
-    {
-        return ['short', 'medium', 'long'];
-    }
+    public function getDisplayModes(): array { return []; }
 
+    public function getStandingsColumnsForMode(string $mode = 'short'): array
+    {
+        return $this->getStandingsColumns();
+    }
+    
     public function getStandingsColumns(): array
     {
         return [
@@ -180,53 +182,54 @@ final class BadmintonProfile implements SportProfile
         ];
     }
 
-    /**
-     * Tabellenspalten abhaengig vom Darstellungsmodus (analog Volleyball).
-     */
-    public function getStandingsColumnsForMode(string $mode = 'short'): array
-    {
-        if ($mode === 'medium') {
-            return [
-                ['key' => 'sp',   'label' => 'Sp',   'class' => 'st-num'],
-                ['key' => 's',    'label' => 'S',    'class' => 'st-num'],
-                ['key' => 'p3',   'label' => '2P',   'class' => 'st-num'],
-                ['key' => 'p0',   'label' => '0P',   'class' => 'st-num'],
-                ['key' => 'tore', 'label' => 'Spiele', 'class' => 'st-num'],
-                ['key' => 'pkt',  'label' => 'Pkt',   'class' => 'st-pkt'],
-            ];
-        }
-        if ($mode === 'long') {
-            return [
-                ['key' => 'sp',    'label' => 'Sp',    'class' => 'st-num'],
-                ['key' => 's',     'label' => 'S',     'class' => 'st-num'],
-                ['key' => 'n',     'label' => 'N',     'class' => 'st-num'],
-                ['key' => 'bquot', 'label' => 'B-Quot', 'class' => 'st-num'],
-                ['key' => 'bverh', 'label' => 'B-Verh',  'class' => 'st-num'],
-                ['key' => 'squot', 'label' => 'P-Quot', 'class' => 'st-num'],
-                ['key' => 'sverh', 'label' => 'P-Verh',  'class' => 'st-num'],
-                ['key' => 'pkt',   'label' => 'Pkt',    'class' => 'st-pkt'],
-            ];
-        }
-        // short (default)
-        return [
-            ['key' => 'sp',   'label' => 'Sp',     'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',      'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'Spiele', 'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt',    'class' => 'st-pkt'],
-        ];
-    }
-
     public function computeMatchPoints(int $hSets, int $gSets): array
     {
-        if ($hSets > $gSets) {
-            return [
-                'home_pts' => 2, 'guest_pts' => 0,
-                'home_win' => true, 'guest_win' => false,
-            ];
-        }
-        return [
-            'home_pts' => 0, 'guest_pts' => 2,
-            'home_win' => false, 'guest_win' => true,
-        ];
+
+        switch ($hSets - $gSets) {
+            case 1:
+       return [
+          'home_pts' => 2, 'guest_pts' => 1,
+          'home_win' => true, 'guest_win' => false,
+       ];
+            	break;
+            case -1:
+       return [
+          'home_pts' => 1, 'guest_pts' => 2,
+          'home_win' => false, 'guest_win' => true,
+       ];
+            	break;
+            case 3:
+       return [
+          'home_pts' => 2, 'guest_pts' => 0,
+          'home_win' => true, 'guest_win' => false,
+       ];
+            	break;
+            case -3:
+       return [
+          'home_pts' => 0, 'guest_pts' => 2,
+          'home_win' => false, 'guest_win' => true,
+       ];
+            	break;
+            case 5:
+            case 7:
+       return [
+          'home_pts' => 3, 'guest_pts' => 0,
+          'home_win' => true, 'guest_win' => false,
+       ];
+            	break;
+            case -5:
+            case -7:
+       return [
+          'home_pts' => 0, 'guest_pts' => 3,
+          'home_win' => false, 'guest_win' => true,
+       ];
+            	break;
+       }
+/*
+       return [
+          'home_pts' => 2, 'guest_pts' => 1,
+          'home_win' => true, 'guest_win' => false,
+       ];
+*/    
     }
 }

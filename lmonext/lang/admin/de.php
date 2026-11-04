@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.13
+ * Fileversion: 1.58.11
  *
  * PHP version 8.2
  *
@@ -295,15 +295,15 @@ return [
     'teams_field_logo'           => 'Logo',
     'impm_link_to_merge' => 'In vorhandene Liga übernehmen …',
     'impm_heading' => '.l98 in vorhandene Liga übernehmen',
-    'impm_intro' => 'Trägt Ergebnisse aus einer .l98-Datei (z.B. Export aus einer anderen LMOnext-Installation) in eine bereits vorhandene Liga ein: Vorhandene Begegnungen bekommen das Ergebnis, fehlende Spieltage und Begegnungen werden angelegt, alles andere bleibt unverändert. Auch für KO-Turniere (KO-Datei in KO-Turnier): Paarungen werden über die Teams zugeordnet, Platzhalter wie „Sieger …“ durch die Teams der Datei ersetzt.',
+    'impm_intro' => 'Trägt Ergebnisse aus einer .l98-Datei (z.B. Export aus einer anderen LMOnext-Installation) in eine bereits vorhandene Liga ein: Vorhandene Begegnungen bekommen das Ergebnis, fehlende Spieltage und Begegnungen werden angelegt, alles andere bleibt unverändert. Nur für Ligen, nicht für KO-Turniere.',
     'impm_label_target' => 'Ziel-Liga',
     'impm_opt_choose' => '– Liga wählen –',
     'impm_label_file' => '.l98-Datei',
     'impm_label_overwrite' => 'Bereits eingetragene Ergebnisse überschreiben (Standard: überspringen)',
     'impm_btn_upload' => 'Weiter zur Team-Zuordnung',
-    'impm_err_target' => 'Bitte eine gültige Ziel-Liga bzw. ein gültiges Ziel-Turnier wählen.',
+    'impm_err_target' => 'Bitte eine gültige Ziel-Liga (kein KO-Turnier) wählen.',
     'impm_err_file' => 'Bitte eine .l98-Datei hochladen.',
-    'impm_err_ko' => 'Diese Datei enthält ein KO-Turnier und kann nur in ein vorhandenes KO-Turnier übernommen werden.',
+    'impm_err_ko' => 'Diese Datei enthält ein KO-Turnier. Die Übernahme in eine vorhandene Liga funktioniert nur für Liga-Dateien.',
     'impm_err_empty' => 'Die Datei enthält keine Spieltage.',
     'impm_review_heading' => 'Team-Zuordnung und Vorschau',
     'impm_review_counts' => '{teams} Teams, {st} Spieltage in der Datei',
@@ -332,11 +332,6 @@ return [
     'impm_c_unmapped' => 'Begegnungen ohne Team-Zuordnung übersprungen',
     'impm_label_prune' => 'Begegnungen entfernen, die nicht in der Datei stehen (nur ohne Ergebnis; Begegnungen mit Ergebnis bleiben immer erhalten)',
     'impm_c_pruned' => 'Überzählige Begegnungen entfernt',
-    'impm_err_liga_in_ko' => 'Diese Datei enthält eine Liga und kann nur in eine vorhandene Liga übernommen werden, nicht in ein KO-Turnier.',
-    'impm_d_resolved' => 'Platzhalter durch Team ersetzt',
-    'impm_c_placeholders' => 'Platzhalter durch Teams ersetzt (KO)',
-    'impm_ko_tag' => 'KO-Turnier',
-    'impm_archiv_tag' => 'Archiv',
     'impm_d_pruned' => 'Entfernt (nicht in Datei)',
     'tlb_link' => 'Logos per Massen-Upload …',
     'tlb_heading' => 'Team-Logos per Massen-Upload',
