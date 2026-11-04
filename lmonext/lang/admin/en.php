@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.57.13
+ * Fileversion: 1.57.11
  *
  * PHP version 8.2
  *
@@ -294,15 +294,15 @@ return [
     'teams_field_logo'           => 'Logo',
     'impm_link_to_merge' => 'Import into an existing league …',
     'impm_heading' => 'Import .l98 into an existing league',
-    'impm_intro' => 'Writes results from an .l98 file (e.g. an export from another LMOnext installation) into an existing league: existing fixtures receive the result, missing matchdays and fixtures are created, everything else stays unchanged. Knockout tournaments work too (KO file into KO tournament): fixtures are matched by their teams, placeholders such as "Winner …" are replaced by the teams from the file.',
+    'impm_intro' => 'Writes results from an .l98 file (e.g. an export from another LMOnext installation) into an existing league: existing fixtures receive the result, missing matchdays and fixtures are created, everything else stays unchanged. Leagues only, no knockout tournaments.',
     'impm_label_target' => 'Target league',
     'impm_opt_choose' => '– choose league –',
     'impm_label_file' => '.l98 file',
     'impm_label_overwrite' => 'Overwrite results that are already entered (default: skip)',
     'impm_btn_upload' => 'Continue to team mapping',
-    'impm_err_target' => 'Please choose a valid target league or tournament.',
+    'impm_err_target' => 'Please choose a valid target league (no knockout tournament).',
     'impm_err_file' => 'Please upload an .l98 file.',
-    'impm_err_ko' => 'This file contains a knockout tournament and can only be imported into an existing knockout tournament.',
+    'impm_err_ko' => 'This file contains a knockout tournament. Importing into an existing league only works for league files.',
     'impm_err_empty' => 'The file contains no matchdays.',
     'impm_review_heading' => 'Team mapping and preview',
     'impm_review_counts' => '{teams} teams, {st} matchdays in the file',
@@ -331,11 +331,6 @@ return [
     'impm_c_unmapped' => 'Fixtures skipped (no team assigned)',
     'impm_label_prune' => 'Remove fixtures that are not in the file (only without result; fixtures with a result are always kept)',
     'impm_c_pruned' => 'Surplus fixtures removed',
-    'impm_err_liga_in_ko' => 'This file contains a league and can only be imported into an existing league, not into a knockout tournament.',
-    'impm_d_resolved' => 'Placeholder replaced by team',
-    'impm_c_placeholders' => 'Placeholders replaced by teams (KO)',
-    'impm_ko_tag' => 'knockout',
-    'impm_archiv_tag' => 'archived',
     'impm_d_pruned' => 'Removed (not in file)',
     'tlb_link' => 'Logos via bulk upload …',
     'tlb_heading' => 'Team logos bulk upload',

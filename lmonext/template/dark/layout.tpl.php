@@ -121,7 +121,7 @@ table.results-table td.col-vergleich,table.results-table thead th.col-vergleich{
 .h2h-record{display:flex;gap:8px;margin-bottom:18px}
 .h2h-chip{flex:1;text-align:center;padding:8px 6px;border-radius:8px;font-weight:700;font-size:.95rem;
   background:var(--bg);color:var(--text)}
-.h2h-chip-a,.h2h-chip-b{display:flex;flex-direction:column;gap:3px}
+.h2h-chip-a,.h2h-chip-b,.h2h-chip-d{display:flex;flex-direction:column;gap:3px}
 .h2h-chip-label{font-weight:600;font-size:.72rem;color:var(--muted);white-space:normal;line-height:1.2}
 .h2h-chip-num{font-size:1.15rem;font-weight:700}
 .h2h-chip-draw{font-weight:600;font-size:.82rem;color:var(--muted)}
