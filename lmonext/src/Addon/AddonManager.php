@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.10.2
+ * Fileversion: 1.10.3
  *
  * PHP version 8.2
  *
@@ -1136,8 +1136,14 @@ class AddonManager
             ];
             $context = stream_context_create($opts);
             $body    = @file_get_contents($url, false, $context);
-            if (isset($http_response_header)) {
-                foreach ((array)$http_response_header as $hLine) {
+            // PHP 8.4+: $http_response_header ist deprecated (Entfernung ab 9.0 geplant),
+            // Ersatz http_get_last_response_headers(). Auf PHP < 8.4 existiert nur die
+            // Variable - daher Funktionsprüfung.
+            $respHeaders = function_exists('http_get_last_response_headers')
+                ? http_get_last_response_headers()
+                : ($http_response_header ?? null);
+            if ($respHeaders !== null) {
+                foreach ((array)$respHeaders as $hLine) {
                     if (preg_match('#HTTP/\S+\s+(\d{3})#', $hLine, $hm)) {
                         $httpCode = (int)$hm[1];
                     }
@@ -1182,14 +1188,14 @@ class AddonManager
                 // also müssen wir den Header selbst parsen.
                 curl_setopt($ch, CURLOPT_HEADER, true);
                 $resp = curl_exec($ch);
-                curl_close($ch);
+                unset($ch); // curl_close() ist ab PHP 8.5 deprecated und seit 8.0 wirkungslos
                 if ($resp !== false && preg_match('#Location:\s*(\S+)#i', $resp, $lm)) {
                     $location = trim($lm[1]);
                 }
                 return ['body' => false, 'http_code' => $httpCode, 'error' => '', 'method' => 'curl', 'location' => $location];
             }
 
-            curl_close($ch);
+            unset($ch); // curl_close() ist ab PHP 8.5 deprecated und seit 8.0 wirkungslos
             $method = 'curl';
             if ($body !== false && $httpCode === 200) {
                 return ['body' => $body, 'http_code' => 200, 'error' => '', 'method' => $method, 'location' => ''];

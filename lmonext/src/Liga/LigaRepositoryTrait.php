@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/LigaRepositoryTrait.php
- * Fileversion: 1.4.0
+ * Fileversion: 1.4.1
  *
  * PHP version 8.2
  *
@@ -135,7 +135,7 @@ trait LigaRepositoryTrait
             'kreuztabelle'  => self::ligaFlagEnabled($opts, 'Kreuz', true),
             'fieberkurve'   => self::ligaFlagEnabled($opts, 'kurve1', true),
             'ligastatistik' => self::ligaFlagEnabled($opts, 'Ligastats', true),
-            'spielerstatistik' => self::ligaFlagEnabled($opts, 'stats', false),
+            'spielerstatistik' => self::ligaFlagEnabled($opts, 'stats', false) && function_exists('addonManager') && addonManager()->isEnabled('player'),
             'karte'         => self::ligaFlagEnabled($opts, 'ShowKarte', false),
             'info'          => true,
         ];

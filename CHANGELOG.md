@@ -1583,6 +1583,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/LigaRepositoryTrait.php
 
+- Changelog: 1.4.1 - Bugfix (Reiter "Spielerstatistik" erscheint nur bei manchen importierten Ligen und lässt sich nicht ausblenden): Der Reiter wird nur noch angezeigt, wenn das Player-Addon aktiv ist. Ein per .l98-Import mitgebrachtes stats=1 erzeugt ohne Addon keinen toten Reiter mehr.
 - Changelog: 1.4.0 - Docblock-Kommentar um die neue Sportart "kegeln" ergänzt (rein dokumentarisch, keine Verhaltensänderung).
 - Changelog: 1.3.0 - Neues Flag "karte" in getLigaViewFlags() (Quelle: liga_options "ShowKarte", Default false) - steuert den neuen "Karte"-Reiter auf der Liga-Detailseite (team-notizen-Addon, Übersichtskarte der Team-Standorte), analog zum bestehenden "spielerstatistik"-Flag des Player-Addons.
 - Changelog: 1.2.0 - getLigaOptions() ruft jetzt vor dem Cachen der Rückgabe migrateFavSelTeamToStableId() auf (siehe TeamRepositoryTrait.php 1.1.0 für den vollständigen Hintergrund) - stellt sicher, dass jede Liga beim ersten Frontend-Zugriff automatisch von der alten, positionsbasierten favTeam/selTeam-Logik auf die stabile Team-ID migriert wird.

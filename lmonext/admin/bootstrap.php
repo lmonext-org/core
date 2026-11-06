@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.32.4
+ * Fileversion: 1.32.5
  *
  * PHP version 8.2
  *
@@ -364,7 +364,7 @@ function checkCoreUpdateAvailable() : ?array
                 CURLOPT_HTTPHEADER     => ['User-Agent: LMOnext/' . getAppVersion()],
             ]);
             $body = curl_exec($ch);
-            curl_close($ch);
+            unset($ch); // curl_close() ist ab PHP 8.5 deprecated und seit 8.0 wirkungslos
         }
 
         if (is_string($body) && $body !== '') {
@@ -1048,6 +1048,7 @@ function ensureTeamFreilosSchema() : void
 const TEAM_LOGO_ALLOWED_EXT  = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
 const TEAM_LOGO_MIN_HEIGHT_PX = 50;
 
+/** Mindesthöhe für Team-Logos in Pixeln (globale Einstellung, 0 = keine Prüfung). */
 function teamLogoMinHeight() : int
 {
     $v = getAdminSetting('team_logo_min_height', '');
@@ -1127,22 +1128,15 @@ function sanitizeSvgContent(string $content) : ?string
     if (!class_exists('DOMDocument')) {
         return null;
     }
-    $prevEntityLoader = null;
-    if (function_exists('libxml_disable_entity_loader')) {
-        // In PHP 8 ist externes Entity-Laden ohnehin standardmäßig aus,
-        // die Funktion selbst ist ab 8.0 deprecated - defensiv trotzdem
-        // aufrufen, falls auf einer älteren PHP-Version ausgeführt.
-        $prevEntityLoader = @libxml_disable_entity_loader(true);
-    }
+    // Externes Entity-Laden ist ab PHP 8.0 standardmäßig aus (LIBXML_NONET
+    // unten verhindert zusätzlich Netzwerkzugriffe); libxml_disable_entity_loader()
+    // ist deprecated und wird nicht mehr aufgerufen (Mindestversion PHP 8.2).
     $prevUseErrors = libxml_use_internal_errors(true);
 
     $dom = new \DOMDocument();
     $ok = $dom->loadXML($content, LIBXML_NONET);
     libxml_clear_errors();
     libxml_use_internal_errors($prevUseErrors);
-    if ($prevEntityLoader !== null) {
-        @libxml_disable_entity_loader($prevEntityLoader);
-    }
     if (!$ok) {
         return null;
     }
@@ -1208,9 +1202,10 @@ function saveTeamLogoUpload(int $teamId, array $file) : array
 
 /**
  * Gemeinsame Prüfung + Speicherung eines Team-Logos aus einer Datei auf dem
- * Server (Einzel-Upload: $isUpload = true -> move_uploaded_file; Massen-Upload
- * aus dem Zwischenverzeichnis: $isUpload = false -> copy). Alle Prüfungen
- * (Format, Inhalt, Mindesthöhe, SVG-Bereinigung) sind für beide Wege identisch.
+ * Server (Einzel-Upload: $isUpload = true -> move_uploaded_file; Massen-
+ * Upload aus dem Zwischenverzeichnis: $isUpload = false -> copy). Alle
+ * Prüfungen (Format, Inhalt, Mindesthöhe, SVG-Bereinigung) sind für beide
+ * Wege identisch.
  *
  * @return array{ok:bool,error:?string}
  */
