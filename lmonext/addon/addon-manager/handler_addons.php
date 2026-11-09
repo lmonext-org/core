@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: handler_addons.php
- * Fileversion: 1.5.0
+ * Fileversion: 1.5.1
  *
  * PHP version 8.2
  *
@@ -76,14 +76,14 @@ if ($addonAction === 'install_zip') {
     if (!isset($_FILES['addon_zip']) || $_FILES['addon_zip']['error'] !== UPLOAD_ERR_OK) {
         $uploadErr = $_FILES['addon_zip']['error'] ?? UPLOAD_ERR_NO_FILE;
         $errMap = [
-            UPLOAD_ERR_INI_SIZE   => 'Datei zu groß (Server-Limit)',
-            UPLOAD_ERR_FORM_SIZE => 'Datei zu groß (Form-Limit)',
-            UPLOAD_ERR_PARTIAL   => 'Upload unvollständig',
-            UPLOAD_ERR_NO_FILE   => 'Keine Datei ausgewählt',
-            UPLOAD_ERR_NO_TMP_DIR => 'Kein Temp-Verzeichnis',
-            UPLOAD_ERR_CANT_WRITE => 'Temp-Datei nicht schreibbar',
+            UPLOAD_ERR_INI_SIZE   => t('addons_upload_err_ini_size'),
+            UPLOAD_ERR_FORM_SIZE  => t('addons_upload_err_form_size'),
+            UPLOAD_ERR_PARTIAL    => t('addons_upload_err_partial'),
+            UPLOAD_ERR_NO_FILE    => t('addons_upload_err_no_file'),
+            UPLOAD_ERR_NO_TMP_DIR => t('addons_upload_err_no_tmp_dir'),
+            UPLOAD_ERR_CANT_WRITE => t('addons_upload_err_cant_write'),
         ];
-        $msg = $errMap[$uploadErr] ?? 'Unbekannter Upload-Fehler (' . $uploadErr . ')';
+        $msg = $errMap[$uploadErr] ?? t('addons_upload_err_unknown', ['code' => (string)$uploadErr]);
         flash(t('addons_install_upload_error', ['error' => $msg]), 'error');
         redirect('?action=addons&tab=settings');
     }
@@ -150,9 +150,9 @@ if ($addonAction === 'install_zip') {
             flash(t('addons_install_err_generic', ['error' => $errCode]), 'error');
         }
         if ($errCode === 'no_manifest_in_zip') {
-            $tree  = $result['tree'] ?? '(keine Debug-Daten)';
+            $tree  = $result['tree'] ?? t('addons_debug_no_data');
             $found = $result['found'] ?? 0;
-            flash('Debug: ' . $found . ' addon.json gefunden — Inhalt des ZIP:\n' . h($tree), 'error');
+            flash(t('addons_debug_manifest', ['found' => (string)$found]) . '\n' . h($tree), 'error');
         }
     }
     redirect('?action=addons&tab=settings');
@@ -408,14 +408,14 @@ if ($addonAction === 'install_update') {
         if ($errCode === 'download_failed') {
             $httpCode = $result['http_code'] ?? 0;
             $url      = $result['url'] ?? '';
-            flash('Debug: HTTP ' . $httpCode . ' — ' . h($url), 'error');
+            flash(t('addons_debug_http', ['code' => (string)$httpCode, 'url' => h($url)]), 'error');
         }
         // Bei no_manifest_in_release / manifest_name_mismatch: Verzeichnisbaum
         // zeigen damit man sieht was im ZIP wirklich drin ist.
         if (in_array($errCode, ['no_manifest_in_release', 'manifest_name_mismatch'], true)) {
-            $tree  = $result['tree'] ?? '(keine Debug-Daten)';
+            $tree  = $result['tree'] ?? t('addons_debug_no_data');
             $found = $result['found'] ?? 0;
-            flash('Debug: ' . $found . ' addon.json gefunden — Inhalt des ZIP:\n' . h($tree), 'error');
+            flash(t('addons_debug_manifest', ['found' => (string)$found]) . '\n' . h($tree), 'error');
         }
     }
     redirect('?action=addons');

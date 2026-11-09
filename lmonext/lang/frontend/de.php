@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/frontend/de.php
- * Fileversion: 1.63.4
+ * Fileversion: 1.63.6
  *
  * PHP version 8.2
  *
@@ -249,5 +249,37 @@ return [
     'maintenance_subtext'          => 'Die Arbeiten können eine Weile dauern. Bitte versuche es später erneut.',
     'maintenance_contact'          => 'Bei dringenden Fragen wende dich bitte an den Systemadministrator.',
     'maintenance_footer'           => 'LMOnext — Liga-Manager-Online',
+
+    // ── Fehlerseite, CSRF, Tabellendarstellung ──
+    'err_unexpected_title' => 'Fehler',
+    'err_unexpected_heading' => 'Ein unerwarteter Fehler ist aufgetreten',
+    'err_try_later' => 'Bitte versuche es später erneut.',
+    'err_csrf_forbidden' => '403 Forbidden: Ungültiges oder fehlendes CSRF-Token. Bitte die Seite neu laden und erneut versuchen.',
+    'liga_standings_mode_short' => 'kurz',
+    'liga_standings_mode_medium' => 'mittel',
+    'liga_standings_mode_long' => 'vollständig',
+
+    // ── Sport-Profile: Namen, Spalten, Formularlabels ──
+    'sport_name_football' => 'Fußball',
+    'sport_name_handball' => 'Handball',
+    'sport_name_icehockey' => 'Eishockey',
+    'sport_name_basketball' => 'Basketball',
+    'sport_name_volleyball' => 'Volleyball',
+    'sport_name_kegeln' => 'Kegeln',
+    'sport_score_goals' => 'Tore',
+    'sport_score_sets' => 'Sätze',
+    'sport_score_points' => 'Punkte',
+    'sport_score_wood' => 'Holz',
+    'sport_col_sp' => 'Sp',
+    'sport_col_s' => 'S',
+    'sport_col_u' => 'U',
+    'sport_col_n' => 'N',
+    'sport_col_diff' => 'Diff',
+    'sport_col_pkt' => 'Pkt',
+    'sport_col_points_pm' => 'P+/:P-',
+    'sport_form_quarters' => 'Viertel',
+    'sport_form_overtime' => 'Verlängerung',
+    'sport_form_halftime' => 'Halbzeit',
+    'sport_form_periods' => 'Drittel',
 
 ];

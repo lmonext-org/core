@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.14
+ * Fileversion: 1.58.16
  *
  * PHP version 8.2
  *
@@ -1004,5 +1004,22 @@ return [
     'imp_review_btn_confirm'  => 'Import fortsetzen',
     'imp_review_btn_cancel'   => 'Abbrechen',
     'imp_review_expired'      => 'Die Abgleich-Daten sind nicht mehr verfügbar. Bitte Datei(en) erneut hochladen.',
+
+    // ── Fehlerseiten und CSRF ──
+    'err_unexpected_title' => 'Fehler',
+    'err_unexpected_heading' => 'Ein unerwarteter Fehler ist aufgetreten',
+    'err_unexpected_logged' => 'Details wurden ins Server-Log geschrieben.',
+    'err_unexpected_log_link' => 'Zum Aktivitätsprotokoll (Administrator → Log)',
+    'err_csrf_forbidden' => '403 Forbidden: Ungültiges oder fehlendes CSRF-Token. Bitte die Seite neu laden und erneut versuchen.',
+
+    // ── Sport-Profile: Prüfmeldungen ──
+    'sport_err_ht_home' => 'Halbzeit-Ergebnis Heim ist ungültig',
+    'sport_err_ht_guest' => 'Halbzeit-Ergebnis Gast ist ungültig',
+    'sport_err_sets_home' => 'Heim-Satzgewinne ({wins}) stimmen nicht mit h_tore ({tore}) überein',
+    'sport_err_sets_guest' => 'Gast-Satzgewinne ({wins}) stimmen nicht mit g_tore ({tore}) überein',
+    'sport_err_bb_sum_home' => 'Summe der Viertel/OT-Punkte Heim ({sum}) ≠ Endstand ({total})',
+    'sport_err_bb_sum_guest' => 'Summe der Viertel/OT-Punkte Gast ({sum}) ≠ Endstand ({total})',
+    'sport_err_ih_sum_home' => 'Summe der Drittel-Tore Heim ({sum}) stimmt nicht mit Endstand ({total})',
+    'sport_err_ih_sum_guest' => 'Summe der Drittel-Tore Gast ({sum}) stimmt nicht mit Endstand ({total})',
 
 ];

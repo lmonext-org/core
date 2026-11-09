@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/en.php
- * Fileversion: 1.57.14
+ * Fileversion: 1.57.16
  *
  * PHP version 8.2
  *
@@ -1005,5 +1005,22 @@ return [
     'imp_review_expired'      => 'The matching data is no longer available. Please upload the file(s) again.',
 
     // ── Player stats addon ──────────────────────────────────────────────────
+
+    // ── Fehlerseiten und CSRF ──
+    'err_unexpected_title' => 'Error',
+    'err_unexpected_heading' => 'An unexpected error occurred',
+    'err_unexpected_logged' => 'Details have been written to the server log.',
+    'err_unexpected_log_link' => 'Go to the activity log (Administrator → Log)',
+    'err_csrf_forbidden' => '403 Forbidden: Invalid or missing CSRF token. Please reload the page and try again.',
+
+    // ── Sport-Profile: Prüfmeldungen ──
+    'sport_err_ht_home' => 'Home half-time score is invalid',
+    'sport_err_ht_guest' => 'Guest half-time score is invalid',
+    'sport_err_sets_home' => 'Home set wins ({wins}) do not match h_tore ({tore})',
+    'sport_err_sets_guest' => 'Guest set wins ({wins}) do not match g_tore ({tore})',
+    'sport_err_bb_sum_home' => 'Sum of home quarter/OT points ({sum}) ≠ final score ({total})',
+    'sport_err_bb_sum_guest' => 'Sum of guest quarter/OT points ({sum}) ≠ final score ({total})',
+    'sport_err_ih_sum_home' => 'Sum of home period goals ({sum}) does not match final score ({total})',
+    'sport_err_ih_sum_guest' => 'Sum of guest period goals ({sum}) does not match final score ({total})',
 
 ];

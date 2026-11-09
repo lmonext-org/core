@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/VolleyballProfile.php
- * Fileversion: 1.2.0
+ * Fileversion: 1.2.1
  *
  * PHP version 8.2
  *
@@ -30,8 +30,8 @@ namespace LMOnext\Sport;
 final class VolleyballProfile implements SportProfile
 {
     public function getKey(): string         { return 'volleyball'; }
-    public function getLabel(): string       { return 'Volleyball'; }
-    public function getScoreLabel(): string  { return 'Sätze'; }
+    public function getLabel(): string       { return tf('sport_name_volleyball'); }
+    public function getScoreLabel(): string  { return tf('sport_score_sets'); }
     public function supportsDraws(): bool    { return false; }
     public function periodsAffectStandings(): bool { return true; }
 
@@ -145,7 +145,7 @@ final class VolleyballProfile implements SportProfile
         return [
             [
                 'key'       => 'sets',
-                'label'     => 'Sätze',
+                'label'     => tf('sport_score_sets'),
                 'type'      => 'dynamic-score-list',  // Admin rendert +/- Button
                 'min_items' => 3,
                 'max_items' => 5,
@@ -166,10 +166,10 @@ final class VolleyballProfile implements SportProfile
                 elseif (($set['g'] ?? 0) > ($set['h'] ?? 0)) { $gWins++; }
             }
             if ((int)($data['h_tore'] ?? 0) !== $hWins) {
-                $errors[] = 'Heim-Satzgewinne (' . $hWins . ') stimmen nicht mit h_tore (' . $data['h_tore'] . ') überein';
+                $errors[] = t('sport_err_sets_home', ['wins' => (string)$hWins, 'tore' => (string)$data['h_tore']]);
             }
             if ((int)($data['g_tore'] ?? 0) !== $gWins) {
-                $errors[] = 'Gast-Satzgewinne (' . $gWins . ') stimmen nicht mit g_tore (' . $data['g_tore'] . ') überein';
+                $errors[] = t('sport_err_sets_guest', ['wins' => (string)$gWins, 'tore' => (string)$data['g_tore']]);
             }
         }
         return $errors;
@@ -184,12 +184,12 @@ final class VolleyballProfile implements SportProfile
     {
         // Volleyball zeigt Saetze statt Tore
         return [
-            ['key' => 'sp',   'label' => 'Sp',   'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',    'class' => 'st-num'],
-            ['key' => 'n',    'label' => 'N',    'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'Sätze', 'class' => 'st-num'],
-            ['key' => 'diff', 'label' => 'Diff',  'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt',   'class' => 'st-pkt'],
+            ['key' => 'sp',   'label' => tf('sport_col_sp'),   'class' => 'st-num'],
+            ['key' => 's',    'label' => tf('sport_col_s'),    'class' => 'st-num'],
+            ['key' => 'n',    'label' => tf('sport_col_n'),    'class' => 'st-num'],
+            ['key' => 'tore', 'label' => tf('sport_score_sets'), 'class' => 'st-num'],
+            ['key' => 'diff', 'label' => tf('sport_col_diff'),  'class' => 'st-num'],
+            ['key' => 'pkt',  'label' => tf('sport_col_pkt'),   'class' => 'st-pkt'],
         ];
     }
 

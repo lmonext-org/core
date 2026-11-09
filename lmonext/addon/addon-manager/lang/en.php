@@ -194,4 +194,32 @@ return [
     'addons_err_rate_limited' => 'GitHub rate limit (60 req/h — try again later)',
     'addons_err_no_release' => 'No release on GitHub (404)',
     'addons_err_no_http_client' => 'No HTTP library (file_get_contents/curl)',
+
+    // ── Upload-/Debug-Meldungen ──
+    'addons_upload_err_ini_size' => 'File too large (server limit)',
+    'addons_upload_err_form_size' => 'File too large (form limit)',
+    'addons_upload_err_partial' => 'Upload incomplete',
+    'addons_upload_err_no_file' => 'No file selected',
+    'addons_upload_err_no_tmp_dir' => 'No temp directory',
+    'addons_upload_err_cant_write' => 'Temp file not writable',
+    'addons_upload_err_unknown' => 'Unknown upload error ({code})',
+    'addons_debug_no_data' => '(no debug data)',
+    'addons_debug_manifest' => 'Debug: {found} addon.json found — ZIP contents:',
+    'addons_debug_http' => 'Debug: HTTP {code} — {url}',
+
+    // ── Katalogbeschreibungen ──
+    'addons_catalog_desc_viewer' => 'Match overviews across several leagues for a freely selectable period — standard or tile template.',
+    'addons_catalog_desc_mini_tabelle' => 'Compact mini table to embed via include or iframe.',
+    'addons_catalog_desc_mini_next' => 'Mini-Next view (next match of a team) to embed via include or iframe.',
+    'addons_catalog_desc_ewige' => 'All-time table across several leagues — totals or progression view.',
+    'addons_catalog_desc_tabellenrechner' => 'What-if calculator: simulate results and see table changes live.',
+    'addons_catalog_desc_meister' => 'All champions across several leagues — with points, goals and record. Plus aggregated statistics.',
+    'addons_catalog_desc_relegation' => 'Relegation matches for promotion and relegation between leagues — home and away legs.',
+    'addons_catalog_desc_player' => 'Detailed player statistics with column management, photo upload and CSV import.',
+    'addons_catalog_desc_tipp' => 'Prediction game with sign-up, tip submission, scoring and joker rules.',
+    'addons_catalog_desc_translator' => 'Split-view editor for all language files — with optional DeepL auto-translation.',
+    'addons_catalog_desc_liga_notizen' => 'Create, edit and delete notes per league. Example addon for the addon system.',
+    'addons_catalog_desc_team_notizen' => 'Maintain master data, honours and coach history per team and show them in the frontend.',
+    'addons_catalog_desc_ticker' => 'Scrolling ticker above the league tabs — free text or current results.',
+
 ];

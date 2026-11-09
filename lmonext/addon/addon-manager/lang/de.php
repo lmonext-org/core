@@ -194,4 +194,32 @@ return [
     'addons_err_rate_limited' => 'GitHub Rate-Limit (60 req/h — später erneut)',
     'addons_err_no_release' => 'Kein Release auf GitHub (404)',
     'addons_err_no_http_client' => 'Keine HTTP-Lib (file_get_contents/curl)',
+
+    // ── Upload-/Debug-Meldungen ──
+    'addons_upload_err_ini_size' => 'Datei zu groß (Server-Limit)',
+    'addons_upload_err_form_size' => 'Datei zu groß (Form-Limit)',
+    'addons_upload_err_partial' => 'Upload unvollständig',
+    'addons_upload_err_no_file' => 'Keine Datei ausgewählt',
+    'addons_upload_err_no_tmp_dir' => 'Kein Temp-Verzeichnis',
+    'addons_upload_err_cant_write' => 'Temp-Datei nicht schreibbar',
+    'addons_upload_err_unknown' => 'Unbekannter Upload-Fehler ({code})',
+    'addons_debug_no_data' => '(keine Debug-Daten)',
+    'addons_debug_manifest' => 'Debug: {found} addon.json gefunden — Inhalt des ZIP:',
+    'addons_debug_http' => 'Debug: HTTP {code} — {url}',
+
+    // ── Katalogbeschreibungen ──
+    'addons_catalog_desc_viewer' => 'Spielübersichten über mehrere Ligen hinweg in frei wählbarem Zeitraum — Standard- oder Kachel-Template.',
+    'addons_catalog_desc_mini_tabelle' => 'Kompakte Mini-Tabelle zum Einbinden per Include oder IFrame.',
+    'addons_catalog_desc_mini_next' => 'Mini-Next-Ansicht (nächstes Spiel einer Mannschaft) zum Einbinden per Include oder IFrame.',
+    'addons_catalog_desc_ewige' => 'Ewige Tabelle über mehrere Ligen hinweg — Summen- oder Verlaufsansicht.',
+    'addons_catalog_desc_tabellenrechner' => 'Was-wäre-wenn-Rechner: Ergebnisse simulieren und Tabellenänderung live sehen.',
+    'addons_catalog_desc_meister' => 'Alle Meister über mehrere Ligen hinweg — mit Punkten, Toren und Bilanz. Plus aggregierte Statistik.',
+    'addons_catalog_desc_relegation' => 'Relegationsspiele für Auf- und Abstieg zwischen Ligen — Hin- und Rückspiel.',
+    'addons_catalog_desc_player' => 'Detaillierte Spielerstatistiken mit Spaltenverwaltung, Foto-Upload und CSV-Import.',
+    'addons_catalog_desc_tipp' => 'Tippspiel-System mit Anmeldung, Tippabgabe, Auswertung und Joker-Regeln.',
+    'addons_catalog_desc_translator' => 'Split-View Editor für alle Sprachdateien — mit optionaler DeepL Auto-Übersetzung.',
+    'addons_catalog_desc_liga_notizen' => 'Notizen pro Liga anlegen, bearbeiten und löschen. Beispiel-Addon für das Addon-System.',
+    'addons_catalog_desc_team_notizen' => 'Stammdaten, Erfolge und Trainer-Historie pro Team pflegen und im Frontend anzeigen.',
+    'addons_catalog_desc_ticker' => 'Scrollendes Laufband oberhalb der Liga-Tabs — freier Text oder aktuelle Ergebnisse.',
+
 ];

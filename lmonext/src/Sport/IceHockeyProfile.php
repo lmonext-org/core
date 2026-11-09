@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/IceHockeyProfile.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.1.1
  *
  * PHP version 8.2
  *
@@ -30,8 +30,8 @@ namespace LMOnext\Sport;
 final class IceHockeyProfile implements SportProfile
 {
     public function getKey(): string         { return 'icehockey'; }
-    public function getLabel(): string       { return 'Eishockey'; }
-    public function getScoreLabel(): string  { return 'Tore'; }
+    public function getLabel(): string       { return tf('sport_name_icehockey'); }
+    public function getScoreLabel(): string  { return tf('sport_score_goals'); }
     public function supportsDraws(): bool    { return false; } // nach regulärer Spielzeit nicht, n.V. entscheidet
     public function periodsAffectStandings(): bool { return false; }
 
@@ -111,7 +111,7 @@ final class IceHockeyProfile implements SportProfile
         return [
             [
                 'key'       => 'periods',
-                'label'     => 'Drittel',
+                'label'     => tf('sport_form_periods'),
                 'type'      => 'fixed-score-list',
                 'count'     => 3,  // immer 3 Drittel
                 'home_key'  => 'period_h',
@@ -132,10 +132,10 @@ final class IceHockeyProfile implements SportProfile
                 $gSum += (int)($p['g'] ?? 0);
             }
             if ($hSum !== (int)($data['h_tore'] ?? 0)) {
-                $errors[] = 'Summe der Drittel-Tore Heim (' . $hSum . ') stimmt nicht mit Endstand (' . $data['h_tore'] . ')';
+                $errors[] = t('sport_err_ih_sum_home', ['sum' => (string)$hSum, 'total' => (string)$data['h_tore']]);
             }
             if ($gSum !== (int)($data['g_tore'] ?? 0)) {
-                $errors[] = 'Summe der Drittel-Tore Gast (' . $gSum . ') stimmt nicht mit Endstand (' . $data['g_tore'] . ')';
+                $errors[] = t('sport_err_ih_sum_guest', ['sum' => (string)$gSum, 'total' => (string)$data['g_tore']]);
             }
         }
         return $errors;
@@ -153,13 +153,13 @@ final class IceHockeyProfile implements SportProfile
         // Eishockey: S, U (n.V.), N, Tore, Diff, Pkt
         // U = Unentschieden nach regulärer Zeit (selten) - wird meist n.V. entschieden
         return [
-            ['key' => 'sp',   'label' => 'Sp',   'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',    'class' => 'st-num'],
-            ['key' => 'u',    'label' => 'U',    'class' => 'st-num'],
-            ['key' => 'n',    'label' => 'N',    'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'Tore', 'class' => 'st-num'],
-            ['key' => 'diff', 'label' => 'Diff', 'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt',  'class' => 'st-pkt'],
+            ['key' => 'sp',   'label' => tf('sport_col_sp'),   'class' => 'st-num'],
+            ['key' => 's',    'label' => tf('sport_col_s'),    'class' => 'st-num'],
+            ['key' => 'u',    'label' => tf('sport_col_u'),    'class' => 'st-num'],
+            ['key' => 'n',    'label' => tf('sport_col_n'),    'class' => 'st-num'],
+            ['key' => 'tore', 'label' => tf('sport_score_goals'), 'class' => 'st-num'],
+            ['key' => 'diff', 'label' => tf('sport_col_diff'), 'class' => 'st-num'],
+            ['key' => 'pkt',  'label' => tf('sport_col_pkt'),  'class' => 'st-pkt'],
         ];
     }
 }

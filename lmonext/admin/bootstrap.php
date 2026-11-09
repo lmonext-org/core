@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.32.5
+ * Fileversion: 1.32.6
  *
  * PHP version 8.2
  *
@@ -34,13 +34,13 @@ set_exception_handler(static function (Throwable $e) : void {
     $logLinkHtml = '';
     if (!empty($_SESSION['admin_logged_in'])) {
         $logLinkHtml = '<p style="margin-top:16px"><a href="?action=users&tab=log" '
-                     . 'style="color:#2563eb;text-decoration:underline">Zum Aktivitätsprotokoll (Administrator → Log)</a></p>';
+                     . 'style="color:#2563eb;text-decoration:underline">' . htmlspecialchars(t('err_unexpected_log_link'), ENT_QUOTES) . '</a></p>';
     }
-    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fehler</title></head>'
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' . htmlspecialchars(t('err_unexpected_title'), ENT_QUOTES) . '</title></head>'
        . '<body style="font-family:system-ui;text-align:center;padding:60px 20px;color:#333">'
-       . '<h2>⚠️ Ein unerwarteter Fehler ist aufgetreten</h2>'
+       . '<h2>⚠️ ' . htmlspecialchars(t('err_unexpected_heading'), ENT_QUOTES) . '</h2>'
        . '<p>' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '</p>'
-       . '<p style="color:#888;font-size:.85rem">Details wurden ins Server-Log geschrieben.</p>'
+       . '<p style="color:#888;font-size:.85rem">' . htmlspecialchars(t('err_unexpected_logged'), ENT_QUOTES) . '</p>'
        . $logLinkHtml
        . '</body></html>';
 });
@@ -254,7 +254,7 @@ function requireCsrf() : void
     if (!is_string($sent) || !is_string($known) || $known === '' || !hash_equals($known, $sent)) {
         http_response_code(403);
         header('Content-Type: text/plain; charset=utf-8');
-        echo "403 Forbidden: Ungültiges oder fehlendes CSRF-Token. Bitte die Seite neu laden und erneut versuchen.";
+        echo t('err_csrf_forbidden');
         exit;
     }
 }
@@ -1046,7 +1046,7 @@ function ensureTeamFreilosSchema() : void
 // TeamFormattingTrait::TEAM_LOGO_EXT_LIST_PDF für die ausführliche
 // Begründung. Admin-Vorschau soll dasselbe zeigen wie die echte Website.
 const TEAM_LOGO_ALLOWED_EXT  = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
-const TEAM_LOGO_MIN_HEIGHT_PX = 50;
+const TEAM_LOGO_MIN_HEIGHT_PX = 50; // Standardwert, einstellbar unter Einstellungen (admin_settings: team_logo_min_height)
 
 /** Mindesthöhe für Team-Logos in Pixeln (globale Einstellung, 0 = keine Prüfung). */
 function teamLogoMinHeight() : int

@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/KegelnProfile.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.0.1
  *
  * PHP version 8.2
  *
@@ -28,8 +28,8 @@ namespace LMOnext\Sport;
 final class KegelnProfile implements SportProfile
 {
     public function getKey(): string         { return 'kegeln'; }
-    public function getLabel(): string       { return 'Kegeln'; }
-    public function getScoreLabel(): string  { return 'Holz'; }
+    public function getLabel(): string       { return tf('sport_name_kegeln'); }
+    public function getScoreLabel(): string  { return tf('sport_score_wood'); }
     public function supportsDraws(): bool    { return true; }
     public function periodsAffectStandings(): bool { return false; }
 
@@ -112,13 +112,13 @@ final class KegelnProfile implements SportProfile
     public function getStandingsColumns(): array
     {
         return [
-            ['key' => 'sp',   'label' => 'Sp',   'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',    'class' => 'st-num'],
-            ['key' => 'u',    'label' => 'U',    'class' => 'st-num'],
-            ['key' => 'n',    'label' => 'N',    'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'Holz', 'class' => 'st-num'],
-            ['key' => 'diff', 'label' => 'Diff', 'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt',  'class' => 'st-pkt'],
+            ['key' => 'sp',   'label' => tf('sport_col_sp'),   'class' => 'st-num'],
+            ['key' => 's',    'label' => tf('sport_col_s'),    'class' => 'st-num'],
+            ['key' => 'u',    'label' => tf('sport_col_u'),    'class' => 'st-num'],
+            ['key' => 'n',    'label' => tf('sport_col_n'),    'class' => 'st-num'],
+            ['key' => 'tore', 'label' => tf('sport_score_wood'), 'class' => 'st-num'],
+            ['key' => 'diff', 'label' => tf('sport_col_diff'), 'class' => 'st-num'],
+            ['key' => 'pkt',  'label' => tf('sport_col_pkt'),  'class' => 'st-pkt'],
         ];
     }
 }

@@ -11,6 +11,7 @@
 
 ## src/Sport/KegelnProfile.php
 
+- Changelog: 1.0.1 - Sportart-Name, Wertungsbezeichnung, Tabellenspalten, Formularlabels und Prüfmeldungen kommen aus den Sprachdateien statt fest im Code.
 - Changelog: 1.0.0 - Neue Datei (Beitrag: Nutzeranfrage) - Sport-Profil für Kegeln, strukturell identisch zu FootballProfile (Unentschieden möglich, keine Halbzeit/Perioden), mit der sportart-eigenen Terminologie ("Holz" statt "Tore"). Ergänzt die Liga-eigene Einstellung "Alternative für Tore"/"Alternative für Pkt." (nameTor/namePkt) - beide bleiben unverändert nutzbar, falls ein anderer Begriff als "Holz" gewünscht ist.
 
 ## README.md
@@ -26,6 +27,9 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## addon/addon-manager/ (handler_addons.php, view_addons.php, lang/de.php, lang/en.php, addon.json)
 
+- Changelog: view_addons.php 2.5.4 - Katalogbeschreibungen im Entdecken-Tab kommen aus den Sprachdateien (addons_catalog_desc_<slug>); catalog.php dient als Fallback. lang/de.php, lang/en.php: neue Schlüssel addons_catalog_desc_*.
+- Changelog: handler_addons.php 1.5.1 - Upload-Fehlertexte und Debug-Meldungen kommen aus den Sprachdateien.
+- Changelog: lang/de.php, lang/en.php - Neue Schlüssel addons_upload_err_* und addons_debug_*.
 - Changelog: view_addons.php 2.5.3 - Alle fest eingebauten Texte (Token-Status und -Anleitung, Diagnose, Update-Check-Ergebnisse, Fehler-Tooltips) in die Sprachdateien ausgelagert; neue Schlüssel addons_token_*, addons_diag_*, addons_res_*, addons_err_* in lang/de.php und lang/en.php.
 - Changelog: view_addons.php 2.5.2 - Diagnostics: Meldet erkannte ungültige GitHub-Tokens ("Ungültig (HTTP 401)") statt fälschlich "Gesetzt".
 - Changelog: catalog.php 1.0.1 - Katalogeintrag Newsticker: homepage zeigt auf das Repo lmonext-org/lmonext_addon-ticker (vorher Leerzeichen).
@@ -237,6 +241,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/bootstrap.php
 
+- Changelog: 1.32.6 - Fehlerseite und CSRF-Meldung (403) kommen aus der Sprachdatei (lang/admin/de.php, en.php) statt fest im Code.
 - Changelog: 1.32.5 - PHP 8.5-Kompatibilität: curl_close() entfernt; veralteter Aufruf libxml_disable_entity_loader() in sanitizeSvgContent() entfernt (seit PHP 8.0 deprecated und wirkungslos, LIBXML_NONET bleibt).
 - Changelog: 1.32.4 - Mindesthöhe für Team-Logos ist jetzt eine globale Einstellung (admin_settings: team_logo_min_height, neue Funktion teamLogoMinHeight()); TEAM_LOGO_MIN_HEIGHT_PX (50) dient nur noch als Standardwert.
 - Changelog: 1.32.3 - saveTeamLogoUpload() in saveTeamLogoUpload() (Upload-Prüfung) und saveTeamLogoFromPath() (gemeinsame Prüfung und Speicherung) aufgeteilt, damit der Massen-Upload dieselben Prüfungen (Format, Inhalt, Mindesthöhe, SVG-Bereinigung) nutzt. Verhalten des Einzel-Uploads unverändert.
@@ -294,6 +299,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/data_loader.php
 
+- Changelog: 1.17.5 - Datenbankfehler-Meldung kommt aus der Sprachdatei (flash_db_error).
 - Changelog: 1.17.4 - Seitentitel für team_logos und team_logos_review.
 - Changelog: 1.17.3 - Seitentitel für import_merge/import_merge_review.
 - Changelog: 1.17.2 - Teams-Seite: lädt zusätzlich teams_global.is_freilos und stellt die Spalte bei Bedarf per ensureTeamFreilosSchema() sicher.
@@ -792,6 +798,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## frontend/bootstrap.php
 
+- Changelog: 1.15.2 - Fehlerseite und CSRF-Meldung (403) kommen aus der Sprachdatei (lang/frontend/de.php, en.php) statt fest im Code; lang/i18n.php wird dafür vor der CSRF-Prüfung geladen.
 - Changelog: 1.15.1 - Derselbe fehlende require_once für KegelnProfile.php wie in admin/bootstrap.php 1.31.1 - beide Bootstrap-Dateien führen dieselbe Liste unabhängig voneinander.
 - Changelog: 1.15.0 - KRITISCHER Bugfix (neuer "Karte"-Reiter des team-notizen-Addons zeigte Marker und Bedienelemente korrekt, aber keine eigentlichen Kartenkacheln): die strikte Content-Security-Policy (default-src 'self') blockierte die Verbindung zu tiles.openfreemap.org stillschweigend im Browser - weder img-src noch das implizit auf default-src zurückfallende connect-src erlaubten diese externe Domain. connect-src und img-src erlauben jetzt zusätzlich https://tiles.openfreemap.org (Kartenkacheln/Sprites), worker-src erlaubt zusätzlich blob: (von MapLibre GL JS selbst für strikte CSP-Umgebungen dokumentiert vorausgesetzt, für den internen Tile-Verarbeitungs-Worker).
 - Changelog: 1.14.0 - Bugfix: der projektweite Fehler-Handler (set_error_handler()) protokollierte bislang JEDE Warnung/Notice/Deprecated-Meldung, unabhängig davon, ob sie an der Aufrufstelle bewusst mit dem @-Operator unterdrückt wurde - dadurch landeten harmlose, absichtlich stumm geschaltete Fälle (z.B. ein fehlender Cache-Datei-Erstzugriff, @unlink() einer bereits entfernten temporären Datei) trotzdem im Fehler/Warnungen-Log und erzeugten unnötiges Rauschen. Prüft jetzt zuerst error_reporting() === 0 (das PHP genau für @-unterdrückte Aufrufe setzt) und überspringt die Protokollierung in diesem Fall - betrifft rückwirkend jeden bereits vorhandenen @-Aufruf im gesamten Core und allen Addons, nicht nur einen einzelnen Aufrufer.
@@ -1015,6 +1022,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.58.16 - Neue Schlüssel sport_err_* (Prüfmeldungen der Sport-Profile).
+- Changelog: 1.58.15 - Neue Schlüssel err_unexpected_* und err_csrf_forbidden (Fehlerseite, 403-Meldung).
 - Changelog: 1.58.14 - Neue Texte nav_menu_title, nav_menu_open, nav_menu_close für das Hamburger-Menü.
 - Changelog: 1.58.13 - Neuer Text impm_archiv_tag.
 - Changelog: 1.58.12 - Texte für die Übernahme in KO-Turniere (impm_err_liga_in_ko, impm_d_resolved, impm_c_placeholders, impm_ko_tag); impm_intro/impm_err_target/impm_err_ko angepasst.
@@ -1150,6 +1159,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.57.16 - Neue Schlüssel sport_err_* (Prüfmeldungen der Sport-Profile).
+- Changelog: 1.57.15 - New keys err_unexpected_* and err_csrf_forbidden (error page, 403 message).
 - Changelog: 1.57.14 - Neue Texte nav_menu_title, nav_menu_open, nav_menu_close für das Hamburger-Menü.
 - Changelog: 1.57.13 - New text impm_archiv_tag.
 - Changelog: 1.57.12 - Texts for importing into knockout tournaments (impm_err_liga_in_ko, impm_d_resolved, impm_c_placeholders, impm_ko_tag); impm_intro/impm_err_target/impm_err_ko adjusted.
@@ -1284,6 +1295,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/de.php
 
+- Changelog: 1.63.6 - Neue Schlüssel sport_name_*, sport_score_*, sport_col_*, sport_form_* (Sport-Profile).
+- Changelog: 1.63.5 - Neue Schlüssel err_unexpected_*, err_try_later, err_csrf_forbidden und liga_standings_mode_* (Fehlerseite, 403-Meldung, Tabellendarstellung).
 - Changelog: 1.63.4 - Handball-Abkürzungen liga_status_ie_handball ("n.7m") und liga_status_nv_handball ("n.V.").
 - Changelog: 1.63.3 - Eishockey-Abkürzungen liga_status_ie_icehockey ("n.P.") und liga_status_nv_icehockey ("n.V.").
 - Changelog: 1.63.2 - Schlüssel liga_info_title ("LMOnext – Version {version}") wieder ergänzt - fehlte in der deutschen Sprachdatei, dadurch hätte die Überschrift der Info-Seite sonst den rohen Schlüsselnamen gezeigt.
@@ -1375,6 +1388,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/frontend/en.php
 
+- Changelog: 1.63.5 - Neue Schlüssel sport_name_*, sport_score_*, sport_col_*, sport_form_* (Sport-Profile).
+- Changelog: 1.63.4 - New keys err_unexpected_*, err_try_later, err_csrf_forbidden and liga_standings_mode_* (error page, 403 message, table display).
 - Changelog: 1.63.3 - Handball-Abkürzungen liga_status_ie_handball ("7m") und liga_status_nv_handball ("AET").
 - Changelog: 1.63.2 - Eishockey-Abkürzungen liga_status_ie_icehockey ("SO") und liga_status_nv_icehockey ("OT").
 - Changelog: 1.63.1 - Info text revised to match the German version, new key liga_info_link_github - see lang/frontend/de.php 1.63.1.
@@ -1610,6 +1625,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/RenderViewsTrait.php
 
+- Changelog: 1.40.1 - Bezeichnungen der Tabellendarstellung (kurz/mittel/vollständig) kommen aus der Sprachdatei.
 - Changelog: 1.40.0 - renderStandingsView() mit neuem Parameter $linkView: Links der Tabellen-Navigation können auf die Ergebnisse-Ansicht zeigen; die eigene Spieltag-Navigation der Tabelle entfällt in diesem Modus.
 - Changelog: 1.39.3 - renderPartieRow() nutzt für den Spielbericht-Link jetzt TeamFormattingTrait::safeReportUrl() statt der festen Prüfung auf "http(s)://" - relative URLs werden damit angezeigt.
 - Changelog: 1.39.2 - renderInfoView() übergibt zusätzlich LinkGithub an das Info-Template.
@@ -2129,6 +2145,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Sport/FootballProfile.php
 
+- Changelog: 1.5.1 - Sportart-Name, Wertungsbezeichnung, Tabellenspalten, Formularlabels und Prüfmeldungen kommen aus den Sprachdateien statt fest im Code.
 - Changelog: 1.5.0 - $istGtGewertet erkennt jetzt auch gt_entscheidung=3 ("beide Mannschaften verlieren", siehe StandingsTrait.php 1.12.0) - zeigt "0:0" mit dem bekannten Fußnoten-Sternchen statt des realen Ergebnisses.
 - Changelog: 1.4.0 - Default-Fallback für _gt_tore_nichtantritt von 3 auf 2 geändert, siehe StandingsTrait::gtCreditedScore() 1.11.0.
 - Changelog: 1.3.0 - formatResult() übergibt die pro Liga einstellbaren Grüne-Tisch-Standardwerte (siehe liga.php 3.17.0, _gt_tore_gespielt/_gt_tore_nichtantritt) an gtCreditedScore() statt der Funktions-Defaults - damit wirkt die Liga-Einstellung auch in der Ergebnisanzeige, nicht nur in der Tabellenberechnung.
@@ -2138,21 +2155,25 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Sport/VolleyballProfile.php
 
+- Changelog: 1.2.1 - Sportart-Name, Wertungsbezeichnung, Tabellenspalten, Formularlabels und Prüfmeldungen kommen aus den Sprachdateien statt fest im Code.
 - Changelog: 1.2.0 - Diagonale Spaltenüberschriften in der "vollständig"-Ansicht auf die tatsächlich langen Wortbezeichner beschränkt (Spiele/Siege/Niederlagen/Ballquotient/Ballverhältnis/Satzquotient/Satzverhältnis - neues 'diag'=>true je Spalte), die kurzen Ergebnis-Spalten (3:0/3:1/3:2/2:3/1:3/0:3) und "Punkte" bleiben horizontal. Bisher wurden ALLE Spalten der Lang-Ansicht diagonal gestellt (siehe RenderViewsTrait.php 1.11.0 und älter), was bei den schmalen, an den kurzen Datenwert angepassten Spalten zu Textüberlappungen zwischen benachbarten Kopfzeilen und mit der Datenzeile führte (im Livesystem als Screenshot bestätigt). Vorbild: volleyball-bundesliga.de macht es identisch - dort bleiben exakt dieselben kurzen Spalten horizontal.
 - Changelog: 1.1.0 - Spaltenüberschriften der Tabellendarstellung (kurz/mittel/vollständig) sind jetzt sprachabhängig über tf() statt hartkodiert Deutsch ("Sp"/"S"/"N"/"Pkt"/"B-Quot" etc.) - Bugfix bei der Übernahme: die englische Sprachversion hätte trotzdem die deutschen Kürzel gezeigt.
 - Changelog: 1.0.0 - Neu (Beitrag: Torsten Hofmann): Volleyball-Profil mit satzabhängiger Punktevergabe (3:0/3:1 = 3 Punkte, 3:2 = 2/1 Punkte) und Ballpunkte-Statistik. Unverändert übernommen.
 
 ## src/Sport/BasketballProfile.php
 
+- Changelog: 1.0.1 - Sportart-Name, Wertungsbezeichnung, Tabellenspalten, Formularlabels und Prüfmeldungen kommen aus den Sprachdateien statt fest im Code.
 - Changelog: 1.0.0 - Neu (Beitrag: Torsten Hofmann). Unverändert übernommen.
 
 ## src/Sport/HandballProfile.php
 
+- Changelog: 1.1.1 - Sportart-Name, Wertungsbezeichnung, Tabellenspalten, Formularlabels und Prüfmeldungen kommen aus den Sprachdateien statt fest im Code.
 - Changelog: 1.1.0 - Ergebnis zeigt jetzt den Status-Zusatz: "n.7m" (nach 7-Meter-Werfen) bzw. "n.V.", aus den Sprachdateien (liga_status_ie_handball, liga_status_nv_handball). Bisher wurde der in der Ergebniseingabe wählbare Status bei Handball gar nicht angezeigt.
 - Changelog: 1.0.0 - Neu (Beitrag: Torsten Hofmann). Unverändert übernommen.
 
 ## src/Sport/IceHockeyProfile.php
 
+- Changelog: 1.1.1 - Sportart-Name, Wertungsbezeichnung, Tabellenspalten, Formularlabels und Prüfmeldungen kommen aus den Sprachdateien statt fest im Code.
 - Changelog: 1.1.0 - Abkürzung für "Entscheidung im Penaltyschießen" ist jetzt "n.P." statt "i.E." (Hinweis aus dem Forum). Die Zusätze für Penaltyschießen und Verlängerung kommen aus den Sprachdateien (liga_status_ie_icehockey, liga_status_nv_icehockey) statt fest im Code.
 - Changelog: 1.0.0 - Neu (Beitrag: Torsten Hofmann). Unverändert übernommen.
 

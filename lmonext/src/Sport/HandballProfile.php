@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/HandballProfile.php
- * Fileversion: 1.1.0
+ * Fileversion: 1.1.1
  *
  * PHP version 8.2
  *
@@ -22,8 +22,8 @@ namespace LMOnext\Sport;
 final class HandballProfile implements SportProfile
 {
     public function getKey(): string         { return 'handball'; }
-    public function getLabel(): string       { return 'Handball'; }
-    public function getScoreLabel(): string  { return 'Tore'; }
+    public function getLabel(): string       { return tf('sport_name_handball'); }
+    public function getScoreLabel(): string  { return tf('sport_score_goals'); }
     public function supportsDraws(): bool    { return true; }
     public function periodsAffectStandings(): bool { return false; }
 
@@ -89,7 +89,7 @@ final class HandballProfile implements SportProfile
         return [
             [
                 'key'       => 'halftime',
-                'label'     => 'Halbzeit',
+                'label'     => tf('sport_form_halftime'),
                 'type'      => 'score-pair',
                 'home_key'  => 'hz_h',
                 'guest_key' => 'hz_g',
@@ -113,13 +113,13 @@ final class HandballProfile implements SportProfile
     public function getStandingsColumns(): array
     {
         return [
-            ['key' => 'sp',   'label' => 'Sp',   'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',    'class' => 'st-num'],
-            ['key' => 'u',    'label' => 'U',    'class' => 'st-num'],
-            ['key' => 'n',    'label' => 'N',    'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'Tore', 'class' => 'st-num'],
-            ['key' => 'diff', 'label' => 'Diff', 'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt',  'class' => 'st-pkt'],
+            ['key' => 'sp',   'label' => tf('sport_col_sp'),   'class' => 'st-num'],
+            ['key' => 's',    'label' => tf('sport_col_s'),    'class' => 'st-num'],
+            ['key' => 'u',    'label' => tf('sport_col_u'),    'class' => 'st-num'],
+            ['key' => 'n',    'label' => tf('sport_col_n'),    'class' => 'st-num'],
+            ['key' => 'tore', 'label' => tf('sport_score_goals'), 'class' => 'st-num'],
+            ['key' => 'diff', 'label' => tf('sport_col_diff'), 'class' => 'st-num'],
+            ['key' => 'pkt',  'label' => tf('sport_col_pkt'),  'class' => 'st-pkt'],
         ];
     }
 }

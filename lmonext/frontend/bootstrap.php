@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: bootstrap.php
- * Fileversion: 1.15.1
+ * Fileversion: 1.15.2
  *
  * PHP version 8.2
  *
@@ -31,10 +31,10 @@ set_exception_handler(static function (Throwable $e) : void {
     if (!headers_sent()) {
         http_response_code(500);
     }
-    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fehler</title></head>'
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' . htmlspecialchars(tf('err_unexpected_title'), ENT_QUOTES) . '</title></head>'
        . '<body style="font-family:system-ui;text-align:center;padding:60px 20px;color:#333">'
-       . '<h2>⚠️ Ein unerwarteter Fehler ist aufgetreten</h2>'
-       . '<p>Bitte versuche es später erneut.</p>'
+       . '<h2>⚠️ ' . htmlspecialchars(tf('err_unexpected_heading'), ENT_QUOTES) . '</h2>'
+       . '<p>' . htmlspecialchars(tf('err_try_later'), ENT_QUOTES) . '</p>'
        . '</body></html>';
 });
 
@@ -149,11 +149,13 @@ if (!function_exists('requireCsrf')) {
         if (!is_string($sent) || !is_string($known) || $known === '' || !hash_equals($known, $sent)) {
             http_response_code(403);
             header('Content-Type: text/plain; charset=utf-8');
-            echo "403 Forbidden: Ungültiges oder fehlendes CSRF-Token. Bitte die Seite neu laden und erneut versuchen.";
+            echo tf('err_csrf_forbidden');
             exit;
         }
     }
 }
+// Sprachfunktionen werden schon hier gebraucht (Text der 403-Meldung).
+require_once dirname(__DIR__) . '/lang/i18n.php';
 requireCsrf();
 
 // ── Mehrsprachigkeit (Besucherbereich, unabhängig vom Adminbereich) ──────────

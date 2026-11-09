@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/BasketballProfile.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.0.1
  *
  * PHP version 8.2
  *
@@ -27,8 +27,8 @@ namespace LMOnext\Sport;
 final class BasketballProfile implements SportProfile
 {
     public function getKey(): string         { return 'basketball'; }
-    public function getLabel(): string       { return 'Basketball'; }
-    public function getScoreLabel(): string  { return 'Punkte'; }
+    public function getLabel(): string       { return tf('sport_name_basketball'); }
+    public function getScoreLabel(): string  { return tf('sport_score_points'); }
     public function supportsDraws(): bool    { return false; }
     public function periodsAffectStandings(): bool { return false; }
 
@@ -114,7 +114,7 @@ final class BasketballProfile implements SportProfile
         return [
             [
                 'key'       => 'quarters',
-                'label'     => 'Viertel',
+                'label'     => tf('sport_form_quarters'),
                 'type'      => 'fixed-score-list',
                 'count'     => 4,
                 'home_key'  => 'quarter_h',
@@ -123,7 +123,7 @@ final class BasketballProfile implements SportProfile
             ],
             [
                 'key'       => 'ot',
-                'label'     => 'Verlängerung',
+                'label'     => tf('sport_form_overtime'),
                 'type'      => 'dynamic-score-list',
                 'min_items' => 0,
                 'max_items' => 5,  // theoretisch beliebig viele OT
@@ -149,10 +149,10 @@ final class BasketballProfile implements SportProfile
                 }
             }
             if ($hSum !== (int)($data['h_tore'] ?? 0)) {
-                $errors[] = 'Summe der Viertel/OT-Punkte Heim (' . $hSum . ') ≠ Endstand (' . $data['h_tore'] . ')';
+                $errors[] = t('sport_err_bb_sum_home', ['sum' => (string)$hSum, 'total' => (string)$data['h_tore']]);
             }
             if ($gSum !== (int)($data['g_tore'] ?? 0)) {
-                $errors[] = 'Summe der Viertel/OT-Punkte Gast (' . $gSum . ') ≠ Endstand (' . $data['g_tore'] . ')';
+                $errors[] = t('sport_err_bb_sum_guest', ['sum' => (string)$gSum, 'total' => (string)$data['g_tore']]);
             }
         }
         return $errors;
@@ -168,12 +168,12 @@ final class BasketballProfile implements SportProfile
     public function getStandingsColumns(): array
     {
         return [
-            ['key' => 'sp',   'label' => 'Sp',   'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',    'class' => 'st-num'],
-            ['key' => 'n',    'label' => 'N',    'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'P+/:P-', 'class' => 'st-num'],
-            ['key' => 'diff', 'label' => 'Diff',   'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt',    'class' => 'st-pkt'],
+            ['key' => 'sp',   'label' => tf('sport_col_sp'),   'class' => 'st-num'],
+            ['key' => 's',    'label' => tf('sport_col_s'),    'class' => 'st-num'],
+            ['key' => 'n',    'label' => tf('sport_col_n'),    'class' => 'st-num'],
+            ['key' => 'tore', 'label' => tf('sport_col_points_pm'), 'class' => 'st-num'],
+            ['key' => 'diff', 'label' => tf('sport_col_diff'),   'class' => 'st-num'],
+            ['key' => 'pkt',  'label' => tf('sport_col_pkt'),    'class' => 'st-pkt'],
         ];
     }
 }

@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_addons.php
- * Fileversion: 2.5.3
+ * Fileversion: 2.5.4
  *
  * PHP version 8.2
  *
@@ -150,7 +150,7 @@ usort($displayAddons, function ($a, $b) {
           <?= h($typeBadges[$c['type']]['label'] ?? ucfirst($c['type'])) ?>
         </span>
       </div>
-      <p style="margin:0;font-size:.8rem;color:var(--muted);line-height:1.5;flex:1"><?= h($c['short_desc']) ?></p>
+      <p style="margin:0;font-size:.8rem;color:var(--muted);line-height:1.5;flex:1"><?php $descKey = 'addons_catalog_desc_' . str_replace('-', '_', (string)$slug); $descTxt = t($descKey); ?><?= h($descTxt !== $descKey ? $descTxt : $c['short_desc']) ?></p>
       <div style="display:flex;gap:8px;align-items:center">
         <a href="<?= h($c['homepage']) ?>" target="_blank" rel="noopener"
            style="font-size:.72rem;color:var(--accent);text-decoration:none">↗ GitHub</a>

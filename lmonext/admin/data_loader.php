@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: data_loader.php
- * Fileversion: 1.17.4
+ * Fileversion: 1.17.5
  *
  * PHP version 8.2
  *
@@ -356,7 +356,7 @@ if (isLoggedIn()) {
             });
             $tabelleData['tabelle'] = $tabelle;
         }
-    } catch (Throwable $e) { $flash = ['msg' => 'DB-Fehler: '.$e->getMessage(), 'type' => 'error']; }
+    } catch (Throwable $e) { $flash = ['msg' => t('flash_db_error', ['msg' => $e->getMessage()]), 'type' => 'error']; }
 }
 
 $nav = [

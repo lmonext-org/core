@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Liga/RenderViewsTrait.php
- * Fileversion: 1.40.0
+ * Fileversion: 1.40.1
  *
  * PHP version 8.2
  *
@@ -737,7 +737,11 @@ trait RenderViewsTrait
 
         // "Tabellendarstellung: kurz mittel vollständig" - Klartext-Links,
         // aktiver Modus fett, exakt wie im Vorbild.
-        $modeLabels = ['short' => 'kurz', 'medium' => 'mittel', 'long' => 'vollständig'];
+        $modeLabels = [
+            'short'  => tf('liga_standings_mode_short'),
+            'medium' => tf('liga_standings_mode_medium'),
+            'long'   => tf('liga_standings_mode_long'),
+        ];
         $darstellungLinks = [];
         foreach ($modes as $m) {
             $label = h($modeLabels[$m] ?? $m);

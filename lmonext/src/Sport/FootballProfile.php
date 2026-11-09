@@ -6,7 +6,7 @@ namespace LMOnext\Sport;
 /**
  * Projekt: LMOnext
  * Filename: src/Sport/FootballProfile.php
- * Fileversion: 1.5.0
+ * Fileversion: 1.5.1
  *
  * PHP version 8.2
  *
@@ -23,8 +23,8 @@ namespace LMOnext\Sport;
 final class FootballProfile implements SportProfile
 {
     public function getKey(): string         { return 'football'; }
-    public function getLabel(): string       { return 'Fußball'; }
-    public function getScoreLabel(): string  { return 'Tore'; }
+    public function getLabel(): string       { return tf('sport_name_football'); }
+    public function getScoreLabel(): string  { return tf('sport_score_goals'); }
     public function supportsDraws(): bool    { return true; }
     public function periodsAffectStandings(): bool { return false; }
 
@@ -120,7 +120,7 @@ final class FootballProfile implements SportProfile
         return [
             [
                 'key'       => 'halftime',
-                'label'     => 'Halbzeit',
+                'label'     => tf('sport_form_halftime'),
                 'type'      => 'score-pair',
                 'home_key'  => 'hz_h',
                 'guest_key' => 'hz_g',
@@ -135,12 +135,12 @@ final class FootballProfile implements SportProfile
         // Halbzeit optional, aber wenn angegeben: gueltige Zahlen
         if (isset($data['hz_h']) && $data['hz_h'] !== '') {
             if (!is_numeric($data['hz_h']) || (int)$data['hz_h'] < 0) {
-                $errors[] = 'Halbzeit-Ergebnis Heim ist ungültig';
+                $errors[] = t('sport_err_ht_home');
             }
         }
         if (isset($data['hz_g']) && $data['hz_g'] !== '') {
             if (!is_numeric($data['hz_g']) || (int)$data['hz_g'] < 0) {
-                $errors[] = 'Halbzeit-Ergebnis Gast ist ungültig';
+                $errors[] = t('sport_err_ht_guest');
             }
         }
         return $errors;
@@ -156,13 +156,13 @@ final class FootballProfile implements SportProfile
     public function getStandingsColumns(): array
     {
         return [
-            ['key' => 'sp',   'label' => 'Sp',  'class' => 'st-num'],
-            ['key' => 's',    'label' => 'S',   'class' => 'st-num'],
-            ['key' => 'u',    'label' => 'U',   'class' => 'st-num'],
-            ['key' => 'n',    'label' => 'N',   'class' => 'st-num'],
-            ['key' => 'tore', 'label' => 'Tore', 'class' => 'st-num'],
-            ['key' => 'diff', 'label' => 'Diff', 'class' => 'st-num'],
-            ['key' => 'pkt',  'label' => 'Pkt', 'class' => 'st-pkt'],
+            ['key' => 'sp',   'label' => tf('sport_col_sp'),  'class' => 'st-num'],
+            ['key' => 's',    'label' => tf('sport_col_s'),   'class' => 'st-num'],
+            ['key' => 'u',    'label' => tf('sport_col_u'),   'class' => 'st-num'],
+            ['key' => 'n',    'label' => tf('sport_col_n'),   'class' => 'st-num'],
+            ['key' => 'tore', 'label' => tf('sport_score_goals'), 'class' => 'st-num'],
+            ['key' => 'diff', 'label' => tf('sport_col_diff'), 'class' => 'st-num'],
+            ['key' => 'pkt',  'label' => tf('sport_col_pkt'), 'class' => 'st-pkt'],
         ];
     }
 }
