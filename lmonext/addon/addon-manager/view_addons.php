@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: view_addons.php
- * Fileversion: 2.5.0
+ * Fileversion: 2.5.3
  *
  * PHP version 8.2
  *
@@ -238,9 +238,9 @@ usort($displayAddons, function ($a, $b) {
                   color:<?= $tokenSet ? 'var(--green)' : 'var(--muted)' ?>;
                   border:1px solid <?= $tokenSet ? 'var(--green)' : 'var(--border)' ?>44">
         <?php if ($tokenSet) { ?>
-          ✓ Token aktiv — API-Limit: 5.000 Requests/Std.
+          ✓ <?= h(t('addons_token_status_active')) ?>
         <?php } else { ?>
-          ⚠ Kein Token gesetzt — API-Limit: 60 Requests/Std.
+          ⚠ <?= h(t('addons_token_status_none')) ?>
         <?php } ?>
       </div>
 
@@ -250,11 +250,11 @@ usort($displayAddons, function ($a, $b) {
         </summary>
         <div style="margin-top:8px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius);
                     font-size:.78rem;color:var(--muted);line-height:1.6">
-          1. <a href="https://github.com/settings/tokens" target="_blank" rel="noopener" style="color:var(--accent)">GitHub → Settings → Developer settings → Personal access tokens</a><br>
-          2. <strong>Generate new token (classic)</strong> wählen<br>
-          3. Scope <code style="background:var(--surface2);padding:1px 4px;border-radius:3px">public_repo</code> anhaken (reicht für öffentliche Repos)<br>
-          4. Token kopieren und hier einfügen<br>
-          5. <strong>Speichern</strong> — der Token wird in der Datenbank abgelegt.
+          <?= t('addons_token_step1') ?><br>
+          <?= t('addons_token_step2') ?><br>
+          <?= t('addons_token_step3') ?><br>
+          <?= t('addons_token_step4') ?><br>
+          <?= t('addons_token_step5') ?>
         </div>
       </details>
     </div>
@@ -335,7 +335,7 @@ usort($displayAddons, function ($a, $b) {
     <!-- ── Diagnostics ──────────────────────────────────────────────────── -->
     <div class="card" style="margin:0 0 20px;padding:24px">
       <h3 style="margin:0 0 16px;font-size:1.05rem;display:flex;align-items:center;gap:8px">
-        🔧 Diagnostics
+        🔧 <?= h(t('addons_diag_title')) ?>
       </h3>
 
       <table style="width:100%;border-collapse:collapse;font-size:.82rem">
@@ -344,59 +344,65 @@ usort($displayAddons, function ($a, $b) {
             <td style="padding:10px 14px;color:var(--muted);width:260px">allow_url_fopen</td>
             <td style="padding:10px 14px">
               <?php if ($allowFopen) { ?>
-                <span style="color:var(--green);font-weight:600">✓ On</span>
+                <span style="color:var(--green);font-weight:600">✓ <?= h(t('addons_diag_on')) ?></span>
               <?php } else { ?>
-                <span style="color:var(--red);font-weight:600">✗ Off</span>
+                <span style="color:var(--red);font-weight:600">✗ <?= h(t('addons_diag_off')) ?></span>
               <?php } ?>
-              <span style="color:var(--muted);margin-left:8px;font-size:.75rem">file_get_contents für HTTP-Calls</span>
+              <span style="color:var(--muted);margin-left:8px;font-size:.75rem"><?= h(t('addons_diag_note_fopen')) ?></span>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px 14px;color:var(--muted)">cURL-Erweiterung</td>
+            <td style="padding:10px 14px;color:var(--muted)"><?= h(t('addons_diag_curl')) ?></td>
             <td style="padding:10px 14px">
               <?php if ($curlAvail) { ?>
-                <span style="color:var(--green);font-weight:600">✓ Verfügbar</span>
+                <span style="color:var(--green);font-weight:600">✓ <?= h(t('addons_diag_available')) ?></span>
               <?php } else { ?>
-                <span style="color:var(--red);font-weight:600">✗ Fehlt</span>
+                <span style="color:var(--red);font-weight:600">✗ <?= h(t('addons_diag_missing')) ?></span>
               <?php } ?>
-              <span style="color:var(--muted);margin-left:8px;font-size:.75rem">Fallback für HTTP-Calls</span>
+              <span style="color:var(--muted);margin-left:8px;font-size:.75rem"><?= h(t('addons_diag_note_curl')) ?></span>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px 14px;color:var(--muted)">ZipArchive</td>
             <td style="padding:10px 14px">
               <?php if ($zipAvail) { ?>
-                <span style="color:var(--green);font-weight:600">✓ Verfügbar</span>
+                <span style="color:var(--green);font-weight:600">✓ <?= h(t('addons_diag_available')) ?></span>
               <?php } else { ?>
-                <span style="color:var(--red);font-weight:600">✗ Fehlt</span>
+                <span style="color:var(--red);font-weight:600">✗ <?= h(t('addons_diag_missing')) ?></span>
               <?php } ?>
-              <span style="color:var(--muted);margin-left:8px;font-size:.75rem">für Auto-Update-Installation</span>
+              <span style="color:var(--muted);margin-left:8px;font-size:.75rem"><?= h(t('addons_diag_note_zip')) ?></span>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px 14px;color:var(--muted)">GitHub Token</td>
+            <td style="padding:10px 14px;color:var(--muted)"><?= h(t('addons_diag_token')) ?></td>
             <td style="padding:10px 14px">
-              <?php if ($tokenSet) { ?>
-                <span style="color:var(--green);font-weight:600">✓ Gesetzt</span>
-                <span style="color:var(--muted);margin-left:8px;font-size:.75rem">5.000 Req/Std</span>
+              <?php
+              $tokenInvalid = false;
+              foreach (($cacheResults ?? []) as $cr) { if (!empty($cr['token_invalid'])) { $tokenInvalid = true; break; } }
+              if ($tokenSet && $tokenInvalid) { ?>
+                <span style="color:var(--red);font-weight:600">✗ <?= h(t('addons_diag_token_invalid')) ?></span>
+                <span style="color:var(--muted);margin-left:8px;font-size:.75rem"><?= h(t('addons_diag_token_invalid_note')) ?></span>
+              <?php } elseif ($tokenSet) { ?>
+                <span style="color:var(--green);font-weight:600">✓ <?= h(t('addons_diag_token_set')) ?></span>
+                <span style="color:var(--muted);margin-left:8px;font-size:.75rem"><?= h(t('addons_diag_token_set_note')) ?></span>
               <?php } else { ?>
-                <span style="color:var(--yellow);font-weight:600">⚠ Nicht gesetzt</span>
-                <span style="color:var(--muted);margin-left:8px;font-size:.75rem">60 Req/Std</span>
+                <span style="color:var(--yellow);font-weight:600">⚠ <?= h(t('addons_diag_token_unset')) ?></span>
+                <span style="color:var(--muted);margin-left:8px;font-size:.75rem"><?= h(t('addons_diag_token_unset_note')) ?></span>
               <?php } ?>
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px 14px;color:var(--muted)">Update-Cache</td>
+            <td style="padding:10px 14px;color:var(--muted)"><?= h(t('addons_diag_cache')) ?></td>
             <td style="padding:10px 14px">
               <?php if ($lastCheck !== null) { ?>
                 <span style="color:var(--text)">
                   <?= h(date('d.m.Y H:i', (int)$lastCheck)) ?>
                 </span>
                 <span style="color:var(--muted);margin-left:8px;font-size:.75rem">
-                  (<?= $cacheAge !== null ? round($cacheAge / 60) . ' Min her' : '' ?>, TTL 60 Min)
+                  (<?= $cacheAge !== null ? h(t('addons_diag_cache_age', ['min' => (string)round($cacheAge / 60)])) : '' ?>, <?= h(t('addons_diag_cache_ttl')) ?>)
                 </span>
               <?php } else { ?>
-                <span style="color:var(--muted)">Kein Cache vorhanden</span>
+                <span style="color:var(--muted)"><?= h(t('addons_diag_cache_none')) ?></span>
               <?php } ?>
             </td>
           </tr>
@@ -407,7 +413,7 @@ usort($displayAddons, function ($a, $b) {
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px 14px;color:var(--muted)">PHP-Version</td>
+            <td style="padding:10px 14px;color:var(--muted)"><?= h(t('addons_diag_php')) ?></td>
             <td style="padding:10px 14px;font-family:monospace;color:var(--text)">
               <?= h(PHP_VERSION) ?>
             </td>
@@ -436,15 +442,15 @@ usort($displayAddons, function ($a, $b) {
     <!-- ── Per-Addon Update-Status aus Cache ─────────────────────────── -->
     <?php if (!empty($cacheResults)) { ?>
     <div class="card" style="margin:0;padding:24px">
-      <h4 style="margin:0 0 12px;font-size:.95rem">📋 Update-Check-Ergebnisse</h4>
+      <h4 style="margin:0 0 12px;font-size:.95rem">📋 <?= h(t('addons_res_title')) ?></h4>
       <table style="width:100%;border-collapse:collapse;font-size:.78rem">
         <thead>
           <tr style="border-bottom:1px solid var(--border)">
             <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600">Addon</th>
-            <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600">Aktuell</th>
-            <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600">Latest</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600"><?= h(t('addons_res_col_current')) ?></th>
+            <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600"><?= h(t('addons_res_col_latest')) ?></th>
             <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600">Status</th>
-            <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600">Methode</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--muted);font-weight:600"><?= h(t('addons_res_col_method')) ?></th>
             <th style="text-align:right;padding:8px 12px;color:var(--muted);font-weight:600">HTTP</th>
           </tr>
         </thead>
@@ -465,20 +471,25 @@ usort($displayAddons, function ($a, $b) {
                 $err = $cInfo['error'] ?? '';
                 if ($err === '' && !empty($cInfo['latest'])) {
                   if (!empty($cInfo['update_available'])) { ?>
-                    <span style="color:var(--green);font-weight:600">↑ Update verfügbar</span>
+                    <span style="color:var(--green);font-weight:600">↑ <?= h(t('addons_res_update')) ?></span>
                   <?php } else { ?>
-                    <span style="color:var(--muted)">aktuell</span>
+                    <span style="color:var(--muted)"><?= h(t('addons_res_current')) ?></span>
                   <?php } ?>
                 <?php } elseif ($err === 'no_github') { ?>
-                  <span style="color:var(--muted)">kein GitHub-Repo</span>
+                  <?php $cHome = (string)($cInfo['homepage'] ?? ''); ?>
+                  <?php if (preg_match('#^https?://#i', $cHome)) { ?>
+                    <a href="<?= h($cHome) ?>" target="_blank" rel="noopener" style="color:var(--muted)"><?= h(t('addons_res_manual')) ?></a>
+                  <?php } else { ?>
+                    <span style="color:var(--muted)"><?= h(t('addons_res_no_repo')) ?></span>
+                  <?php } ?>
                 <?php } elseif ($err === 'no_release') { ?>
-                  <span style="color:var(--muted)">kein Release</span>
+                  <span style="color:var(--muted)"><?= h(t('addons_res_no_release')) ?></span>
                 <?php } elseif ($err === 'rate_limited') { ?>
-                  <span style="color:var(--red);font-weight:600">⚠ Rate-Limit!</span>
+                  <span style="color:var(--red);font-weight:600">⚠ <?= h(t('addons_res_rate')) ?></span>
                 <?php } elseif ($err === 'fetch_failed') { ?>
-                  <span style="color:var(--red)">Fetch-Fehler (HTTP <?= h($cInfo['http_code'] ?? '?') ?>)</span>
+                  <span style="color:var(--red)"><?= h(t('addons_res_fetch_error', ['code' => (string)($cInfo['http_code'] ?? '?')])) ?></span>
                 <?php } elseif ($err === 'no_http_client') { ?>
-                  <span style="color:var(--red)">kein HTTP-Client</span>
+                  <span style="color:var(--red)"><?= h(t('addons_res_no_client')) ?></span>
                 <?php } else { ?>
                   <span style="color:var(--red)"><?= h($err) ?></span>
                 <?php } ?>
@@ -496,7 +507,7 @@ usort($displayAddons, function ($a, $b) {
     </div>
     <?php } else { ?>
     <div class="card" style="margin:0;padding:24px;text-align:center;color:var(--muted)">
-      <p style="font-size:.85rem">Noch kein Update-Check ausgeführt. Klicke oben auf "Updates prüfen".</p>
+      <p style="font-size:.85rem"><?= h(t('addons_res_none_yet')) ?></p>
     </div>
     <?php } ?>
 
@@ -654,10 +665,10 @@ usort($displayAddons, function ($a, $b) {
               } elseif ($uInfo && ($uInfo['error'] ?? '') !== '') {
                   $errCode = $uInfo['error'] ?? '';
                   $errLabels = [
-                      'fetch_failed'    => 'GitHub nicht erreichbar',
-                      'rate_limited'    => 'GitHub Rate-Limit (60 req/h — später erneut)',
-                      'no_release'      => 'Kein Release auf GitHub (404)',
-                      'no_http_client'  => 'Keine HTTP-Lib (file_get_contents/curl)',
+                      'fetch_failed'    => t('addons_err_fetch_failed'),
+                      'rate_limited'    => t('addons_err_rate_limited'),
+                      'no_release'      => t('addons_err_no_release'),
+                      'no_http_client'  => t('addons_err_no_http_client'),
                   ];
                   $errLabel = $errLabels[$errCode] ?? $errCode;
               ?>

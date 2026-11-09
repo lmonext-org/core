@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: html_start.php
- * Fileversion: 1.5.0
+ * Fileversion: 1.6.0
  *
  * PHP version 8.2
  *
@@ -55,18 +55,27 @@ function renderFlash(?array $flash): string {
   --font:'Segoe UI',system-ui,sans-serif;
 }
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex}
-.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10}
+.sidebar{width:260px;max-width:85vw;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;height:100vh;height:100dvh;z-index:30;overflow:hidden;transform:translateX(-100%);visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s;box-shadow:none}
+body.nav-open .sidebar{transform:none;visibility:visible;transition:transform .2s ease,visibility 0s;box-shadow:4px 0 24px rgba(0,0,0,.35)}
+.nav-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none}
+body.nav-open .nav-backdrop{display:block}
+.sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0;font-weight:600;color:var(--muted);font-size:.85rem}
+.nav-close{background:none;border:0;color:var(--muted);font-size:1.2rem;line-height:1;cursor:pointer;padding:4px 8px;border-radius:var(--radius)}
+.nav-close:hover{background:var(--surface2);color:var(--text)}
+.topbar-brand{display:flex;flex-direction:column;align-items:flex-start;gap:4px;flex-shrink:0}
+.nav-toggle{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:3px 10px;font-size:.85rem;cursor:pointer;line-height:1.2}
+.nav-toggle:hover{border-color:var(--accent);color:var(--accent)}
 .sidebar-logo{padding:20px 16px 12px;font-size:1.1rem;font-weight:700;letter-spacing:.5px;border-bottom:1px solid var(--border);color:var(--accent)}
 .sidebar-logo span{color:var(--text);font-weight:400}
 .sidebar-update-notice{display:block;margin:10px 12px 0;padding:8px 10px;border-radius:var(--radius);background:color-mix(in srgb,var(--warning,#b45309) 15%,transparent);border:1px solid var(--warning,#b45309);color:var(--warning,#b45309);font-size:.78rem;font-weight:600;text-decoration:none;text-align:center}
 .sidebar-update-notice:hover{background:color-mix(in srgb,var(--warning,#b45309) 25%,transparent)}
-.nav-list{list-style:none;padding:12px 8px;flex:1}
+.nav-list{list-style:none;padding:12px 8px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
 .nav-list li a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);color:var(--muted);text-decoration:none;font-size:.9rem;transition:background .15s,color .15s}
 .nav-list li a:hover,.nav-list li a.active{background:var(--surface2);color:var(--text)}
 .nav-list li a.active{color:var(--accent)}
-.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
+.sidebar-footer{flex-shrink:0;padding:12px 16px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
 .sidebar-footer a{color:var(--red);text-decoration:none}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.main{margin-left:0;flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:12px}
 .topbar h1{font-size:1.05rem;font-weight:600}
 .topbar .badge{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-size:.75rem;color:var(--muted);margin-left:auto}

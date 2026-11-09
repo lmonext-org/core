@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: src/Addon/AddonManager.php
- * Fileversion: 1.10.3
+ * Fileversion: 1.10.7
  *
  * PHP version 8.2
  *
@@ -1072,7 +1072,20 @@ class AddonManager
      */
     private function httpGet(string $url, bool $binary = false): array
     {
-        $ghToken = $this->getGithubToken();
+        $resp = $this->httpGetWith($url, $binary, true);
+        // HTTP 401 = gespeicherter GitHub-Token ungültig/abgelaufen/widerrufen.
+        // Öffentliche Repos funktionieren auch anonym (nur mit niedrigerem Limit)
+        if ($resp['body'] === false && ($resp['http_code'] ?? 0) === 401 && $this->getGithubToken() !== '') {
+            $retry = $this->httpGetWith($url, $binary, false);
+            $retry['token_invalid'] = true;
+            return $retry;
+        }
+        return $resp;
+    }
+
+    private function httpGetWith(string $url, bool $binary, bool $useToken): array
+    {
+        $ghToken = $useToken ? $this->getGithubToken() : '';
         $headers = [
             'User-Agent: LMOnext-AddonManager/' . LMONEXT_VERSION,
         ];
@@ -1208,6 +1221,49 @@ class AddonManager
         return ['body' => $body, 'http_code' => $httpCode, 'error' => $err, 'method' => $method, 'location' => $location];
     }
 
+    /**
+     * Ermittelt den Tag des neuesten Releases OHNE die GitHub-API (kein API-Limit):
+     * "https://github.com/{owner}/{repo}/releases/latest" leitet auf
+     * ".../releases/tag/<TAG>" weiter; der Tag steht im Location-Header.
+     * Gibt null zurück, wenn kein Release existiert oder die Abfrage scheitert.
+     */
+    private function latestTagViaWeb(string $owner, string $repo): ?string
+    {
+        $r = $this->latestTagViaWebDetail($owner, $repo);
+        return $r['tag'];
+    }
+
+    /**
+     * Wie latestTagViaWeb(), liefert aber zusätzlich den Befund:
+     *  'ok'   = Tag gefunden
+     *  'none' = Repo erreichbar, aber (noch) kein veröffentlichtes Release
+     *           (Weiterleitung auf .../releases ohne Tag bzw. HTTP 404)
+     *  'error'= Abfrage nicht möglich (Netzwerk, Limit auch auf github.com)
+     *
+     * @return array{tag:?string,status:string}
+     */
+    private function latestTagViaWebDetail(string $owner, string $repo): array
+    {
+        $url = "https://github.com/{$owner}/{$repo}/releases/latest";
+        $resp = $this->httpGetSingle($url, ['User-Agent: LMOnext-AddonManager', 'Accept: */*'], false);
+        $code = (int)($resp['http_code'] ?? 0);
+        $loc  = (string)($resp['location'] ?? '');
+        if (in_array($code, [301, 302, 303, 307, 308], true)) {
+            if (preg_match('#/releases/tag/([^/?\#]+)$#', $loc, $m)) {
+                return ['tag' => rawurldecode($m[1]), 'status' => 'ok'];
+            }
+            return ['tag' => null, 'status' => 'none'];
+        }
+        if ($code === 404) {
+            return ['tag' => null, 'status' => 'none'];
+        }
+        // 200 ohne Weiterleitung: Seite "Releases" wird direkt ausgeliefert = kein Release
+        if ($code === 200) {
+            return ['tag' => null, 'status' => 'none'];
+        }
+        return ['tag' => null, 'status' => 'error'];
+    }
+
     public function checkGithubUpdates(bool $force = false): array
     {
         $this->discover();
@@ -1236,6 +1292,7 @@ class AddonManager
                 'update_available' => false,
                 'error'            => '',
                 'checked_at'       => date('c'),
+                'homepage'         => (string)$home,
             ];
 
             // Homepage muss eine GitHub-URL sein
@@ -1254,6 +1311,32 @@ class AddonManager
 
             // Zentraler HTTP-Helper (Token, file_get_contents+curl Fallback)
             $resp = $this->httpGet($apiUrl);
+            if (!empty($resp['token_invalid'])) {
+                $results[$name]['token_invalid'] = true;
+            }
+            // GitHub-API-Limit (403/429, ohne Token nur 60 Anfragen/Std. pro IP,
+            // auf Shared-Hosting/Demo oft schon verbraucht): Latest-Tag stattdessen
+            // über die normale Webseite ermitteln. github.com/.../releases/latest
+            // antwortet mit einer Weiterleitung auf .../releases/tag/<TAG> und zählt
+            // nicht gegen das API-Limit.
+            if ($resp['body'] === false && in_array($resp['http_code'], [403, 429], true)) {
+                $web    = $this->latestTagViaWebDetail($owner, $repo);
+                $webTag = $web['tag'];
+                if ($webTag === null && $web['status'] === 'none') {
+                    // Repo ohne veröffentlichtes Release - kein Limit-Problem
+                    $results[$name]['method'] = 'github.com (Web)';
+                    $results[$name]['error']  = 'no_release';
+                    continue;
+                }
+                if ($webTag !== null) {
+                    $latest = ltrim($webTag, 'vV');
+                    $results[$name]['method']           = 'github.com (Web)';
+                    $results[$name]['latest']           = $latest;
+                    $results[$name]['update_available'] = version_compare($latest, $ver, '>');
+                    $results[$name]['zipball_url']      = "https://github.com/{$owner}/{$repo}/archive/refs/tags/{$webTag}.zip";
+                    continue;
+                }
+            }
             $results[$name]['method'] = $resp['method'];
 
             if ($resp['body'] === false) {
@@ -1358,6 +1441,13 @@ class AddonManager
         // ── 1. Neuestes Release abfragen ─────────────────────────────────────
         $apiUrl = "https://api.github.com/repos/{$owner}/{$repo}/releases/latest";
         $resp   = $this->httpGet($apiUrl);
+        if ($resp['body'] === false && in_array($resp['http_code'], [403, 429], true)) {
+            // API-Limit: Tag über die Webseite ermitteln (siehe latestTagViaWeb())
+            $webTag = $this->latestTagViaWeb($owner, $repo);
+            if ($webTag !== null) {
+                $resp = ['body' => json_encode(['tag_name' => $webTag, 'zipball_url' => "https://github.com/{$owner}/{$repo}/archive/refs/tags/{$webTag}.zip"]), 'http_code' => 200, 'method' => 'github.com (Web)', 'error' => '', 'location' => ''];
+            }
+        }
         if ($resp['body'] === false) {
             $httpCode = $resp['http_code'];
             if ($httpCode === 403) {
@@ -1727,7 +1817,23 @@ Require all denied
                 continue;
             }
 
-            $ext = strtolower(pathinfo($normalized, PATHINFO_EXTENSION));
+            $ext  = strtolower(pathinfo($normalized, PATHINFO_EXTENSION));
+            $base = strtolower(basename($normalized));
+
+            // Übliche Repo-Dateien ohne Endung bzw. mit Punkt-Namen (GitHub-ZIPs
+            // enthalten sie fast immer): LICENSE, NOTICE, .gitignore ... Es sind
+            // reine Textdateien ohne Ausführungsrechte; die Whitelist bleibt eine
+            // feste Namensliste, keine Freigabe aller endungslosen Dateien.
+            $allowedNames = ['license', 'licence', 'notice', 'copying', 'authors', 'readme', 'changelog', 'version',
+                             '.gitignore', '.gitattributes', '.editorconfig'];
+            if (in_array($base, $allowedNames, true)) {
+                continue;
+            }
+            // CI-Konfiguration unter .github/ (z.B. workflows/*.yml): nur dort erlaubt
+            if (in_array($ext, ['yml', 'yaml'], true) && preg_match('#(^|/)\.github/#', $normalized)) {
+                continue;
+            }
+
             if (!in_array($ext, $allowedExt, true)) {
                 return 'zip_disallowed_filetype';
             }

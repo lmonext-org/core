@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: catalog.php
- * Fileversion: 1.0.0
+ * Fileversion: 1.0.1
  *
  * PHP version 8.2
  *
@@ -138,7 +138,7 @@ function getOfficialAddonCatalog() : array
             'icon'       => '📢',
             'type'       => 'both',
             'author'     => 'Dietmar Kersting, Torsten Hofmann',
-            'homepage'   => '   ',
+            'homepage'   => 'https://github.com/lmonext-org/lmonext_addon-ticker',
             'short_desc' => 'Scrollendes Laufband oberhalb der Liga-Tabs — freier Text oder aktuelle Ergebnisse.',
         ],
     ];

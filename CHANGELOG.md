@@ -26,6 +26,10 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## addon/addon-manager/ (handler_addons.php, view_addons.php, lang/de.php, lang/en.php, addon.json)
 
+- Changelog: view_addons.php 2.5.3 - Alle fest eingebauten Texte (Token-Status und -Anleitung, Diagnose, Update-Check-Ergebnisse, Fehler-Tooltips) in die Sprachdateien ausgelagert; neue Schlüssel addons_token_*, addons_diag_*, addons_res_*, addons_err_* in lang/de.php und lang/en.php.
+- Changelog: view_addons.php 2.5.2 - Diagnostics: Meldet erkannte ungültige GitHub-Tokens ("Ungültig (HTTP 401)") statt fälschlich "Gesetzt".
+- Changelog: catalog.php 1.0.1 - Katalogeintrag Newsticker: homepage zeigt auf das Repo lmonext-org/lmonext_addon-ticker (vorher Leerzeichen).
+- Changelog: view_addons.php 2.5.1 - Update-Check-Ergebnisse: Addons mit einer Homepage außerhalb von GitHub (z. B. Template-Studio) zeigen "manuell (Webseite)" mit Link statt "kein GitHub-Repo".
 - Changelog: addon.json 1.8.1 / view_addons.php 2.5.0 - Stilkorrektur: sämtliche PHP-Kurzsyntax-Kontrollstrukturen (if/elseif/else: ... endif;, foreach: ... endforeach;) auf die im übrigen Code durchgängig verwendete geschweifte-Klammer-Syntax umgestellt - keine Verhaltensänderung, rein mechanisch. War die einzige Datei im gesamten Projekt (neben einer einzelnen Stelle in admin/view_liga_settings.php, siehe dortiger Changelog), die noch die alternative Syntax nutzte - vermutlich ein Rest aus der allerersten addon-manager-Version, an dem sich der Stil seither nicht mehr geändert hatte. Zwei verschachtelte Mehrzeilen-Fälle (Update-Badge-Rendering, Auto-Purge-Button) wurden dabei von Hand nachkorrigiert, da eine rein zeilenbasierte automatisierte Umwandlung sie zunächst falsch verschachtelt hätte.
 
 - Changelog: addon.json 1.8.0 / view_addons.php 2.4.0 / catalog.php 1.0.0 (neu) - Neuer Tab "🧭 Entdecken": zeigt alle offiziellen LMOnext-Addons aus dem neuen, statischen Katalog catalog.php (Name, Icon, Kurzbeschreibung, Autor, GitHub-Link - Datenquelle: dieselbe Addon-Datenbank wie die Projekt-Website, hier auf die für die Direktinstallation nötigen Felder reduziert) mit direktem "Installieren"-Button pro Addon. Der Button nutzt exakt den bereits vorhandenen Weg "install_from_url" (AddonManager::installFromGithubUrl(), siehe dessen Changelog) mit vorausgefüllter repo_url aus dem Katalog - keine neue Installationslogik, keine neuen Sicherheitsprüfungen nötig. Bereits installierte Katalog-Addons werden stattdessen mit ihrem Aktiv/Inaktiv-Status markiert (kein Install-Button mehr); ihr weiteres Update läuft unverändert über den bestehenden GitHub-Update-Mechanismus (checkGithubUpdates()/installUpdate(), liest die Repo-URL aus der eigenen addon.json des Addons, unabhängig vom Installationsweg). Respektiert den Demo-Modus wie die anderen Installationswege. Auf einer frischen Installation (nur das stets vorhandene Core-Addon "addon-manager" selbst, sonst nichts) ist "Entdecken" jetzt der Standard-Tab statt der leeren "Alle"-Liste; der "Alle"-Tab weist im leeren Zustand zusätzlich auf "Entdecken" hin. Enthält außerdem einen Hinweis, dass inoffizielle Addons weiterhin ganz normal über "⚙ Einstellungen" (ZIP-Upload oder beliebige GitHub-URL) installierbar sind - diese beiden Wege gab es technisch bereits unverändert seit view_addons.php 2.3.0, waren aber nirgends explizit als "auch für inoffizielle Addons geeignet" beworben.
@@ -508,6 +512,8 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/html_layout.php
 
+- Changelog: 1.11.1 - Bugfix: Das Hamburger-Menü reagierte nicht, weil das Skript vor dem Button im Header lief. Initialisierung jetzt nach DOMContentLoaded.
+- Changelog: 1.11.0 - Admin-Navigation als ausklappbares Menü: Das Logo steht jetzt oben links im Header, darunter ein Hamburger-Button (☰ Menü). Die Navigation öffnet sich als Seitenleiste über dem Inhalt, schließt per ✕, Klick daneben oder Esc.
 - Changelog: 1.10.0 - Der Sicherheitshinweis zu einer liegen gebliebenen install.php (1.9.0) bekommt zusätzlich einen Button "Jetzt löschen" (mit Rückfrage), der die Datei direkt aus dem Admin entfernt.
 - Changelog: 1.9.0 - Sicherheitshinweis im Admin-Bereich, wenn install.php noch im Installationsverzeichnis liegt (z.B. weil sie bei einem FTP-Update aus dem Update-Paket mit hochgeladen wurde). Bisher blieb jeder Hinweis aus. install.php sperrt sich zwar selbst (403-Seite, sobald config.php existiert), gehört auf einer laufenden Installation aber trotzdem gelöscht. Erscheint als rote Meldung oberhalb des Seiteninhalts, verschwindet automatisch nach dem Löschen der Datei.
 - Changelog: 1.8.0 - Der Update-Hinweis in der Sidebar verlinkt jetzt bevorzugt auf announcement (Forenankündigung) statt direkt auf download, mit Rückfall auf download falls announcement leer ist (auch bei einem bereits bestehenden, noch alten Cache-Eintrag ohne dieses Feld) - siehe checkCoreUpdateAvailable() in bootstrap.php.
@@ -521,6 +527,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## admin/html_start.php
 
+- Changelog: 1.6.0 - Sidebar als einblendbares Menü (Klasse nav-open, Backdrop, Hamburger-Button im Header). Die Navigationsliste ist jetzt scrollbar (overflow-y:auto), vorher ließ sich eine lange Liste nicht scrollen. Hauptbereich nutzt die volle Breite.
 - Changelog: 1.5.0 - Neue CSS-Klasse .sidebar-update-notice für den neuen Update-Hinweis in der Sidebar (siehe html_layout.php 1.7.0) - Warnfarbe (var(--warning), dieselbe wie beim Addon-Update-Hinweis im Addon-Manager), mittig, klar vom normalen Navigationspunkt abgesetzt.
 - Changelog: 1.4.1 - Favicon-Dateien nach assets/favicon/ verschoben, Links angepasst
 - Changelog: 1.4.0 - Favicon-Verlinkung ergänzt (apple-touch-icon, android/ms-icons, manifest.json)
@@ -1008,6 +1015,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/de.php
 
+- Changelog: 1.58.14 - Neue Texte nav_menu_title, nav_menu_open, nav_menu_close für das Hamburger-Menü.
 - Changelog: 1.58.13 - Neuer Text impm_archiv_tag.
 - Changelog: 1.58.12 - Texte für die Übernahme in KO-Turniere (impm_err_liga_in_ko, impm_d_resolved, impm_c_placeholders, impm_ko_tag); impm_intro/impm_err_target/impm_err_ko angepasst.
 - Changelog: 1.58.11 - Texte für die Option "Ergebnisse und Tabelle auf einer Seite".
@@ -1142,6 +1150,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## lang/admin/en.php
 
+- Changelog: 1.57.14 - Neue Texte nav_menu_title, nav_menu_open, nav_menu_close für das Hamburger-Menü.
 - Changelog: 1.57.13 - New text impm_archiv_tag.
 - Changelog: 1.57.12 - Texts for importing into knockout tournaments (impm_err_liga_in_ko, impm_d_resolved, impm_c_placeholders, impm_ko_tag); impm_intro/impm_err_target/impm_err_ko adjusted.
 - Changelog: 1.57.11 - Texts for the option "Results and table on one page".
@@ -1535,6 +1544,10 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Addon/AddonManager.php
 
+- Changelog: 1.10.7 - Bugfix (Update über "Update installieren" scheiterte mit "Sicherheitsprüfung fehlgeschlagen ... nicht erlaubten Dateityp"): Die Dateiendungs-Whitelist der ZIP-Prüfung lehnte übliche Repo-Dateien ohne Endung ab (LICENSE). Erlaubt sind jetzt zusätzlich die festen Namen LICENSE/LICENCE/NOTICE/COPYING/AUTHORS/README/CHANGELOG/VERSION, .gitignore/.gitattributes/.editorconfig sowie .yml/.yaml unterhalb von .github/. Alle anderen Dateitypen werden weiter abgelehnt.
+- Changelog: 1.10.6 - Update-Check Ausweichweg über github.com: Hat ein Repo noch kein veröffentlichtes Release (Weiterleitung auf /releases ohne Tag, HTTP 404/200), wird jetzt "kein Release" angezeigt statt fälschlich "Rate-Limit!".
+- Changelog: 1.10.5 - Update-Check: Antwortet GitHub mit HTTP 401 (gespeicherter Token ungültig, abgelaufen oder widerrufen), wird die Anfrage einmal ohne Token wiederholt (öffentliche Repos funktionieren anonym) und das Ergebnis mit token_invalid markiert. Vorher scheiterten alle Addons mit "Fetch-Fehler (HTTP 401)".
+- Changelog: 1.10.4 - Update-Check: Antwortet die GitHub-API mit 403/429 (Rate-Limit, ohne Token nur 60 Anfragen/Std. pro IP), wird der neueste Release-Tag stattdessen über die Weiterleitung von github.com/<owner>/<repo>/releases/latest ermittelt (zählt nicht gegen das API-Limit). Gilt auch für die Update-Installation. Das Prüfergebnis enthält zusätzlich die homepage des Addons.
 - Changelog: 1.10.3 - PHP 8.4/8.5-Kompatibilität: $http_response_header durch http_get_last_response_headers() ersetzt (mit Fallback für PHP < 8.4); curl_close() entfernt (deprecated seit 8.5, seit 8.0 ohne Wirkung). Meldung aus Issue #5.
 - Changelog: 1.10.2 - Beitrag: Torsten Hofmann (1.10.1, Lint-Binary-Ermittlung robuster gegen PHP-FPM-Hosts) plus Nachbesserung bei der Prüfung dieses Patches - pickLintBinary() cachte bisher nur den Erfolgsfall (static $usableBinary, Kurzschluss nur bei !== null); fand kein Kandidat ein taugliches Binary, wurde die komplette Kandidatenliste für JEDE .php-Datei der ZIP erneut durchprobiert statt sich "kein Kandidat taugt" für den Rest des Requests zu merken - auf einem ungünstigen Host bei vielen Dateien unnötig langsam. Jetzt mit eigenem $attempted-Flag, das auch den Fehlschlag-Fall cacht.
 - Changelog: 1.10.0 - KRITISCHER Bugfix ("Core-Version zu niedrig. Benötigt: 1.9.2, vorhanden: 1.9.2-beta" bei einem Addon, das gegen genau diese Core-Version bereits erfolgreich getestet worden war): neue Methode versionSatisfiesMin() ersetzt den direkten version_compare(LMONEXT_VERSION, $minCore, '<')-Aufruf an beiden Stellen, an denen die Kompatibilität geprüft wird (hier bei der Installation, sowie handler_addons.php 1.5.0 beim Aktivieren). PHPs version_compare() stuft einen Pre-Release-Suffix (-beta/-alpha/-rc/-dev) als "kleiner" als dieselbe Zahl ohne Suffix ein - technisch korrekt nach SemVer-Konvention, hier aber falsch angewendet: der Suffix beschreibt die tatsächlich laufende Core-Version selbst ("1.9.2-beta" ist die Version, die läuft), nicht eine andere, tatsächlich ältere Version. Betraf JEDES Addon mit einer min_core_version ohne "-beta"-Suffix (praktisch alle), solange der Core-Versionsstring selbst ein "-beta"-Suffix trägt (seit composer.json 1.9.2-beta durchgängig der Fall) - keine Installation/Aktivierung eines aktuellen Addons wäre mehr möglich gewesen. Fix: versionSatisfiesMin() entfernt einen bekannten Pre-Release-Suffix vor dem Vergleich von BEIDEN Seiten (laufende Version UND Anforderung), sodass "1.9.5-beta" korrekt als >= "1.9.2" gilt, eine echte Unterschreitung (z.B. "1.9.0-beta" gegen "1.9.2") aber weiterhin korrekt erkannt wird. Mit vier Testfällen verifiziert (siehe CHANGELOG-Historie).
@@ -1583,7 +1596,7 @@ Mit der Integration des Addon-Manager-Frameworks (Beitrag Torsten Hofmann, siehe
 
 ## src/Liga/LigaRepositoryTrait.php
 
-- Changelog: 1.4.1 - Bugfix (Reiter "Spielerstatistik" erscheint nur bei manchen importierten Ligen und lässt sich nicht ausblenden): Der Reiter wird nur noch angezeigt, wenn das Player-Addon aktiv ist. Ein per .l98-Import mitgebrachtes stats=1 erzeugt ohne Addon keinen toten Reiter mehr.
+- Changelog: 1.4.1 - Bugfix (gemeldet: Reiter "Spielerstatistik" erscheint nur bei manchen importierten Ligen und lässt sich nicht ausblenden): Der Reiter wird nur noch angezeigt, wenn das Player-Addon aktiv ist. Ein per .l98-Import mitgebrachtes stats=1 erzeugt ohne Addon keinen toten Reiter mehr.
 - Changelog: 1.4.0 - Docblock-Kommentar um die neue Sportart "kegeln" ergänzt (rein dokumentarisch, keine Verhaltensänderung).
 - Changelog: 1.3.0 - Neues Flag "karte" in getLigaViewFlags() (Quelle: liga_options "ShowKarte", Default false) - steuert den neuen "Karte"-Reiter auf der Liga-Detailseite (team-notizen-Addon, Übersichtskarte der Team-Standorte), analog zum bestehenden "spielerstatistik"-Flag des Player-Addons.
 - Changelog: 1.2.0 - getLigaOptions() ruft jetzt vor dem Cachen der Rückgabe migrateFavSelTeamToStableId() auf (siehe TeamRepositoryTrait.php 1.1.0 für den vollständigen Hintergrund) - stellt sicher, dass jede Liga beim ersten Frontend-Zugriff automatisch von der alten, positionsbasierten favTeam/selTeam-Logik auf die stabile Team-ID migriert wird.

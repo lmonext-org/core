@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: lang/admin/de.php
- * Fileversion: 1.58.13
+ * Fileversion: 1.58.14
  *
  * PHP version 8.2
  *
@@ -24,6 +24,9 @@ return [
     // ── Navigation (Sidebar) ─────────────────────────────────────────────────
     'nav_update_available' => 'Update auf {version} verfügbar',
     'nav_update_tooltip'   => 'Eine neuere LMOnext-Version ist verfügbar - zum Download',
+    'nav_menu_title'      => 'Menü',
+    'nav_menu_open'       => 'Menü öffnen',
+    'nav_menu_close'      => 'Menü schließen',
     'install_leftover_warning' => '<strong>Sicherheitshinweis:</strong> Die Datei <code>install.php</code> liegt noch auf dem Server (z.B. durch ein FTP-Update mit hochgeladen). Bitte per FTP löschen - sie wird auf einer laufenden Installation nicht mehr benötigt.',
     'install_delete_btn' => 'Jetzt löschen',
     'install_delete_confirm' => 'install.php jetzt endgültig vom Server löschen?',

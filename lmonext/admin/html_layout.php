@@ -2,7 +2,7 @@
 /**
  * Project: LMOnext
  * Filename: html_layout.php
- * Fileversion: 1.10.0
+ * Fileversion: 1.11.1
  *
  * PHP version 8.2
  *
@@ -15,8 +15,9 @@
 
 // ── Sidebar + Main-Layout (für alle Views außer Login) ───────────────────────
 ?>
-<nav class="sidebar">
-  <div class="sidebar-logo"><img src="assets/logo.svg" alt="LMOnext" style="height:34px;width:auto;display:block"></div>
+<div class="nav-backdrop" id="navBackdrop"></div>
+<nav class="sidebar" id="adminNav">
+  <div class="sidebar-head"><span><?= h(t('nav_menu_title')) ?></span><button type="button" class="nav-close" id="navClose" aria-label="<?= h(t('nav_menu_close')) ?>">✕</button></div>
   <?php $coreUpdate = function_exists('checkCoreUpdateAvailable') ? checkCoreUpdateAvailable() : null; ?>
   <?php if ($coreUpdate !== null) {
     // Der Banner verlinkt jetzt bevorzugt auf die Forenankündigung
@@ -46,9 +47,24 @@
     <div style="font-size:.7rem;color:var(--muted);margin-top:4px"><?= renderCopyrightNotice() ?></div>
   </div>
 </nav>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var b = document.body, t = document.getElementById('navToggle');
+  function set(o) { b.classList.toggle('nav-open', o); if (t) { t.setAttribute('aria-expanded', o ? 'true' : 'false'); } }
+  if (t) { t.addEventListener('click', function () { set(!b.classList.contains('nav-open')); }); }
+  var c = document.getElementById('navClose'), bd = document.getElementById('navBackdrop');
+  if (c) { c.addEventListener('click', function () { set(false); }); }
+  if (bd) { bd.addEventListener('click', function () { set(false); }); }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { set(false); } });
+});
+</script>
 
 <div class="main">
   <div class="topbar">
+    <div class="topbar-brand">
+      <img src="assets/logo.svg" alt="LMOnext" style="height:34px;width:auto;display:block">
+      <button type="button" class="nav-toggle" id="navToggle" aria-controls="adminNav" aria-expanded="false" aria-label="<?= h(t('nav_menu_open')) ?>">☰ <?= h(t('nav_menu_title')) ?></button>
+    </div>
     <h1><?= h($pageTitle) ?></h1>
     <div style="display:flex;align-items:center;gap:12px">
       <?= renderLanguageSwitcher() ?>
